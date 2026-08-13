@@ -96,3 +96,69 @@ describe("scrawlCard", () => {
     expect(el.querySelector("path")?.getAttribute("d")).toBe(d1);
   });
 });
+
+import { scrawlCheckbox, scrawlInput } from "../src/controls.js";
+
+describe("scrawlCheckbox", () => {
+  function mountCheckbox(checked = false) {
+    const wrap = document.createElement("span");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = checked;
+    wrap.append(input);
+    document.body.append(wrap);
+    return { wrap, input, sketch: scrawlCheckbox(wrap, { seed: 1 }) };
+  }
+
+  it("throws without an inner checkbox input", () => {
+    const wrap = document.createElement("span");
+    document.body.append(wrap);
+    expect(() => scrawlCheckbox(wrap)).toThrow();
+  });
+
+  it("draws box outline plus a pathLength-normalised check layer", () => {
+    const { wrap } = mountCheckbox();
+    expect(wrap.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
+    const checks = wrap.querySelectorAll("path.scrawl-check");
+    expect(checks).toHaveLength(3);
+    for (const p of checks) expect(p.getAttribute("pathLength")).toBe("1");
+  });
+
+  it("mirrors checked state to data-checked", () => {
+    const { wrap, input } = mountCheckbox();
+    expect(wrap.hasAttribute("data-checked")).toBe(false);
+    input.checked = true;
+    input.dispatchEvent(new Event("change"));
+    expect(wrap.hasAttribute("data-checked")).toBe(true);
+    input.checked = false;
+    input.dispatchEvent(new Event("change"));
+    expect(wrap.hasAttribute("data-checked")).toBe(false);
+  });
+
+  it("reflects an initially checked input", () => {
+    const { wrap } = mountCheckbox(true);
+    expect(wrap.hasAttribute("data-checked")).toBe(true);
+  });
+
+  it("destroy detaches the change listener", () => {
+    const { wrap, input, sketch } = mountCheckbox();
+    sketch.destroy();
+    input.checked = true;
+    input.dispatchEvent(new Event("change"));
+    expect(wrap.hasAttribute("data-checked")).toBe(false);
+  });
+});
+
+describe("scrawlInput", () => {
+  it("throws without an inner input and draws one outline layer with one", () => {
+    const bare = document.createElement("span");
+    document.body.append(bare);
+    expect(() => scrawlInput(bare)).toThrow();
+    const wrap = document.createElement("span");
+    wrap.append(document.createElement("input"));
+    document.body.append(wrap);
+    scrawlInput(wrap, { seed: 1 });
+    expect(wrap.classList.contains("scrawl-inputbox")).toBe(true);
+    expect(wrap.querySelectorAll("path")).toHaveLength(3);
+  });
+});

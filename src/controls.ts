@@ -126,4 +126,42 @@ export function scrawlCard(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
   return sketch;
 }
 
-export { attachChrome, roughCheckmark, type Layer };
+export function scrawlCheckbox(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+  const input = el.querySelector<HTMLInputElement>('input[type="checkbox"]');
+  if (!input) throw new Error("scrawl: checkbox wrapper needs an <input type=\"checkbox\">");
+  const sync = () => {
+    if (input.checked) el.dataset.checked = "";
+    else delete el.dataset.checked;
+  };
+  sync();
+  input.addEventListener("change", sync);
+  const sketch = attachChrome(
+    el,
+    [
+      { className: "scrawl-outline", gen: outlineRect(5) },
+      {
+        className: "scrawl-check",
+        pathLength: true,
+        gen: (w, h, o) => roughCheckmark(w * 0.24, h * 0.2, w * 0.52, h * 0.5, o),
+      },
+    ],
+    opts,
+    true,
+  );
+  el.classList.add("scrawl-checkbox");
+  return {
+    resketch: sketch.resketch,
+    destroy() {
+      input.removeEventListener("change", sync);
+      sketch.destroy();
+      el.classList.remove("scrawl-checkbox");
+    },
+  };
+}
+
+export function scrawlInput(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+  if (!el?.querySelector?.("input")) throw new Error("scrawl: input wrapper needs an <input>");
+  const sketch = attachChrome(el, [{ className: "scrawl-outline", gen: outlineRect(6) }], opts, false);
+  el.classList.add("scrawl-inputbox");
+  return sketch;
+}
