@@ -147,6 +147,13 @@ describe("scrawlCheckbox", () => {
     input.dispatchEvent(new Event("change"));
     expect(wrap.hasAttribute("data-checked")).toBe(false);
   });
+
+  it("destroy removes a stale data-checked attribute", () => {
+    const { wrap, sketch } = mountCheckbox(true);
+    expect(wrap.hasAttribute("data-checked")).toBe(true);
+    sketch.destroy();
+    expect(wrap.hasAttribute("data-checked")).toBe(false);
+  });
 });
 
 describe("scrawlInput", () => {

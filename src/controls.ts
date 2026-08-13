@@ -155,6 +155,7 @@ export function scrawlCheckbox(el: HTMLElement, opts: ScrawlOptions = {}): Sketc
       input.removeEventListener("change", sync);
       sketch.destroy();
       el.classList.remove("scrawl-checkbox");
+      delete el.dataset.checked;
     },
   };
 }

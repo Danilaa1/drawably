@@ -38,3 +38,13 @@ it("ScrawlCheckbox wires the inner input", () => {
   expect(wrap?.querySelector('input[type="checkbox"]')).toBeTruthy();
   expect(wrap?.hasAttribute("data-checked")).toBe(true);
 });
+
+it("ScrawlButton survives a className change without losing its scrawl classes", () => {
+  act(() => root.render(<ScrawlButton seed={1} className="a">Done</ScrawlButton>));
+  act(() => root.render(<ScrawlButton seed={1} className="b">Done</ScrawlButton>));
+  const button = host.querySelector("button");
+  expect(button?.classList.contains("b")).toBe(true);
+  expect(button?.classList.contains("scrawl-host")).toBe(true);
+  expect(button?.classList.contains("scrawl-button")).toBe(true);
+  expect(button?.querySelector("svg")).toBeTruthy();
+});

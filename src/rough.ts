@@ -78,6 +78,7 @@ export function roughCheckmark(x: number, y: number, w: number, h: number, o: Ro
   const rand = mulberry32(o.seed);
   const pts: Pt[] = [
     ...sampleLine(x, y + h * 0.6, x + w * 0.35, y + h, 4),
+    // ponytail: duplicate vertex keeps the corner sharp under midpoint smoothing
     ...sampleLine(x + w * 0.35, y + h, x + w, y, 4),
   ];
   return toPath(jitter(pts, rand, 1.2 * o.roughness), false);

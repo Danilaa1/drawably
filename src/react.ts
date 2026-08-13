@@ -30,40 +30,40 @@ function useSketch<T extends HTMLElement>(
 
 type ButtonProps = ScrawlButtonOptions & ComponentProps<"button">;
 
-export function ScrawlButton({ seed, roughness, stroke, fill, variant, children, ...rest }: ButtonProps): ReactElement {
+export function ScrawlButton({ seed, roughness, stroke, fill, variant, className, children, ...rest }: ButtonProps): ReactElement {
   const ref = useSketch<HTMLButtonElement>(
     (el) => scrawlButton(el, { seed, roughness, stroke, fill, variant }),
-    [seed, roughness, stroke, fill, variant],
+    [seed, roughness, stroke, fill, variant, className],
   );
-  return createElement("button", { type: "button", ...rest, ref }, children);
+  return createElement("button", { type: "button", ...rest, className, ref }, children);
 }
 
 type CheckboxProps = ScrawlOptions & ComponentProps<"input">;
 
-export function ScrawlCheckbox({ seed, roughness, stroke, fill, ...rest }: CheckboxProps): ReactElement {
+export function ScrawlCheckbox({ seed, roughness, stroke, fill, className, ...rest }: CheckboxProps): ReactElement {
   const ref = useSketch<HTMLSpanElement>(
     (el) => scrawlCheckbox(el, { seed, roughness, stroke, fill }),
-    [seed, roughness, stroke, fill],
+    [seed, roughness, stroke, fill, className],
   );
-  return createElement("span", { ref }, createElement("input", { ...rest, type: "checkbox" }));
+  return createElement("span", { className, ref }, createElement("input", { ...rest, type: "checkbox" }));
 }
 
 type InputProps = ScrawlOptions & ComponentProps<"input">;
 
-export function ScrawlInput({ seed, roughness, stroke, fill, ...rest }: InputProps): ReactElement {
+export function ScrawlInput({ seed, roughness, stroke, fill, className, ...rest }: InputProps): ReactElement {
   const ref = useSketch<HTMLSpanElement>(
     (el) => scrawlInput(el, { seed, roughness, stroke, fill }),
-    [seed, roughness, stroke, fill],
+    [seed, roughness, stroke, fill, className],
   );
-  return createElement("span", { ref }, createElement("input", rest));
+  return createElement("span", { className, ref }, createElement("input", rest));
 }
 
 type CardProps = ScrawlOptions & ComponentProps<"div">;
 
-export function ScrawlCard({ seed, roughness, stroke, fill, children, ...rest }: CardProps): ReactElement {
+export function ScrawlCard({ seed, roughness, stroke, fill, className, children, ...rest }: CardProps): ReactElement {
   const ref = useSketch<HTMLDivElement>(
     (el) => scrawlCard(el, { seed, roughness, stroke, fill }),
-    [seed, roughness, stroke, fill],
+    [seed, roughness, stroke, fill, className],
   );
-  return createElement("div", { ...rest, ref }, children);
+  return createElement("div", { ...rest, className, ref }, children);
 }
