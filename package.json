@@ -1,0 +1,58 @@
+{
+  "name": "scrawl",
+  "version": "0.1.0",
+  "description": "Hand-drawn UI controls. Every render a fresh pen sketch, boiling like a doodle.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Daniel Belyi",
+  "sideEffects": [
+    "./style.css"
+  ],
+  "files": [
+    "dist",
+    "examples",
+    "style.css",
+    "style.css.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
+    },
+    "./style.css": {
+      "types": "./style.css.d.ts",
+      "default": "./style.css"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "peerDependencies": {
+    "react": ">=18 <20"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "pack:check": "npm pack --dry-run",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "happy-dom": "^20.11.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}
