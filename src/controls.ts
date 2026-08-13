@@ -67,7 +67,6 @@ function attachChrome(
         p.setAttribute("d", d);
         p.setAttribute("class", ds.length > 1 ? `scrawl-boil ${layer.className}` : layer.className);
         p.dataset.i = String(i);
-        p.style.setProperty("--boil-i", String(i));
         if (layer.pathLength) p.setAttribute("pathLength", "1");
         svg.append(p);
       });

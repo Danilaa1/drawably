@@ -22,15 +22,36 @@
   stroke-linejoin: round;
 }
 
+/* the three frames swap on shared keyframe percentages, so every hide and the
+   next show compute to the same instant — the delay-offset version left a
+   sub-ms gap where no frame was visible, sampling as a blank-frame flash */
 .scrawl-boil {
   opacity: 0;
-  animation: scrawl-boil 1200ms step-end infinite;
-  animation-delay: calc(var(--boil-i, 0) * -400ms);
+  animation: scrawl-boil-0 1200ms step-end infinite;
 }
 
-@keyframes scrawl-boil {
+.scrawl-boil[data-i="1"] {
+  animation-name: scrawl-boil-1;
+}
+
+.scrawl-boil[data-i="2"] {
+  animation-name: scrawl-boil-2;
+}
+
+@keyframes scrawl-boil-0 {
   0% { opacity: 1; }
   33.33% { opacity: 0; }
+}
+
+@keyframes scrawl-boil-1 {
+  0% { opacity: 0; }
+  33.33% { opacity: 1; }
+  66.67% { opacity: 0; }
+}
+
+@keyframes scrawl-boil-2 {
+  0% { opacity: 0; }
+  66.67% { opacity: 1; }
   100% { opacity: 0; }
 }
 
@@ -88,7 +109,6 @@
 
 .scrawl-button[data-state="loading"] .scrawl-boil {
   animation-duration: 450ms;
-  animation-delay: calc(var(--boil-i, 0) * -150ms);
 }
 
 .scrawl-button--solid {
