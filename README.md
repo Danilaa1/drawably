@@ -25,8 +25,15 @@ React:
   loading dims the button and boils faster, error redraws in red, success in
   green. Initial state via `opts.state`; in React, the `state` prop. Override
   the colours with `--scrawl-error` / `--scrawl-success`.
+  Tone via `opts.tone`: `neutral` (warm grey, for cancel/secondary actions) or
+  `danger` (red).
 - `scrawlCheckbox(wrapper, opts)` — wrapper contains an `<input type="checkbox">`
+- `scrawlRadio(wrapper, opts)` — wrapper contains an `<input type="radio">`;
+  hand-drawn circle with a scribbled dot
+- `scrawlToggle(wrapper, opts)` — wrapper contains an `<input type="checkbox">`;
+  sketched pill with an ink-blob knob that slides on flip
 - `scrawlInput(wrapper, opts)` — wrapper contains an `<input>`
+- `scrawlDivider(el, opts)` — a rough line across an `<hr>` or div
 - `scrawlCard(el, opts)`
 
 Options:

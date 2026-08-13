@@ -2,6 +2,8 @@ import { randomSeed } from "./prng.js";
 import {
   type RoughOptions,
   roughCheckmark,
+  roughCircle,
+  roughLine,
   roughRoundedRect,
   scribbleFill,
   variants,
@@ -117,6 +119,7 @@ export type ScrawlButtonState = "idle" | "loading" | "error" | "success";
 export interface ScrawlButtonOptions extends ScrawlOptions {
   variant?: "outline" | "solid" | "scribble";
   state?: ScrawlButtonState;
+  tone?: "neutral" | "danger";
 }
 
 export interface ButtonSketch extends Sketch {
@@ -136,6 +139,7 @@ export function scrawlButton(el: HTMLElement, opts: ScrawlButtonOptions = {}): B
   layers.push({ className: "scrawl-focus", gen: focusRect(10) });
   const sketch = attachChrome(el, layers, opts, true);
   el.classList.add("scrawl-button", `scrawl-button--${variant}`);
+  if (opts.tone) el.classList.add(`scrawl-button--${opts.tone}`);
   const setState = (state: ScrawlButtonState) => {
     if (state === "idle") delete el.dataset.state;
     else el.dataset.state = state;
@@ -157,17 +161,41 @@ export function scrawlCard(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
   return sketch;
 }
 
-export function scrawlCheckbox(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
-  const input = el.querySelector<HTMLInputElement>('input[type="checkbox"]');
-  if (!input) throw new Error("scrawl: checkbox wrapper needs an <input type=\"checkbox\">");
+function syncedControl(
+  el: HTMLElement,
+  type: "checkbox" | "radio",
+  layers: Layer[],
+  opts: ScrawlOptions,
+  cls: string,
+): Sketch {
+  const input = el?.querySelector?.<HTMLInputElement>(`input[type="${type}"]`);
+  if (!input) throw new Error(`scrawl: ${cls} wrapper needs an <input type="${type}">`);
   const sync = () => {
     if (input.checked) el.dataset.checked = "";
     else delete el.dataset.checked;
   };
   sync();
-  input.addEventListener("change", sync);
-  const sketch = attachChrome(
+  // ponytail: a radio unchecks silently when a sibling is picked — one document
+  // listener re-reads state on any change instead of tracking the group
+  const target = type === "radio" ? document : input;
+  target.addEventListener("change", sync);
+  const sketch = attachChrome(el, layers, opts, true);
+  el.classList.add(cls);
+  return {
+    resketch: sketch.resketch,
+    destroy() {
+      target.removeEventListener("change", sync);
+      sketch.destroy();
+      el.classList.remove(cls);
+      delete el.dataset.checked;
+    },
+  };
+}
+
+export function scrawlCheckbox(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+  return syncedControl(
     el,
+    "checkbox",
     [
       { className: "scrawl-outline", gen: outlineRect(5) },
       {
@@ -178,18 +206,59 @@ export function scrawlCheckbox(el: HTMLElement, opts: ScrawlOptions = {}): Sketc
       { className: "scrawl-focus", gen: focusRect(7) },
     ],
     opts,
-    true,
+    "scrawl-checkbox",
   );
-  el.classList.add("scrawl-checkbox");
-  return {
-    resketch: sketch.resketch,
-    destroy() {
-      input.removeEventListener("change", sync);
-      sketch.destroy();
-      el.classList.remove("scrawl-checkbox");
-      delete el.dataset.checked;
-    },
-  };
+}
+
+export function scrawlRadio(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+  return syncedControl(
+    el,
+    "radio",
+    [
+      {
+        className: "scrawl-outline",
+        gen: (w, h, o) => roughCircle(w / 2, h / 2, Math.min(w, h) / 2 - INSET, o),
+      },
+      {
+        className: "scrawl-dot",
+        gen: (w, h, o) => roughCircle(w / 2, h / 2, Math.min(w, h) * 0.18, o),
+      },
+      {
+        className: "scrawl-focus",
+        gen: (w, h, o) => roughCircle(w / 2, h / 2, Math.min(w, h) / 2 + 1, o),
+      },
+    ],
+    opts,
+    "scrawl-radio",
+  );
+}
+
+export function scrawlToggle(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+  return syncedControl(
+    el,
+    "checkbox",
+    [
+      { className: "scrawl-outline", gen: (w, h, o) => outlineRect((h - 2 * INSET) / 2)(w, h, o) },
+      {
+        className: "scrawl-blob scrawl-knob",
+        gen: (w, h, o) => roughCircle(h / 2, h / 2, h / 2 - INSET - 3, o),
+      },
+      { className: "scrawl-focus", gen: focusRect(12) },
+    ],
+    opts,
+    "scrawl-toggle",
+  );
+}
+
+export function scrawlDivider(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+  const sketch = attachChrome(
+    el,
+    [{ className: "scrawl-outline", gen: (w, h, o) => roughLine(INSET, h / 2, w - INSET, h / 2, o) }],
+    opts,
+    false,
+  );
+  el.classList.add("scrawl-divider");
+  return sketch;
 }
 
 export function scrawlInput(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {

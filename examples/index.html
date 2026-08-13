@@ -80,10 +80,6 @@
         display: none;
       }
 
-      .toc[hidden] {
-        display: none;
-      }
-
       .toc ol {
         margin: 0;
         padding: 0;
@@ -120,6 +116,54 @@
       .toc a:focus-visible {
         outline: 1.5px solid var(--pen);
         outline-offset: 2px;
+      }
+
+      .agent {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 0 8px;
+        border: 0;
+        background: none;
+        font:
+          500 11px/1 Geist Mono,
+          ui-monospace,
+          monospace;
+        color: var(--ink-3);
+        cursor: pointer;
+        letter-spacing: 0;
+        transition:
+          color 160ms var(--ease),
+          transform 120ms var(--ease);
+      }
+
+      .agent:hover {
+        color: var(--ink);
+      }
+
+      .agent:active {
+        transform: scale(0.96);
+      }
+
+      .agent:focus-visible {
+        outline: 1.5px solid var(--pen);
+        outline-offset: 2px;
+      }
+
+      .agent .cmd-icons {
+        width: 12px;
+        height: 12px;
+      }
+
+      .agent .cmd-icons svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
       }
 
       .hero,
@@ -197,6 +241,21 @@
         right: 11%;
         rotate: 3deg;
         width: min(220px, 42vw);
+      }
+      .piece-wait {
+        top: 8%;
+        left: 42%;
+        rotate: 4deg;
+      }
+      .piece-retry {
+        top: 36%;
+        right: 6%;
+        rotate: -7deg;
+      }
+      .piece-ok {
+        bottom: 7%;
+        left: 40%;
+        rotate: 5deg;
       }
 
       .piece-mit {
@@ -365,13 +424,15 @@
         filter: blur(4px);
       }
 
-      .cmd[data-copied] .copy {
+      .cmd[data-copied] .copy,
+      .agent[data-copied] .copy {
         opacity: 0;
         transform: scale(0.25);
         filter: blur(4px);
       }
 
-      .cmd[data-copied] .tick {
+      .cmd[data-copied] .tick,
+      .agent[data-copied] .tick {
         opacity: 1;
         transform: scale(1);
         filter: blur(0);
@@ -433,6 +494,15 @@
         .piece-card {
           animation-delay: 560ms;
         }
+        .piece-wait {
+          animation-delay: 200ms;
+        }
+        .piece-retry {
+          animation-delay: 360ms;
+        }
+        .piece-ok {
+          animation-delay: 520ms;
+        }
       }
 
       @keyframes enter {
@@ -450,6 +520,10 @@
         .cmd-icons svg {
           transition: none;
         }
+        .toc li {
+          transition: none;
+          translate: none;
+        }
       }
 
       @media (min-width: 840px) {
@@ -465,15 +539,34 @@
           z-index: 2;
           pointer-events: none;
         }
-
-        .toc[hidden] {
-          display: none;
-        }
         .toc ol {
           position: sticky;
           top: 50%;
           translate: 0 -50%;
+          pointer-events: none;
+        }
+        .toc li {
+          opacity: 0;
+          translate: 0 6px;
+          transition:
+            opacity 480ms var(--ease),
+            translate 480ms var(--ease);
+        }
+        .toc.is-in ol {
           pointer-events: auto;
+        }
+        .toc.is-in li {
+          opacity: 1;
+          translate: 0 0;
+        }
+        .toc.is-in li:nth-child(1) {
+          transition-delay: 0ms;
+        }
+        .toc.is-in li:nth-child(2) {
+          transition-delay: 80ms;
+        }
+        .toc.is-in li:nth-child(3) {
+          transition-delay: 160ms;
         }
       }
 
@@ -512,6 +605,20 @@
   </head>
   <body>
     <section class="hero" id="top" aria-label="scrawl">
+      <button class="agent" id="agent" type="button" aria-label="Copy agent.md">
+        agent.md
+        <span class="cmd-icons" aria-hidden="true">
+          <svg class="copy" viewBox="0 0 16 16">
+            <rect x="5.5" y="5.5" width="8" height="8" rx="1.2" />
+            <path
+              d="M10.5 5.5V4.2A1.2 1.2 0 0 0 9.3 3H4.2A1.2 1.2 0 0 0 3 4.2v5.1A1.2 1.2 0 0 0 4.2 10.5H5.5"
+            />
+          </svg>
+          <svg class="tick" viewBox="0 0 16 16">
+            <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+          </svg>
+        </span>
+      </button>
       <div class="brand">
         <h1>scrawl</h1>
         <p class="tagline">Hand-drawn UI. Fresh pen sketch every mount.</p>
@@ -526,6 +633,15 @@
         </div>
         <div class="piece piece-save">
           <button id="save" type="button">Save</button>
+        </div>
+        <div class="piece piece-wait">
+          <button id="wait" type="button">Wait</button>
+        </div>
+        <div class="piece piece-retry">
+          <button id="retry" type="button">Retry</button>
+        </div>
+        <div class="piece piece-ok">
+          <button id="ok" type="button">Saved</button>
         </div>
         <div class="piece piece-check">
           <label class="check-label">
@@ -543,7 +659,7 @@
     </section>
 
     <div class="rest">
-      <nav class="toc" aria-label="On this page" hidden>
+      <nav class="toc" aria-label="On this page">
         <ol>
           <li><a href="#top">Scrawl</a></li>
           <li><a href="#install">Install</a></li>
@@ -577,7 +693,9 @@
           <p class="piece piece-ver meta">v0.1.0</p>
           <div class="piece piece-react" id="react-card">
             <pre><span class="k">import</span> <span class="p">{</span> <span class="n">ScrawlButton</span> <span class="p">}</span>
-<span class="k">from</span> <span class="s">"scrawl/react"</span></pre>
+<span class="k">from</span> <span class="s">"scrawl/react"</span>
+
+<span class="p">&lt;</span><span class="n">ScrawlButton</span> <span class="o">state</span><span class="p">=</span><span class="s">"loading"</span><span class="p">&gt;</span></pre>
           </div>
         </div>
       </section>
@@ -588,7 +706,7 @@
             <pre><span class="k">import</span> <span class="p">{</span> <span class="n">scrawlButton</span> <span class="p">}</span> <span class="k">from</span> <span class="s">"scrawl"</span><span class="p">;</span>
 <span class="k">import</span> <span class="s">"scrawl/style.css"</span><span class="p">;</span>
 
-<span class="n">scrawlButton</span><span class="p">(</span><span class="o">done</span><span class="p">,</span> <span class="p">{</span> <span class="o">variant:</span> <span class="s">"solid"</span> <span class="p">});</span></pre>
+<span class="n">scrawlButton</span><span class="p">(</span><span class="o">done</span><span class="p">,</span> <span class="p">{</span> <span class="o">variant:</span> <span class="s">"solid"</span><span class="p">,</span> <span class="o">state:</span> <span class="s">"success"</span> <span class="p">});</span></pre>
           </div>
         </div>
 
@@ -622,12 +740,88 @@
       </section>
     </div>
 
+    <script type="text/plain" id="agent-src">
+      # scrawl
+
+      Zero-dependency hand-drawn UI. Real HTML controls with SVG chrome. A unique seeded sketch per mount. Strokes boil in CSS.
+
+      Install Inter yourself if you want the intended type. The library does not ship font files.
+
+      ```
+      npm i scrawl
+      ```
+
+      ## Vanilla
+
+      ```js
+      import { scrawlButton, scrawlCheckbox, scrawlInput, scrawlCard } from "scrawl";
+      import "scrawl/style.css";
+
+      scrawlButton(document.querySelector("#done"), { variant: "solid" });
+      scrawlCheckbox(document.querySelector("#check")); // wrapper must contain <input type="checkbox">
+      scrawlInput(document.querySelector("#name"));     // wrapper must contain <input>
+      scrawlCard(document.querySelector("#card"));
+      ```
+
+      Each attacher throws if the element is missing. Checkbox/input throw if the inner `<input>` is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
+
+      ## React
+
+      Optional peer. Subpath `"scrawl/react"`. Client-only (uses `useEffect`).
+
+      ```jsx
+      import { ScrawlButton, ScrawlCheckbox, ScrawlInput, ScrawlCard } from "scrawl/react";
+      import "scrawl/style.css";
+
+      <ScrawlButton variant="solid" state="idle" onClick={submit}>Done</ScrawlButton>
+      <ScrawlCheckbox defaultChecked />
+      <ScrawlInput placeholder="your name" />
+      <ScrawlCard>…</ScrawlCard>
+      ```
+
+      Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant` and `state`.
+
+      ## Button
+
+      `scrawlButton(el, opts)` → `ButtonSketch`
+
+      - `variant`: `"outline"` (default) | `"solid"` | `"scribble"`
+      - `state`: `"idle"` | `"loading"` | `"error"` | `"success"`
+      - `setState(state)` after mount. React: `state` prop.
+      - loading: dimmed, faster boil, `cursor: progress`
+      - error: `--scrawl-error` (default `#d12724`)
+      - success: `--scrawl-success` (default `#188a42`)
+
+      ## Options (all controls)
+
+      | option | default | meaning |
+      | --- | --- | --- |
+      | `seed` | random | omit for a unique sketch per mount |
+      | `roughness` | `1` | wobble of the base sketch |
+      | `boil` | `0.3` | frame-to-frame flicker in px; `0` = one static path |
+      | `stroke` `fill` `paper` `width` | CSS vars | also `--scrawl-stroke`, `--scrawl-fill`, `--scrawl-paper`, `--scrawl-width` |
+
+      ## Rules
+
+      - Do not fake the look with CSS borders. Attach to a real `button`, checkbox wrapper, input wrapper, or `div`.
+      - Import `scrawl/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
+      - Respect `prefers-reduced-motion`: the library already freezes boil and skips hover re-sketch. Do not add extra motion on top when that media query matches.
+      - Hover/press re-sketches buttons and checkboxes only.
+      - Renderer exports if you need custom shapes: `roughRoundedRect`, `roughLine`, `roughCheckmark`, `scribbleFill`, `variants`, `mulberry32`, `randomSeed`.
+      - No Vue/Svelte adapters. Vanilla or React.
+
+      MIT.
+    </script>
+
     <script type="module">
       import { scrawlButton, scrawlCard, scrawlCheckbox, scrawlInput } from "../dist/index.js";
 
       scrawlButton(document.getElementById("done"), { variant: "solid" });
       scrawlButton(document.getElementById("cancel"));
       scrawlButton(document.getElementById("save"), { variant: "scribble" });
+      scrawlButton(document.getElementById("wait"), { state: "loading" });
+      scrawlButton(document.getElementById("retry"), { variant: "outline", state: "error" });
+      scrawlButton(document.getElementById("ok"), { variant: "solid", state: "success" });
       scrawlCheckbox(document.getElementById("check"));
       scrawlInput(document.getElementById("name"));
       scrawlCard(document.getElementById("card"));
@@ -650,6 +844,18 @@
         window.setTimeout(() => delete copy.dataset.copied, 1400);
       });
 
+      const agentBtn = document.getElementById("agent");
+      const agentSrc = document.getElementById("agent-src").textContent.trimStart();
+      agentBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(agentSrc);
+        } catch {
+          /* ponytail: clipboard may be blocked on file:// */
+        }
+        agentBtn.dataset.copied = "";
+        window.setTimeout(() => delete agentBtn.dataset.copied, 1400);
+      });
+
       const links = [...document.querySelectorAll(".toc a")];
       const setCurrent = (id) => {
         for (const a of links) {
@@ -663,7 +869,7 @@
       const hero = document.getElementById("top");
       new IntersectionObserver(
         ([entry]) => {
-          toc.hidden = entry.isIntersecting;
+          toc.classList.toggle("is-in", !entry.isIntersecting);
         },
         { threshold: 0.05 },
       ).observe(hero);

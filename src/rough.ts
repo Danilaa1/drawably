@@ -73,6 +73,11 @@ export function roughLine(x1: number, y1: number, x2: number, y2: number, o: Rou
   return doubleStroke(sampleLine(x1, y1, x2, y2), o, false);
 }
 
+export function roughCircle(cx: number, cy: number, r: number, o: RoughOptions): string {
+  const n = Math.max(8, Math.ceil((2 * Math.PI * r) / 8));
+  return doubleStroke(arcPoints(cx, cy, r, 0, Math.PI * 2, n).slice(0, -1), o, true);
+}
+
 export function roughRoundedRect(
   x: number,
   y: number,

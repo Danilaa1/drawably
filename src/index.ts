@@ -2,7 +2,10 @@ export {
   scrawlButton,
   scrawlCard,
   scrawlCheckbox,
+  scrawlDivider,
   scrawlInput,
+  scrawlRadio,
+  scrawlToggle,
   type ButtonSketch,
   type ScrawlButtonOptions,
   type ScrawlButtonState,
@@ -12,6 +15,7 @@ export {
 export {
   type RoughOptions,
   roughCheckmark,
+  roughCircle,
   roughLine,
   roughRoundedRect,
   scribbleFill,

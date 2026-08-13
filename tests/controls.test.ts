@@ -92,6 +92,11 @@ describe("scrawlButton", () => {
     expect(d()).not.toBe(d2);
   });
 
+  it("tone adds a tone class", () => {
+    const { el } = mountButton({ seed: 1, tone: "neutral" });
+    expect(el.classList.contains("scrawl-button--neutral")).toBe(true);
+  });
+
   it("state option and setState drive data-state", () => {
     const { el, sketch } = mountButton({ seed: 1, state: "loading" });
     expect(el.dataset.state).toBe("loading");
@@ -131,7 +136,7 @@ describe("scrawlCard", () => {
   });
 });
 
-import { scrawlCheckbox, scrawlInput } from "../src/controls.js";
+import { scrawlCheckbox, scrawlDivider, scrawlInput, scrawlRadio, scrawlToggle } from "../src/controls.js";
 
 describe("scrawlCheckbox", () => {
   function mountCheckbox(checked = false) {
@@ -187,6 +192,92 @@ describe("scrawlCheckbox", () => {
     expect(wrap.hasAttribute("data-checked")).toBe(true);
     sketch.destroy();
     expect(wrap.hasAttribute("data-checked")).toBe(false);
+  });
+});
+
+describe("scrawlRadio", () => {
+  function mountRadio(name = "g") {
+    const wrap = document.createElement("span");
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = name;
+    wrap.append(input);
+    document.body.append(wrap);
+    return { wrap, input, sketch: scrawlRadio(wrap, { seed: 1 }) };
+  }
+
+  it("throws without an inner radio input", () => {
+    const wrap = document.createElement("span");
+    document.body.append(wrap);
+    expect(() => scrawlRadio(wrap)).toThrow();
+  });
+
+  it("draws circle outline, dot and focus layers", () => {
+    const { wrap } = mountRadio();
+    expect(wrap.classList.contains("scrawl-radio")).toBe(true);
+    expect(wrap.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.scrawl-dot")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.scrawl-focus")).toHaveLength(3);
+  });
+
+  it("syncs data-checked across a group via document change events", () => {
+    const a = mountRadio();
+    const b = mountRadio();
+    a.input.checked = true;
+    a.input.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(a.wrap.hasAttribute("data-checked")).toBe(true);
+    b.input.checked = true;
+    b.input.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(a.wrap.hasAttribute("data-checked")).toBe(false);
+    expect(b.wrap.hasAttribute("data-checked")).toBe(true);
+  });
+
+  it("destroy detaches the document listener", () => {
+    const { wrap, input, sketch } = mountRadio();
+    sketch.destroy();
+    input.checked = true;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(wrap.hasAttribute("data-checked")).toBe(false);
+  });
+});
+
+describe("scrawlToggle", () => {
+  function mountToggle(checked = false) {
+    const wrap = document.createElement("span");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = checked;
+    wrap.append(input);
+    document.body.append(wrap);
+    return { wrap, input, sketch: scrawlToggle(wrap, { seed: 1 }) };
+  }
+
+  it("draws pill outline, knob blob and focus layers", () => {
+    const { wrap } = mountToggle();
+    expect(wrap.classList.contains("scrawl-toggle")).toBe(true);
+    expect(wrap.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.scrawl-knob.scrawl-blob")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.scrawl-focus")).toHaveLength(3);
+  });
+
+  it("mirrors checked state to data-checked", () => {
+    const { wrap, input } = mountToggle();
+    input.checked = true;
+    input.dispatchEvent(new Event("change"));
+    expect(wrap.hasAttribute("data-checked")).toBe(true);
+    input.checked = false;
+    input.dispatchEvent(new Event("change"));
+    expect(wrap.hasAttribute("data-checked")).toBe(false);
+  });
+});
+
+describe("scrawlDivider", () => {
+  it("draws a single line layer", () => {
+    const el = document.createElement("hr");
+    document.body.append(el);
+    scrawlDivider(el, { seed: 1 });
+    expect(el.classList.contains("scrawl-divider")).toBe(true);
+    expect(el.querySelectorAll("path.scrawl-boil.scrawl-outline")).toHaveLength(3);
   });
 });
 

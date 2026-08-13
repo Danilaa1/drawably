@@ -63,6 +63,16 @@
   transform: scale(0.92);
 }
 
+.scrawl-button--neutral {
+  --scrawl-stroke: #6e675f;
+  --scrawl-fill: #6e675f;
+}
+
+.scrawl-button--danger {
+  --scrawl-stroke: var(--scrawl-error, #d12724);
+  --scrawl-fill: var(--scrawl-error, #d12724);
+}
+
 .scrawl-button[data-state="error"] {
   --scrawl-ink: var(--scrawl-error, #d12724);
 }
@@ -94,13 +104,20 @@
   visibility: visible;
 }
 
-.scrawl-checkbox {
+.scrawl-checkbox,
+.scrawl-radio {
   display: inline-block;
   width: 22px;
   height: 22px;
 }
 
-.scrawl-checkbox input {
+.scrawl-toggle {
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+:is(.scrawl-checkbox, .scrawl-radio, .scrawl-toggle) input {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -108,6 +125,37 @@
   margin: 0;
   opacity: 0;
   cursor: pointer;
+}
+
+.scrawl-svg .scrawl-dot {
+  fill: var(--scrawl-ink, var(--scrawl-fill, #2724d1));
+  stroke: var(--scrawl-ink, var(--scrawl-fill, #2724d1));
+  visibility: hidden;
+  transform: scale(0.5);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 160ms ease-out;
+}
+
+.scrawl-radio[data-checked] .scrawl-dot {
+  visibility: visible;
+  transform: scale(1);
+}
+
+.scrawl-svg .scrawl-knob {
+  transition: transform 160ms ease-out;
+}
+
+/* travel = toggle width 44px minus height 24px; resizing the toggle in CSS
+   means overriding this too */
+.scrawl-toggle[data-checked] .scrawl-knob {
+  transform: translateX(20px);
+}
+
+.scrawl-divider {
+  display: block;
+  height: 10px;
+  border: 0;
 }
 
 .scrawl-svg .scrawl-check {
@@ -146,7 +194,9 @@
   .scrawl-boil[data-i="0"] {
     opacity: 1;
   }
-  .scrawl-svg .scrawl-check {
+  .scrawl-svg .scrawl-check,
+  .scrawl-svg .scrawl-dot,
+  .scrawl-svg .scrawl-knob {
     transition: none;
   }
 }
