@@ -23,13 +23,14 @@
 
 .scrawl-boil {
   opacity: 0;
-  animation: scrawl-boil 1200ms infinite;
+  animation: scrawl-boil 1200ms step-end infinite;
   animation-delay: calc(var(--boil-i, 0) * -400ms);
 }
 
 @keyframes scrawl-boil {
-  0%, 33.2% { opacity: 1; }
-  33.3%, 100% { opacity: 0; }
+  0% { opacity: 1; }
+  33.33% { opacity: 0; }
+  100% { opacity: 0; }
 }
 
 .scrawl-svg .scrawl-blob {
