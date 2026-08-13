@@ -1,0 +1,135 @@
+.scrawl-host {
+  position: relative;
+  isolation: isolate;
+}
+
+.scrawl-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.scrawl-svg path {
+  fill: none;
+  stroke: var(--scrawl-stroke, #2724d1);
+  stroke-width: var(--scrawl-width, 2);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scrawl-boil {
+  opacity: 0;
+  animation: scrawl-boil 375ms infinite;
+  animation-delay: calc(var(--boil-i, 0) * -125ms);
+}
+
+@keyframes scrawl-boil {
+  0%, 33.2% { opacity: 1; }
+  33.3%, 100% { opacity: 0; }
+}
+
+.scrawl-svg .scrawl-blob {
+  fill: var(--scrawl-fill, #2724d1);
+  stroke: var(--scrawl-fill, #2724d1);
+  stroke-width: 4;
+}
+
+.scrawl-svg .scrawl-scribble {
+  stroke-width: 1.5;
+}
+
+.scrawl-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--scrawl-stroke, #2724d1);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.scrawl-button:active {
+  transform: scale(0.92);
+}
+
+.scrawl-button--solid {
+  color: var(--scrawl-paper, #fff);
+}
+
+.scrawl-button:focus-visible {
+  outline: 1.5px solid var(--scrawl-stroke, #2724d1);
+  outline-offset: 2px;
+}
+
+.scrawl-checkbox {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+}
+
+.scrawl-checkbox input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.scrawl-checkbox:focus-within {
+  outline: 1.5px solid var(--scrawl-stroke, #2724d1);
+  outline-offset: 2px;
+}
+
+.scrawl-svg .scrawl-check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 240ms ease-out;
+}
+
+.scrawl-checkbox[data-checked] .scrawl-check {
+  stroke-dashoffset: 0;
+}
+
+.scrawl-inputbox {
+  display: inline-block;
+}
+
+.scrawl-inputbox input {
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.scrawl-inputbox:focus-within {
+  --scrawl-width: 2.5;
+}
+
+.scrawl-card {
+  padding: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrawl-boil {
+    animation: none;
+  }
+  .scrawl-boil[data-i="0"] {
+    opacity: 1;
+  }
+  .scrawl-svg .scrawl-check {
+    transition: none;
+  }
+}

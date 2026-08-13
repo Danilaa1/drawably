@@ -1,0 +1,129 @@
+import { randomSeed } from "./prng.js";
+import {
+  type RoughOptions,
+  roughCheckmark,
+  roughRoundedRect,
+  scribbleFill,
+  variants,
+} from "./rough.js";
+
+export interface ScrawlOptions {
+  seed?: number;
+  roughness?: number;
+  stroke?: string;
+  fill?: string;
+}
+
+export interface Sketch {
+  resketch(seed?: number): void;
+  destroy(): void;
+}
+
+interface Layer {
+  className: string;
+  pathLength?: boolean;
+  gen(w: number, h: number, o: RoughOptions): string;
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const INSET = 3;
+
+function attachChrome(
+  el: HTMLElement,
+  layers: Layer[],
+  opts: ScrawlOptions,
+  interactive: boolean,
+): Sketch {
+  if (!(el instanceof HTMLElement)) throw new Error("scrawl: expected an HTMLElement");
+  el.classList.add("scrawl-host");
+  if (opts.stroke) el.style.setProperty("--scrawl-stroke", opts.stroke);
+  if (opts.fill) el.style.setProperty("--scrawl-fill", opts.fill);
+
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "scrawl-svg");
+  svg.setAttribute("aria-hidden", "true");
+  el.prepend(svg);
+
+  const roughness = opts.roughness ?? 1;
+  let seed = opts.seed ?? randomSeed();
+
+  function draw() {
+    const w = el.offsetWidth || 120;
+    const h = el.offsetHeight || 36;
+    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    svg.textContent = "";
+    for (const layer of layers) {
+      const ds = variants((o) => layer.gen(w, h, o), { seed, roughness });
+      ds.forEach((d, i) => {
+        const p = document.createElementNS(SVG_NS, "path");
+        p.setAttribute("d", d);
+        p.setAttribute("class", `scrawl-boil ${layer.className}`);
+        p.dataset.i = String(i);
+        p.style.setProperty("--boil-i", String(i));
+        if (layer.pathLength) p.setAttribute("pathLength", "1");
+        svg.append(p);
+      });
+    }
+  }
+
+  draw();
+
+  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => draw()) : null;
+  ro?.observe(el);
+
+  const resketch = (s?: number) => {
+    seed = s ?? randomSeed();
+    draw();
+  };
+
+  const reduced =
+    typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const onPointer = () => resketch();
+  if (interactive && !reduced) {
+    el.addEventListener("pointerenter", onPointer);
+    el.addEventListener("pointerdown", onPointer);
+  }
+
+  return {
+    resketch,
+    destroy() {
+      ro?.disconnect();
+      el.removeEventListener("pointerenter", onPointer);
+      el.removeEventListener("pointerdown", onPointer);
+      svg.remove();
+      el.classList.remove("scrawl-host");
+    },
+  };
+}
+
+const outlineRect =
+  (r: number): Layer["gen"] =>
+  (w, h, o) =>
+    roughRoundedRect(INSET, INSET, w - 2 * INSET, h - 2 * INSET, r, o);
+
+export interface ScrawlButtonOptions extends ScrawlOptions {
+  variant?: "outline" | "solid" | "scribble";
+}
+
+export function scrawlButton(el: HTMLElement, opts: ScrawlButtonOptions = {}): Sketch {
+  const variant = opts.variant ?? "outline";
+  const layers: Layer[] = [];
+  if (variant === "solid") layers.push({ className: "scrawl-blob", gen: outlineRect(8) });
+  if (variant === "scribble")
+    layers.push({
+      className: "scrawl-scribble",
+      gen: (w, h, o) => scribbleFill(INSET + 2, INSET + 2, w - 2 * INSET - 4, h - 2 * INSET - 4, o),
+    });
+  layers.push({ className: "scrawl-outline", gen: outlineRect(8) });
+  const sketch = attachChrome(el, layers, opts, true);
+  el.classList.add("scrawl-button", `scrawl-button--${variant}`);
+  return sketch;
+}
+
+export function scrawlCard(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+  const sketch = attachChrome(el, [{ className: "scrawl-outline", gen: outlineRect(10) }], opts, false);
+  el.classList.add("scrawl-card");
+  return sketch;
+}
+
+export { attachChrome, roughCheckmark, type Layer };
