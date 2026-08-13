@@ -18,31 +18,16 @@
     <style>
       :root {
         --ink: #18181b;
-        --ink-2: #52525b;
+        --ink-2: #474645;
         --ink-3: #a1a1aa;
         --pen: #2724d1;
-        --hairline: rgba(0, 0, 0, 0.07);
-        --green: #22c55e;
-        --surface: rgba(255, 255, 255, 0.72);
-        --control-bg: #ffffff;
-        --tabs-bg: rgba(0, 0, 0, 0.05);
-        --bg: radial-gradient(120% 90% at 50% 0%, #f7f6f3 0%, #efece6 55%, #e3e3e1 100%);
+        --paper: #e3e3e1;
         --code-k: #2724d1;
         --code-s: #0f766e;
-        --radius-sm: 6px;
-        --radius-md: 9px;
-        --radius-lg: 10px;
-        --ease-out: cubic-bezier(0.2, 0, 0, 1);
-        --shadow-control:
-          0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9),
-          0 2px 5px rgba(0, 0, 0, 0.08);
-        --shadow-card:
-          0 0 0 1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9),
-          0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0, 0, 0, 0.06);
-        --shadow-pill: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.07);
+        --ease: cubic-bezier(0.2, 0, 0, 1);
         --scrawl-stroke: #2724d1;
         --scrawl-fill: #2724d1;
-        --scrawl-paper: #f7f6f3;
+        --scrawl-paper: #e3e3e1;
       }
 
       * {
@@ -54,16 +39,16 @@
         text-rendering: optimizeLegibility;
       }
 
+      @media (prefers-reduced-motion: no-preference) {
+        html { scroll-behavior: smooth; }
+      }
+
       body {
         margin: 0;
-        min-height: 100dvh;
-        display: grid;
-        place-items: center;
-        overflow-x: clip;
-        background: var(--bg);
+        background: var(--paper);
         color: var(--ink);
         font:
-          400 14px/1.5 Geist,
+          400 15px/1.5 Geist,
           ui-sans-serif,
           system-ui,
           sans-serif;
@@ -75,184 +60,126 @@
         position: fixed;
         inset: 0;
         pointer-events: none;
-        opacity: 0.04;
+        opacity: 0.035;
         background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
       }
 
-      main {
-        width: 100%;
-        max-width: 440px;
-        padding: 56px 24px;
+      .hero {
         position: relative;
+        min-height: 100dvh;
+        overflow: clip;
       }
 
-      main.scrawl-card {
-        padding: 56px 24px;
-      }
-
-      .top {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px 12px;
-        margin-bottom: 6px;
+      .brand {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        text-align: center;
+        padding: 24px;
+        pointer-events: none;
       }
 
       h1 {
         margin: 0;
-        font-size: 17px;
+        font-size: clamp(48px, 8vw, 88px);
         font-weight: 600;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.04em;
+        line-height: 0.95;
         text-wrap: balance;
-      }
-
-      .top-right {
-        margin-left: auto;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .status {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        min-height: 40px;
-        border: 0;
-        padding: 0;
-        background: none;
-        font:
-          500 12px/1 Geist Mono,
-          ui-monospace,
-          monospace;
-        color: var(--ink-2);
-        cursor: crosshair;
-      }
-
-      .status-label {
-        display: grid;
-        justify-items: start;
-      }
-
-      .status-label span {
-        grid-area: 1 / 1;
-      }
-
-      .status-label .off {
-        visibility: hidden;
-      }
-
-      .status[data-static] .on {
-        visibility: hidden;
-      }
-
-      .status[data-static] .off {
-        visibility: visible;
-      }
-
-      .dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--green);
-        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
-      }
-
-      .dot[data-static] {
-        background: var(--ink-3);
-        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
-      }
-
-      .meta {
-        font:
-          400 12px/1 Geist Mono,
-          ui-monospace,
-          monospace;
-        color: var(--ink-3);
-        font-variant-numeric: tabular-nums;
-        min-width: 7.2ch;
-        text-align: right;
+        pointer-events: auto;
       }
 
       .tagline {
-        margin: 0 0 36px;
+        margin: 14px auto 0;
+        max-width: 28ch;
+        color: var(--ink-2);
+        text-wrap: pretty;
+        pointer-events: auto;
+      }
+
+      .piece {
+        position: absolute;
+        z-index: 1;
+      }
+
+      .piece-done {
+        top: 13%;
+        left: 11%;
+        rotate: -8deg;
+      }
+      .piece-cancel {
+        top: 18%;
+        right: 12%;
+        rotate: 6deg;
+      }
+      .piece-save {
+        top: 58%;
+        left: 8%;
+        rotate: 4deg;
+      }
+      .piece-check {
+        top: 46%;
+        right: 10%;
+        rotate: -5deg;
+      }
+      .piece-input {
+        bottom: 16%;
+        left: 14%;
+        rotate: -3deg;
+        width: 200px;
+      }
+      .piece-card {
+        bottom: 12%;
+        right: 11%;
+        rotate: 3deg;
+        width: min(220px, 42vw);
+      }
+
+      .piece-input input {
+        width: 100%;
+        font: inherit;
+        color: var(--ink);
+      }
+
+      .piece-input input::placeholder {
+        color: var(--ink-3);
+      }
+
+      .check-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 40px;
+        color: var(--ink-2);
+        font-size: 14px;
+      }
+
+      .note {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.45;
         color: var(--ink-2);
         text-wrap: pretty;
       }
 
-      .bench {
-        margin-bottom: 44px;
+      .docs {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 8px 24px 80px;
       }
 
-      .field {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-      }
-
-      .namebox {
-        width: 100%;
-      }
-
-      .namebox input {
-        font:
-          400 14px/1.5 Geist,
-          ui-sans-serif,
-          system-ui,
-          sans-serif;
-        color: var(--ink);
-      }
-
-      .namebox input::placeholder {
-        color: var(--ink-3);
-      }
-
-      .check-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+      h2 {
+        margin: 0 0 12px;
         font-size: 13px;
-        color: var(--ink-2);
-        min-height: 40px;
-      }
-
-      .caption {
-        margin: 12px 0 0;
-        font:
-          400 12px/1 Geist Mono,
-          ui-monospace,
-          monospace;
-        color: var(--ink-3);
-      }
-
-      .rows {
-        margin-bottom: 44px;
-      }
-
-      .row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-height: 52px;
-        border-top: 1px solid var(--hairline);
-      }
-
-      .row:last-child {
-        border-bottom: 1px solid var(--hairline);
-      }
-
-      .row-name {
-        font:
-          400 12px/1 Geist Mono,
-          ui-monospace,
-          monospace;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
         color: var(--ink-3);
       }
 
       .install {
-        margin-bottom: 36px;
+        margin-bottom: 48px;
       }
 
       .cmd {
@@ -260,28 +187,34 @@
         align-items: center;
         gap: 10px;
         width: 100%;
-        padding: 10px 12px;
+        padding: 12px 14px;
         border: 0;
-        border-radius: var(--radius-md);
-        background: var(--control-bg);
-        box-shadow: var(--shadow-card);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.55);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.06),
+          inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          0 8px 20px rgba(0, 0, 0, 0.05);
         font:
-          500 12.5px/1 Geist Mono,
+          500 13px/1 Geist Mono,
           ui-monospace,
           monospace;
         color: var(--ink);
-        cursor: crosshair;
+        cursor: pointer;
         transition:
-          transform 120ms var(--ease-out),
-          box-shadow 220ms var(--ease-out);
+          transform 120ms var(--ease),
+          box-shadow 220ms var(--ease);
       }
 
       .cmd:hover {
-        box-shadow: var(--shadow-control);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          0 2px 5px rgba(0, 0, 0, 0.08);
       }
 
       .cmd:active {
-        transform: scale(0.98);
+        transform: scale(0.96);
       }
 
       .cmd:focus-visible {
@@ -292,7 +225,6 @@
       .dollar {
         color: var(--ink-3);
       }
-
       .cmd-text {
         flex: 1;
         text-align: left;
@@ -316,9 +248,9 @@
         stroke-linecap: round;
         stroke-linejoin: round;
         transition:
-          opacity 300ms var(--ease-out),
-          transform 300ms var(--ease-out),
-          filter 300ms var(--ease-out);
+          opacity 300ms var(--ease),
+          transform 300ms var(--ease),
+          filter 300ms var(--ease);
       }
 
       .cmd-icons .check {
@@ -337,108 +269,61 @@
         opacity: 1;
         transform: scale(1);
         filter: blur(0);
-        stroke: var(--green);
+        stroke: #22c55e;
       }
 
-      .usage-head {
+      .api {
+        margin-bottom: 40px;
+      }
+
+      .api p {
+        margin: 0 0 14px;
+        color: var(--ink-2);
+        text-wrap: pretty;
+      }
+
+      .api ul {
+        margin: 0 0 16px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .api li {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
         gap: 12px;
-        margin-bottom: 12px;
-      }
-
-      h2 {
-        margin: 0;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--ink-2);
-      }
-
-      .tabs {
-        display: inline-flex;
-        gap: 2px;
-        padding: 2px;
-        border-radius: 8px;
-        background: var(--tabs-bg);
-      }
-
-      .tab {
-        appearance: none;
-        border: 0;
-        background: transparent;
-        padding: 5px 10px;
-        border-radius: var(--radius-sm);
+        align-items: baseline;
+        padding: 8px 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.07);
         font:
-          500 11.5px/1 Geist,
-          ui-sans-serif,
-          system-ui,
-          sans-serif;
-        color: var(--ink-2);
-        cursor: crosshair;
-        min-height: 28px;
-        position: relative;
-        transition:
-          color 220ms var(--ease-out),
-          background 220ms var(--ease-out),
-          box-shadow 220ms var(--ease-out),
-          transform 120ms var(--ease-out);
+          400 13px/1.5 Geist Mono,
+          ui-monospace,
+          monospace;
       }
 
-      .tab::after {
-        content: "";
-        position: absolute;
-        inset: -6px 0;
+      .api li:last-child {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.07);
       }
 
-      .tab[aria-selected="true"] {
-        background: var(--control-bg);
+      .fn {
         color: var(--ink);
-        box-shadow: var(--shadow-pill);
+      }
+      .hint {
+        color: var(--ink-3);
       }
 
-      .tab:active {
-        transform: scale(0.96);
-      }
-
-      .tab:focus-visible {
-        outline: 1.5px solid var(--pen);
-        outline-offset: 2px;
-      }
-
-      .code {
-        display: grid;
-        background: var(--surface);
-        backdrop-filter: blur(8px);
-        border-radius: var(--radius-lg);
-        padding: 14px 16px;
-        box-shadow: var(--shadow-card);
-        overflow-x: auto;
-      }
-
-      .panel {
-        grid-area: 1 / 1;
+      pre {
         margin: 0;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.55);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.06),
+          inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        overflow-x: auto;
         font:
           400 12.5px/1.7 Geist Mono,
           ui-monospace,
           monospace;
-        color: var(--ink);
-        opacity: 0;
-        filter: blur(3px);
-        transform: translateY(3px);
-        pointer-events: none;
-        transition:
-          opacity 260ms var(--ease-out),
-          filter 260ms var(--ease-out),
-          transform 260ms var(--ease-out);
-      }
-
-      .panel[data-active] {
-        opacity: 1;
-        filter: blur(0);
-        transform: translateY(0);
-        pointer-events: auto;
       }
 
       .k {
@@ -449,10 +334,6 @@
       }
 
       footer {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px 12px;
-        margin-top: 44px;
         font:
           400 12px/1 Geist Mono,
           ui-monospace,
@@ -460,138 +341,112 @@
         color: var(--ink-3);
       }
 
-      footer a {
-        color: inherit;
-        text-decoration: none;
-        cursor: crosshair;
-      }
-
-      footer a:hover {
-        color: var(--ink-2);
-      }
-
       @media (prefers-reduced-motion: no-preference) {
-        main > *:not(.scrawl-svg) {
+        .brand,
+        .piece {
           opacity: 0;
-          animation: enter 600ms var(--ease-out) forwards;
+          animation: enter 700ms var(--ease) forwards;
         }
-        .top {
-          animation-delay: 0ms;
+        .brand {
+          animation-delay: 80ms;
         }
-        .tagline {
-          animation-delay: 90ms;
+        .piece-done {
+          animation-delay: 160ms;
         }
-        .bench {
-          animation-delay: 180ms;
+        .piece-cancel {
+          animation-delay: 240ms;
         }
-        .rows {
-          animation-delay: 270ms;
+        .piece-save {
+          animation-delay: 320ms;
         }
-        .install {
-          animation-delay: 360ms;
+        .piece-check {
+          animation-delay: 400ms;
         }
-        #usage {
-          animation-delay: 450ms;
+        .piece-input {
+          animation-delay: 480ms;
         }
-        footer {
-          animation-delay: 540ms;
+        .piece-card {
+          animation-delay: 560ms;
         }
       }
 
       @keyframes enter {
         from {
           opacity: 0;
-          transform: translateY(6px);
-          filter: blur(3px);
+          translate: 0 10px;
         }
         to {
           opacity: 1;
-          transform: none;
-          filter: none;
+          translate: 0 0;
         }
       }
 
-      @media (max-width: 480px) {
-        main,
-        main.scrawl-card {
-          padding: 36px 18px 44px;
-        }
-        .tagline {
-          margin-bottom: 28px;
-        }
-        .bench,
-        .rows {
-          margin-bottom: 36px;
-        }
-        .install {
-          margin-bottom: 28px;
-        }
-        .usage-head {
+      @media (max-width: 720px) {
+        .hero {
+          display: flex;
           flex-direction: column;
-          align-items: flex-start;
-          gap: 10px;
+          align-items: center;
+          justify-content: center;
+          gap: 28px;
+          padding: 48px 20px 40px;
         }
-        footer {
-          margin-top: 36px;
+        .brand {
+          position: static;
+          padding: 0;
         }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .panel {
-          transition: none;
-          filter: none;
-          transform: none;
+        .piece {
+          position: static;
+          rotate: 0deg;
+        }
+        .piece-input,
+        .piece-card {
+          width: min(260px, 100%);
+        }
+        .scatter {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          align-items: center;
+          gap: 18px 22px;
         }
       }
     </style>
   </head>
   <body>
-    <main id="page">
-      <header class="top">
+    <section class="hero" aria-label="scrawl">
+      <div class="brand">
         <h1>scrawl</h1>
-        <div class="top-right">
-          <button class="status" id="resketch" type="button" aria-label="Resketch controls">
-            <span class="dot" id="dot"></span>
-            <span class="status-label">
-              <span class="on">boiling</span>
-              <span class="off">static</span>
-            </span>
-          </button>
-          <span class="meta" id="count">sketch 01</span>
+        <p class="tagline">Hand-drawn UI. Fresh pen sketch every mount.</p>
+      </div>
+
+      <div class="scatter">
+        <div class="piece piece-done">
+          <button id="done" type="button">Done</button>
         </div>
-      </header>
-
-      <p class="tagline">Hand-drawn UI. Fresh pen sketch every mount. Zero dependencies.</p>
-
-      <section class="bench" aria-label="Live sketch">
-        <div class="field">
-          <span class="namebox" id="name"
-            ><input type="text" placeholder="your name" autocomplete="name"
-          /></span>
-          <label class="check-row">
+        <div class="piece piece-cancel">
+          <button id="cancel" type="button">Cancel</button>
+        </div>
+        <div class="piece piece-save">
+          <button id="save" type="button">Save</button>
+        </div>
+        <div class="piece piece-check">
+          <label class="check-label">
             <span id="check"><input type="checkbox" checked /></span>
             Ship it
           </label>
         </div>
-        <p class="caption">Hover a control to re-sketch. Check draws on.</p>
-      </section>
+        <div class="piece piece-input" id="name">
+          <input type="text" placeholder="your name" autocomplete="name" />
+        </div>
+        <div class="piece piece-card" id="card">
+          <p class="note">Every stroke is generated at load. Hover a control to re-sketch.</p>
+        </div>
+      </div>
+    </section>
 
-      <section class="rows" aria-label="Variants">
-        <div class="row">
-          <span class="row-name">outline</span>
-          <button id="v-outline" type="button">Edit</button>
-        </div>
-        <div class="row">
-          <span class="row-name">solid</span>
-          <button id="v-solid" type="button">Publish</button>
-        </div>
-        <div class="row">
-          <span class="row-name">scribble</span>
-          <button id="v-scribble" type="button">Draft</button>
-        </div>
-      </section>
-
-      <div class="install">
+    <div class="docs">
+      <section class="install">
+        <h2>Install</h2>
         <button class="cmd" id="copy" type="button" aria-label="Copy install command">
           <span class="dollar">$</span>
           <span class="cmd-text">npm i scrawl</span>
@@ -607,83 +462,47 @@
             </svg>
           </span>
         </button>
-      </div>
+      </section>
 
-      <section id="usage" aria-label="Usage">
-        <div class="usage-head">
-          <h2>Use</h2>
-          <div class="tabs" role="tablist" aria-label="API">
-            <button
-              class="tab"
-              role="tab"
-              id="tab-js"
-              aria-selected="true"
-              aria-controls="panel-js"
-              type="button"
-            >
-              Vanilla
-            </button>
-            <button
-              class="tab"
-              role="tab"
-              id="tab-react"
-              aria-selected="false"
-              aria-controls="panel-react"
-              type="button"
-            >
-              React
-            </button>
-          </div>
-        </div>
-        <div class="code">
-          <pre class="panel" id="panel-js" role="tabpanel" aria-labelledby="tab-js" data-active>
-<span class="k">import</span> { scrawlButton } <span class="k">from</span> <span class="s">"scrawl"</span>;
+      <section class="api">
+        <h2>API</h2>
+        <p>
+          Attach SVG chrome to a real control. Omit <code>seed</code> for a unique sketch per mount.
+        </p>
+        <ul>
+          <li>
+            <span class="fn">scrawlButton(el, opts)</span
+            ><span class="hint">outline · solid · scribble</span>
+          </li>
+          <li>
+            <span class="fn">scrawlCheckbox(wrap, opts)</span
+            ><span class="hint">wraps a checkbox</span>
+          </li>
+          <li>
+            <span class="fn">scrawlInput(wrap, opts)</span><span class="hint">wraps an input</span>
+          </li>
+          <li>
+            <span class="fn">scrawlCard(el, opts)</span><span class="hint">sketched container</span>
+          </li>
+        </ul>
+        <pre><span class="k">import</span> { scrawlButton } <span class="k">from</span> <span class="s">"scrawl"</span>;
 <span class="k">import</span> <span class="s">"scrawl/style.css"</span>;
 
 scrawlButton(done, { variant: <span class="s">"solid"</span> });</pre>
-          <pre class="panel" id="panel-react" role="tabpanel" aria-labelledby="tab-react">
-<span class="k">import</span> { ScrawlButton } <span class="k">from</span> <span class="s">"scrawl/react"</span>;
-
-&lt;ScrawlButton variant=<span class="s">"solid"</span> onClick={submit}&gt;
-  Done
-&lt;/ScrawlButton&gt;</pre>
-        </div>
       </section>
 
-      <footer>
-        <span>MIT</span>
-        <span>v0.1.0</span>
-      </footer>
-    </main>
+      <footer>MIT · v0.1.0</footer>
+    </div>
 
     <script type="module">
       import { scrawlButton, scrawlCard, scrawlCheckbox, scrawlInput } from "../dist/index.js";
 
-      const sketches = [
-        scrawlCard(document.getElementById("page")),
-        scrawlInput(document.getElementById("name")),
-        scrawlCheckbox(document.getElementById("check")),
-        scrawlButton(document.getElementById("v-outline")),
-        scrawlButton(document.getElementById("v-solid"), { variant: "solid" }),
-        scrawlButton(document.getElementById("v-scribble"), { variant: "scribble" }),
-      ];
-
-      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const dot = document.getElementById("dot");
-      const resketch = document.getElementById("resketch");
-      const count = document.getElementById("count");
-      let n = 1;
-
-      if (reduced) {
-        dot.dataset.static = "";
-        resketch.dataset.static = "";
-      }
-
-      resketch.addEventListener("click", () => {
-        sketches.forEach((s) => s.resketch());
-        n = (n % 99) + 1;
-        count.textContent = `sketch ${String(n).padStart(2, "0")}`;
-      });
+      scrawlButton(document.getElementById("done"), { variant: "solid" });
+      scrawlButton(document.getElementById("cancel"));
+      scrawlButton(document.getElementById("save"), { variant: "scribble" });
+      scrawlCheckbox(document.getElementById("check"));
+      scrawlInput(document.getElementById("name"));
+      scrawlCard(document.getElementById("card"));
 
       const copy = document.getElementById("copy");
       copy.addEventListener("click", async () => {
@@ -695,26 +514,6 @@ scrawlButton(done, { variant: <span class="s">"solid"</span> });</pre>
         copy.dataset.copied = "";
         window.setTimeout(() => delete copy.dataset.copied, 1400);
       });
-
-      const tabs = [
-        [document.getElementById("tab-js"), document.getElementById("panel-js")],
-        [document.getElementById("tab-react"), document.getElementById("panel-react")],
-      ];
-
-      function select(next) {
-        for (const [tab, panel] of tabs) {
-          const on = tab === next;
-          tab.setAttribute("aria-selected", String(on));
-          panel.toggleAttribute("data-active", on);
-          panel.toggleAttribute("inert", !on);
-        }
-      }
-
-      select(tabs[0][0]);
-
-      for (const [tab] of tabs) {
-        tab.addEventListener("click", () => select(tab));
-      }
     </script>
   </body>
 </html>
