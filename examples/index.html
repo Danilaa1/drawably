@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>scrawl</title>
+    <link rel="stylesheet" href="../style.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-content: center;
+        gap: 28px;
+        background: #e3e3e1;
+        font-family: "Comic Sans MS", "Segoe Print", cursive;
+        color: #2724d1;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="row">
+      <button id="done">Done</button>
+      <button id="cancel">Cancel</button>
+      <button id="save">Save</button>
+    </div>
+    <div class="row">
+      <label><span id="check"><input type="checkbox" checked /></span>Ship it</label>
+      <span id="name"><input placeholder="your name" /></span>
+    </div>
+    <div id="card" style="max-width: 320px">
+      Every stroke on this page is generated at load. Reload for a fresh sketch.
+    </div>
+    <script type="module">
+      import { scrawlButton, scrawlCheckbox, scrawlInput, scrawlCard } from "../dist/index.js";
+      scrawlButton(document.getElementById("done"), { variant: "solid" });
+      scrawlButton(document.getElementById("cancel"));
+      scrawlButton(document.getElementById("save"), { variant: "scribble" });
+      scrawlCheckbox(document.getElementById("check"));
+      scrawlInput(document.getElementById("name"));
+      scrawlCard(document.getElementById("card"));
+    </script>
+  </body>
+</html>
