@@ -1,0 +1,107 @@
+import { mulberry32 } from "./prng.js";
+
+export interface RoughOptions {
+  seed: number;
+  roughness: number;
+}
+
+type Pt = [number, number];
+
+function sampleLine(x1: number, y1: number, x2: number, y2: number, step = 8): Pt[] {
+  const n = Math.max(2, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / step));
+  return Array.from({ length: n + 1 }, (_, i) => [
+    x1 + ((x2 - x1) * i) / n,
+    y1 + ((y2 - y1) * i) / n,
+  ]);
+}
+
+function arcPoints(cx: number, cy: number, r: number, a0: number, a1: number, n = 4): Pt[] {
+  return Array.from({ length: n + 1 }, (_, i) => {
+    const a = a0 + ((a1 - a0) * i) / n;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  });
+}
+
+function roundedRectPoints(x: number, y: number, w: number, h: number, r: number): Pt[] {
+  r = Math.min(r, w / 2, h / 2);
+  return [
+    ...sampleLine(x + r, y, x + w - r, y),
+    ...arcPoints(x + w - r, y + r, r, -Math.PI / 2, 0),
+    ...sampleLine(x + w, y + r, x + w, y + h - r),
+    ...arcPoints(x + w - r, y + h - r, r, 0, Math.PI / 2),
+    ...sampleLine(x + w - r, y + h, x + r, y + h),
+    ...arcPoints(x + r, y + h - r, r, Math.PI / 2, Math.PI),
+    ...sampleLine(x, y + h - r, x, y + r),
+    ...arcPoints(x + r, y + r, r, Math.PI, Math.PI * 1.5),
+  ];
+}
+
+function jitter(points: Pt[], rand: () => number, amp: number): Pt[] {
+  return points.map(([x, y]) => [x + (rand() * 2 - 1) * amp, y + (rand() * 2 - 1) * amp]);
+}
+
+function toPath(points: Pt[], close: boolean): string {
+  let d = `M${points[0][0].toFixed(2)} ${points[0][1].toFixed(2)}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const [cx, cy] = points[i];
+    const mx = (cx + points[i + 1][0]) / 2;
+    const my = (cy + points[i + 1][1]) / 2;
+    d += `Q${cx.toFixed(2)} ${cy.toFixed(2)} ${mx.toFixed(2)} ${my.toFixed(2)}`;
+  }
+  const [lx, ly] = points[points.length - 1];
+  d += `L${lx.toFixed(2)} ${ly.toFixed(2)}`;
+  return close ? d + "Z" : d;
+}
+
+function doubleStroke(points: Pt[], o: RoughOptions, close: boolean): string {
+  const rand = mulberry32(o.seed);
+  const amp = 1.5 * o.roughness;
+  return toPath(jitter(points, rand, amp), close) + toPath(jitter(points, rand, amp * 1.4), close);
+}
+
+export function roughLine(x1: number, y1: number, x2: number, y2: number, o: RoughOptions): string {
+  return doubleStroke(sampleLine(x1, y1, x2, y2), o, false);
+}
+
+export function roughRoundedRect(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+  o: RoughOptions,
+): string {
+  return doubleStroke(roundedRectPoints(x, y, w, h, r), o, true);
+}
+
+export function roughCheckmark(x: number, y: number, w: number, h: number, o: RoughOptions): string {
+  const rand = mulberry32(o.seed);
+  const pts: Pt[] = [
+    ...sampleLine(x, y + h * 0.6, x + w * 0.35, y + h, 4),
+    ...sampleLine(x + w * 0.35, y + h, x + w, y, 4),
+  ];
+  return toPath(jitter(pts, rand, 1.2 * o.roughness), false);
+}
+
+export function scribbleFill(x: number, y: number, w: number, h: number, o: RoughOptions): string {
+  const rand = mulberry32(o.seed);
+  const gap = 6;
+  const pts: Pt[] = [];
+  let flip = false;
+  for (let t = gap; t < w + h; t += gap) {
+    const a: Pt = [x + Math.max(0, t - h), y + Math.min(t, h)];
+    const b: Pt = [x + Math.min(t, w), y + Math.max(0, t - w)];
+    pts.push(...(flip ? [b, a] : [a, b]));
+    flip = !flip;
+  }
+  if (pts.length < 2) return "";
+  return toPath(jitter(pts, rand, 1.2 * o.roughness), false);
+}
+
+export function variants(
+  gen: (o: RoughOptions) => string,
+  o: RoughOptions,
+  n = 3,
+): string[] {
+  return Array.from({ length: n }, (_, i) => gen({ ...o, seed: o.seed + i * 7919 }));
+}
