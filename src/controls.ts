@@ -50,7 +50,7 @@ function attachChrome(
   el.prepend(svg);
 
   const roughness = opts.roughness ?? 1;
-  const boil = opts.boil ?? 0.5;
+  const boil = opts.boil ?? 0.3;
   let seed = opts.seed ?? randomSeed();
 
   function draw() {
@@ -107,6 +107,11 @@ const outlineRect =
   (w, h, o) =>
     roughRoundedRect(INSET, INSET, w - 2 * INSET, h - 2 * INSET, r, o);
 
+const focusRect =
+  (r: number): Layer["gen"] =>
+  (w, h, o) =>
+    roughRoundedRect(-1, -1, w + 2, h + 2, r, o);
+
 export interface ScrawlButtonOptions extends ScrawlOptions {
   variant?: "outline" | "solid" | "scribble";
 }
@@ -121,6 +126,7 @@ export function scrawlButton(el: HTMLElement, opts: ScrawlButtonOptions = {}): S
       gen: (w, h, o) => scribbleFill(INSET + 2, INSET + 2, w - 2 * INSET - 4, h - 2 * INSET - 4, o),
     });
   layers.push({ className: "scrawl-outline", gen: outlineRect(8) });
+  layers.push({ className: "scrawl-focus", gen: focusRect(10) });
   const sketch = attachChrome(el, layers, opts, true);
   el.classList.add("scrawl-button", `scrawl-button--${variant}`);
   return sketch;
@@ -150,6 +156,7 @@ export function scrawlCheckbox(el: HTMLElement, opts: ScrawlOptions = {}): Sketc
         pathLength: true,
         gen: (w, h, o) => roughCheckmark(w * 0.24, h * 0.2, w * 0.52, h * 0.5, o),
       },
+      { className: "scrawl-focus", gen: focusRect(7) },
     ],
     opts,
     true,
@@ -168,7 +175,15 @@ export function scrawlCheckbox(el: HTMLElement, opts: ScrawlOptions = {}): Sketc
 
 export function scrawlInput(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
   if (!el?.querySelector?.("input")) throw new Error("scrawl: input wrapper needs an <input>");
-  const sketch = attachChrome(el, [{ className: "scrawl-outline", gen: outlineRect(6) }], opts, false);
+  const sketch = attachChrome(
+    el,
+    [
+      { className: "scrawl-outline", gen: outlineRect(6) },
+      { className: "scrawl-focus", gen: focusRect(8) },
+    ],
+    opts,
+    false,
+  );
   el.classList.add("scrawl-inputbox");
   return sketch;
 }

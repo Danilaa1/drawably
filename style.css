@@ -23,8 +23,8 @@
 
 .scrawl-boil {
   opacity: 0;
-  animation: scrawl-boil 900ms infinite;
-  animation-delay: calc(var(--boil-i, 0) * -300ms);
+  animation: scrawl-boil 1200ms infinite;
+  animation-delay: calc(var(--boil-i, 0) * -400ms);
 }
 
 @keyframes scrawl-boil {
@@ -52,6 +52,7 @@
   font: inherit;
   color: var(--scrawl-stroke, #2724d1);
   cursor: pointer;
+  outline: none;
   transition: transform 120ms ease;
 }
 
@@ -63,9 +64,13 @@
   color: var(--scrawl-paper, #fff);
 }
 
-.scrawl-button:focus-visible {
-  outline: 1.5px solid var(--scrawl-stroke, #2724d1);
-  outline-offset: 2px;
+.scrawl-svg .scrawl-focus {
+  visibility: hidden;
+  stroke-width: 1.5;
+}
+
+.scrawl-host:is(:focus-visible, :has(:focus-visible)) .scrawl-focus {
+  visibility: visible;
 }
 
 .scrawl-checkbox {
@@ -82,11 +87,6 @@
   margin: 0;
   opacity: 0;
   cursor: pointer;
-}
-
-.scrawl-checkbox:focus-within {
-  outline: 1.5px solid var(--scrawl-stroke, #2724d1);
-  outline-offset: 2px;
 }
 
 .scrawl-svg .scrawl-check {
@@ -112,10 +112,6 @@
   width: 100%;
   box-sizing: border-box;
   outline: none;
-}
-
-.scrawl-inputbox:focus-within {
-  --scrawl-width: 2.5;
 }
 
 .scrawl-card {

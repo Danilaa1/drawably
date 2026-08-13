@@ -23,7 +23,7 @@ it("ScrawlButton renders a button and attaches chrome on mount", () => {
   act(() => root.render(<ScrawlButton seed={1}>Done</ScrawlButton>));
   const button = host.querySelector("button");
   expect(button?.textContent).toBe("Done");
-  expect(button?.querySelectorAll("path.scrawl-boil")).toHaveLength(3);
+  expect(button?.querySelectorAll("path.scrawl-boil.scrawl-outline")).toHaveLength(3);
 });
 
 it("ScrawlButton detaches on unmount", () => {

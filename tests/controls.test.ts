@@ -21,7 +21,7 @@ describe("scrawlButton", () => {
     const { el } = mountButton({ seed: 1 });
     const svg = el.querySelector("svg.scrawl-svg");
     expect(svg?.getAttribute("aria-hidden")).toBe("true");
-    const paths = el.querySelectorAll("path.scrawl-boil");
+    const paths = el.querySelectorAll("path.scrawl-boil.scrawl-outline");
     expect(paths).toHaveLength(3);
     expect(paths[0].dataset.i).toBe("0");
     expect(paths[2].dataset.i).toBe("2");
@@ -30,8 +30,13 @@ describe("scrawlButton", () => {
 
   it("boil 0 draws a single static path per layer", () => {
     const { el } = mountButton({ seed: 1, boil: 0 });
-    expect(el.querySelectorAll("path")).toHaveLength(1);
+    expect(el.querySelectorAll("path.scrawl-outline")).toHaveLength(1);
     expect(el.querySelectorAll("path.scrawl-boil")).toHaveLength(0);
+  });
+
+  it("draws a hand-drawn focus ring layer", () => {
+    const { el } = mountButton({ seed: 1 });
+    expect(el.querySelectorAll("path.scrawl-focus")).toHaveLength(3);
   });
 
   it("sets paper and width custom properties from options", () => {
@@ -49,7 +54,7 @@ describe("scrawlButton", () => {
 
   it("solid variant adds a blob layer under the outline", () => {
     const { el } = mountButton({ seed: 1, variant: "solid" });
-    expect(el.querySelectorAll("path")).toHaveLength(6);
+    expect(el.querySelectorAll("path")).toHaveLength(9);
     expect(el.querySelectorAll("path.scrawl-blob")).toHaveLength(3);
     expect(el.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
   });
@@ -178,6 +183,7 @@ describe("scrawlInput", () => {
     document.body.append(wrap);
     scrawlInput(wrap, { seed: 1 });
     expect(wrap.classList.contains("scrawl-inputbox")).toBe(true);
-    expect(wrap.querySelectorAll("path")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.scrawl-focus")).toHaveLength(3);
   });
 });
