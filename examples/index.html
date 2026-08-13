@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
     />
     <link rel="stylesheet" href="../style.css" />
     <style>
@@ -24,6 +24,9 @@
         --paper: #e3e3e1;
         --code-k: #2724d1;
         --code-s: #0f766e;
+        --code-n: #18181b;
+        --code-o: #b45309;
+        --code-p: #71717a;
         --ease: cubic-bezier(0.2, 0, 0, 1);
         --scrawl-stroke: #2724d1;
         --scrawl-fill: #2724d1;
@@ -37,10 +40,19 @@
       html {
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
+        scrollbar-width: thin;
+        scrollbar-color: gray transparent;
+      }
+
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: gray transparent;
       }
 
       @media (prefers-reduced-motion: no-preference) {
-        html { scroll-behavior: smooth; }
+        html {
+          scroll-behavior: smooth;
+        }
       }
 
       body {
@@ -48,7 +60,7 @@
         background: var(--paper);
         color: var(--ink);
         font:
-          400 15px/1.5 Geist,
+          400 15px/1.5 Inter,
           ui-sans-serif,
           system-ui,
           sans-serif;
@@ -64,10 +76,61 @@
         background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
       }
 
-      .hero {
+      .toc {
+        display: none;
+      }
+
+      .toc[hidden] {
+        display: none;
+      }
+
+      .toc ol {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: toc;
+      }
+
+      .toc li {
+        counter-increment: toc;
+      }
+
+      .toc a {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        color: var(--ink-3);
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 160ms var(--ease);
+      }
+
+      .toc a::before {
+        content: counter(toc) ".";
+        width: 1.4em;
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .toc a:hover,
+      .toc a[aria-current="true"] {
+        color: var(--ink);
+      }
+
+      .toc a:focus-visible {
+        outline: 1.5px solid var(--pen);
+        outline-offset: 2px;
+      }
+
+      .hero,
+      .board {
         position: relative;
         min-height: 100dvh;
         overflow: clip;
+      }
+
+      .board {
+        scroll-margin-top: 0;
       }
 
       .brand {
@@ -136,6 +199,45 @@
         width: min(220px, 42vw);
       }
 
+      .piece-mit {
+        top: 16%;
+        left: 18%;
+        rotate: -7deg;
+      }
+      .piece-ver {
+        top: 20%;
+        right: 14%;
+        rotate: 5deg;
+      }
+      .piece-react {
+        bottom: 14%;
+        right: 12%;
+        rotate: -4deg;
+        width: max-content;
+        max-width: min(280px, 70vw);
+      }
+
+      .piece-fn-btn {
+        top: 14%;
+        left: 18%;
+        rotate: -6deg;
+      }
+      .piece-fn-check {
+        top: 18%;
+        right: 11%;
+        rotate: 5deg;
+      }
+      .piece-fn-input {
+        bottom: 20%;
+        left: 18%;
+        rotate: 4deg;
+      }
+      .piece-fn-card {
+        bottom: 16%;
+        right: 10%;
+        rotate: -5deg;
+      }
+
       .piece-input input {
         width: 100%;
         font: inherit;
@@ -155,7 +257,9 @@
         font-size: 14px;
       }
 
-      .note {
+      .note,
+      .fn,
+      .meta {
         margin: 0;
         font-size: 13px;
         line-height: 1.45;
@@ -163,54 +267,48 @@
         text-wrap: pretty;
       }
 
-      .docs {
-        max-width: 560px;
-        margin: 0 auto;
-        padding: 8px 24px 80px;
+      .fn,
+      .meta {
+        font-family:
+          Geist Mono,
+          ui-monospace,
+          monospace;
+        font-size: 12.5px;
       }
 
-      h2 {
-        margin: 0 0 12px;
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--ink-3);
+      .cmd-wrap {
+        pointer-events: auto;
+        width: max-content;
+        max-width: 82vw;
       }
 
-      .install {
-        margin-bottom: 48px;
+      #install-card.scrawl-card {
+        padding: 6px 10px;
+      }
+
+      .code-wrap {
+        pointer-events: auto;
+        width: min(420px, 86vw);
+        text-align: left;
       }
 
       .cmd {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         width: 100%;
-        padding: 12px 14px;
+        min-height: 40px;
+        padding: 0;
         border: 0;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.55);
-        box-shadow:
-          0 0 0 1px rgba(0, 0, 0, 0.06),
-          inset 0 1px 0 rgba(255, 255, 255, 0.9),
-          0 8px 20px rgba(0, 0, 0, 0.05);
+        background: none;
+        box-shadow: none;
         font:
           500 13px/1 Geist Mono,
           ui-monospace,
           monospace;
         color: var(--ink);
         cursor: pointer;
-        transition:
-          transform 120ms var(--ease),
-          box-shadow 220ms var(--ease);
-      }
-
-      .cmd:hover {
-        box-shadow:
-          0 0 0 1px rgba(0, 0, 0, 0.1),
-          inset 0 1px 0 rgba(255, 255, 255, 0.9),
-          0 2px 5px rgba(0, 0, 0, 0.08);
+        transition: transform 120ms var(--ease);
       }
 
       .cmd:active {
@@ -232,28 +330,36 @@
 
       .cmd-icons {
         position: relative;
-        width: 15px;
-        height: 15px;
+        width: 16px;
+        height: 16px;
         flex-shrink: 0;
+        overflow: visible;
       }
 
       .cmd-icons svg {
         position: absolute;
         inset: 0;
-        width: 15px;
-        height: 15px;
+        width: 16px;
+        height: 16px;
         fill: none;
-        stroke: var(--ink-2);
+        stroke: var(--pen);
         stroke-width: 1.6;
         stroke-linecap: round;
         stroke-linejoin: round;
+        transform-origin: 50% 50%;
         transition:
           opacity 300ms var(--ease),
           transform 300ms var(--ease),
           filter 300ms var(--ease);
       }
 
-      .cmd-icons .check {
+      .cmd-icons .copy {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+      }
+
+      .cmd-icons .tick {
         opacity: 0;
         transform: scale(0.25);
         filter: blur(4px);
@@ -265,65 +371,23 @@
         filter: blur(4px);
       }
 
-      .cmd[data-copied] .check {
+      .cmd[data-copied] .tick {
         opacity: 1;
         transform: scale(1);
         filter: blur(0);
-        stroke: #22c55e;
-      }
-
-      .api {
-        margin-bottom: 40px;
-      }
-
-      .api p {
-        margin: 0 0 14px;
-        color: var(--ink-2);
-        text-wrap: pretty;
-      }
-
-      .api ul {
-        margin: 0 0 16px;
-        padding: 0;
-        list-style: none;
-      }
-
-      .api li {
-        display: flex;
-        gap: 12px;
-        align-items: baseline;
-        padding: 8px 0;
-        border-top: 1px solid rgba(0, 0, 0, 0.07);
-        font:
-          400 13px/1.5 Geist Mono,
-          ui-monospace,
-          monospace;
-      }
-
-      .api li:last-child {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-      }
-
-      .fn {
-        color: var(--ink);
-      }
-      .hint {
-        color: var(--ink-3);
       }
 
       pre {
         margin: 0;
-        padding: 14px 16px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.55);
-        box-shadow:
-          0 0 0 1px rgba(0, 0, 0, 0.06),
-          inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        overflow-x: auto;
+        padding: 0;
+        overflow: hidden;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
         font:
           400 12.5px/1.7 Geist Mono,
           ui-monospace,
           monospace;
+        text-align: left;
       }
 
       .k {
@@ -332,13 +396,14 @@
       .s {
         color: var(--code-s);
       }
-
-      footer {
-        font:
-          400 12px/1 Geist Mono,
-          ui-monospace,
-          monospace;
-        color: var(--ink-3);
+      .n {
+        color: var(--code-n);
+      }
+      .o {
+        color: var(--code-o);
+      }
+      .p {
+        color: var(--code-p);
       }
 
       @media (prefers-reduced-motion: no-preference) {
@@ -347,7 +412,7 @@
           opacity: 0;
           animation: enter 700ms var(--ease) forwards;
         }
-        .brand {
+        .hero .brand {
           animation-delay: 80ms;
         }
         .piece-done {
@@ -381,8 +446,40 @@
         }
       }
 
+      @media (prefers-reduced-motion: reduce) {
+        .cmd-icons svg {
+          transition: none;
+        }
+      }
+
+      @media (min-width: 840px) {
+        .rest {
+          position: relative;
+        }
+        .toc {
+          display: block;
+          position: absolute;
+          left: 28px;
+          top: 50vh;
+          bottom: 0;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        .toc[hidden] {
+          display: none;
+        }
+        .toc ol {
+          position: sticky;
+          top: 50%;
+          translate: 0 -50%;
+          pointer-events: auto;
+        }
+      }
+
       @media (max-width: 720px) {
-        .hero {
+        .hero,
+        .board {
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -399,7 +496,8 @@
           rotate: 0deg;
         }
         .piece-input,
-        .piece-card {
+        .piece-card,
+        .piece-react {
           width: min(260px, 100%);
         }
         .scatter {
@@ -413,7 +511,7 @@
     </style>
   </head>
   <body>
-    <section class="hero" aria-label="scrawl">
+    <section class="hero" id="top" aria-label="scrawl">
       <div class="brand">
         <h1>scrawl</h1>
         <p class="tagline">Hand-drawn UI. Fresh pen sketch every mount.</p>
@@ -444,54 +542,84 @@
       </div>
     </section>
 
-    <div class="docs">
-      <section class="install">
-        <h2>Install</h2>
-        <button class="cmd" id="copy" type="button" aria-label="Copy install command">
-          <span class="dollar">$</span>
-          <span class="cmd-text">npm i scrawl</span>
-          <span class="cmd-icons" aria-hidden="true">
-            <svg class="copy" viewBox="0 0 16 16">
-              <rect x="5.5" y="5.5" width="8" height="8" rx="1.2" />
-              <path
-                d="M10.5 5.5V4.2A1.2 1.2 0 0 0 9.3 3H4.2A1.2 1.2 0 0 0 3 4.2v5.1A1.2 1.2 0 0 0 4.2 10.5H5.5"
-              />
-            </svg>
-            <svg class="check" viewBox="0 0 16 16">
-              <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
-            </svg>
-          </span>
-        </button>
+    <div class="rest">
+      <nav class="toc" aria-label="On this page" hidden>
+        <ol>
+          <li><a href="#top">Scrawl</a></li>
+          <li><a href="#install">Install</a></li>
+          <li><a href="#api">API</a></li>
+        </ol>
+      </nav>
+
+      <section class="board" id="install" aria-label="Install">
+        <div class="brand">
+          <div class="cmd-wrap" id="install-card">
+            <button class="cmd" id="copy" type="button" aria-label="Copy install command">
+              <span class="dollar">$</span>
+              <span class="cmd-text">npm i scrawl</span>
+              <span class="cmd-icons" aria-hidden="true">
+                <svg class="copy" viewBox="0 0 16 16">
+                  <rect x="5.5" y="5.5" width="8" height="8" rx="1.2" />
+                  <path
+                    d="M10.5 5.5V4.2A1.2 1.2 0 0 0 9.3 3H4.2A1.2 1.2 0 0 0 3 4.2v5.1A1.2 1.2 0 0 0 4.2 10.5H5.5"
+                  />
+                </svg>
+                <svg class="tick" viewBox="0 0 16 16">
+                  <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="scatter">
+          <p class="piece piece-mit meta">MIT</p>
+          <p class="piece piece-ver meta">v0.1.0</p>
+          <div class="piece piece-react" id="react-card">
+            <pre><span class="k">import</span> <span class="p">{</span> <span class="n">ScrawlButton</span> <span class="p">}</span>
+<span class="k">from</span> <span class="s">"scrawl/react"</span></pre>
+          </div>
+        </div>
       </section>
 
-      <section class="api">
-        <h2>API</h2>
-        <p>
-          Attach SVG chrome to a real control. Omit <code>seed</code> for a unique sketch per mount.
-        </p>
-        <ul>
-          <li>
-            <span class="fn">scrawlButton(el, opts)</span
-            ><span class="hint">outline · solid · scribble</span>
-          </li>
-          <li>
-            <span class="fn">scrawlCheckbox(wrap, opts)</span
-            ><span class="hint">wraps a checkbox</span>
-          </li>
-          <li>
-            <span class="fn">scrawlInput(wrap, opts)</span><span class="hint">wraps an input</span>
-          </li>
-          <li>
-            <span class="fn">scrawlCard(el, opts)</span><span class="hint">sketched container</span>
-          </li>
-        </ul>
-        <pre><span class="k">import</span> { scrawlButton } <span class="k">from</span> <span class="s">"scrawl"</span>;
-<span class="k">import</span> <span class="s">"scrawl/style.css"</span>;
+      <section class="board" id="api" aria-label="API">
+        <div class="brand">
+          <div class="code-wrap" id="usage-card">
+            <pre><span class="k">import</span> <span class="p">{</span> <span class="n">scrawlButton</span> <span class="p">}</span> <span class="k">from</span> <span class="s">"scrawl"</span><span class="p">;</span>
+<span class="k">import</span> <span class="s">"scrawl/style.css"</span><span class="p">;</span>
 
-scrawlButton(done, { variant: <span class="s">"solid"</span> });</pre>
+<span class="n">scrawlButton</span><span class="p">(</span><span class="o">done</span><span class="p">,</span> <span class="p">{</span> <span class="o">variant:</span> <span class="s">"solid"</span> <span class="p">});</span></pre>
+          </div>
+        </div>
+
+        <div class="scatter">
+          <div class="piece piece-fn-btn" id="fn-btn">
+            <p class="fn">
+              <span class="n">scrawlButton</span><span class="p">(</span><span class="o">el</span
+              ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
+            </p>
+          </div>
+          <div class="piece piece-fn-check" id="fn-check">
+            <p class="fn">
+              <span class="n">scrawlCheckbox</span><span class="p">(</span
+              ><span class="o">wrap</span><span class="p">,</span> <span class="o">opts</span
+              ><span class="p">)</span>
+            </p>
+          </div>
+          <div class="piece piece-fn-input" id="fn-input">
+            <p class="fn">
+              <span class="n">scrawlInput</span><span class="p">(</span><span class="o">wrap</span
+              ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
+            </p>
+          </div>
+          <div class="piece piece-fn-card" id="fn-card">
+            <p class="fn">
+              <span class="n">scrawlCard</span><span class="p">(</span><span class="o">el</span
+              ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
+            </p>
+          </div>
+        </div>
       </section>
-
-      <footer>MIT · v0.1.0</footer>
     </div>
 
     <script type="module">
@@ -503,6 +631,13 @@ scrawlButton(done, { variant: <span class="s">"solid"</span> });</pre>
       scrawlCheckbox(document.getElementById("check"));
       scrawlInput(document.getElementById("name"));
       scrawlCard(document.getElementById("card"));
+      scrawlCard(document.getElementById("install-card"));
+      scrawlCard(document.getElementById("react-card"));
+      scrawlCard(document.getElementById("usage-card"));
+      scrawlCard(document.getElementById("fn-btn"));
+      scrawlCard(document.getElementById("fn-check"));
+      scrawlCard(document.getElementById("fn-input"));
+      scrawlCard(document.getElementById("fn-card"));
 
       const copy = document.getElementById("copy");
       copy.addEventListener("click", async () => {
@@ -514,6 +649,36 @@ scrawlButton(done, { variant: <span class="s">"solid"</span> });</pre>
         copy.dataset.copied = "";
         window.setTimeout(() => delete copy.dataset.copied, 1400);
       });
+
+      const links = [...document.querySelectorAll(".toc a")];
+      const setCurrent = (id) => {
+        for (const a of links) {
+          if (a.hash === `#${id}`) a.setAttribute("aria-current", "true");
+          else a.removeAttribute("aria-current");
+        }
+      };
+      setCurrent("install");
+
+      const toc = document.querySelector(".toc");
+      const hero = document.getElementById("top");
+      new IntersectionObserver(
+        ([entry]) => {
+          toc.hidden = entry.isIntersecting;
+        },
+        { threshold: 0.05 },
+      ).observe(hero);
+
+      const spy = new IntersectionObserver(
+        (entries) => {
+          const hit = entries.find((e) => e.isIntersecting);
+          if (hit) setCurrent(hit.target.id);
+        },
+        { rootMargin: "-40% 0px -45% 0px" },
+      );
+      for (const a of links) {
+        const el = document.querySelector(a.hash);
+        if (el) spy.observe(el);
+      }
     </script>
   </body>
 </html>

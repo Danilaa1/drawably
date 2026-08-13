@@ -3,7 +3,9 @@ export {
   scrawlCard,
   scrawlCheckbox,
   scrawlInput,
+  type ButtonSketch,
   type ScrawlButtonOptions,
+  type ScrawlButtonState,
   type ScrawlOptions,
   type Sketch,
 } from "./controls.js";

@@ -39,6 +39,15 @@ it("ScrawlCheckbox wires the inner input", () => {
   expect(wrap?.hasAttribute("data-checked")).toBe(true);
 });
 
+it("ScrawlButton reflects the state prop as data-state", () => {
+  act(() => root.render(<ScrawlButton seed={1} state="loading">Done</ScrawlButton>));
+  expect(host.querySelector("button")?.dataset.state).toBe("loading");
+  act(() => root.render(<ScrawlButton seed={1} state="success">Done</ScrawlButton>));
+  expect(host.querySelector("button")?.dataset.state).toBe("success");
+  act(() => root.render(<ScrawlButton seed={1}>Done</ScrawlButton>));
+  expect(host.querySelector("button")?.dataset.state).toBeUndefined();
+});
+
 it("ScrawlButton survives a className change without losing its scrawl classes", () => {
   act(() => root.render(<ScrawlButton seed={1} className="a">Done</ScrawlButton>));
   act(() => root.render(<ScrawlButton seed={1} className="b">Done</ScrawlButton>));

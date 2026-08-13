@@ -20,7 +20,11 @@ React:
 
 ## Controls
 
-- `scrawlButton(el, opts)` — variants: `outline` (default), `solid`, `scribble`
+- `scrawlButton(el, opts)` — variants: `outline` (default), `solid`, `scribble`.
+  Returns a sketch with `setState("idle" | "loading" | "error" | "success")`:
+  loading dims the button and boils faster, error redraws in red, success in
+  green. Initial state via `opts.state`; in React, the `state` prop. Override
+  the colours with `--scrawl-error` / `--scrawl-success`.
 - `scrawlCheckbox(wrapper, opts)` — wrapper contains an `<input type="checkbox">`
 - `scrawlInput(wrapper, opts)` — wrapper contains an `<input>`
 - `scrawlCard(el, opts)`
@@ -33,6 +37,9 @@ Options:
   static path
 - `stroke`, `fill`, `paper`, `width` — set the matching `--scrawl-*` custom
   property; equally settable in plain CSS
+
+Type is set in Inter when the page has it loaded (the library ships no font
+files — load Inter yourself), falling back to `system-ui`.
 
 ## Motion
 

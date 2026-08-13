@@ -112,11 +112,18 @@ const focusRect =
   (w, h, o) =>
     roughRoundedRect(-1, -1, w + 2, h + 2, r, o);
 
+export type ScrawlButtonState = "idle" | "loading" | "error" | "success";
+
 export interface ScrawlButtonOptions extends ScrawlOptions {
   variant?: "outline" | "solid" | "scribble";
+  state?: ScrawlButtonState;
 }
 
-export function scrawlButton(el: HTMLElement, opts: ScrawlButtonOptions = {}): Sketch {
+export interface ButtonSketch extends Sketch {
+  setState(state: ScrawlButtonState): void;
+}
+
+export function scrawlButton(el: HTMLElement, opts: ScrawlButtonOptions = {}): ButtonSketch {
   const variant = opts.variant ?? "outline";
   const layers: Layer[] = [];
   if (variant === "solid") layers.push({ className: "scrawl-blob", gen: outlineRect(8) });
@@ -129,7 +136,19 @@ export function scrawlButton(el: HTMLElement, opts: ScrawlButtonOptions = {}): S
   layers.push({ className: "scrawl-focus", gen: focusRect(10) });
   const sketch = attachChrome(el, layers, opts, true);
   el.classList.add("scrawl-button", `scrawl-button--${variant}`);
-  return sketch;
+  const setState = (state: ScrawlButtonState) => {
+    if (state === "idle") delete el.dataset.state;
+    else el.dataset.state = state;
+  };
+  if (opts.state) setState(opts.state);
+  return {
+    resketch: sketch.resketch,
+    setState,
+    destroy() {
+      sketch.destroy();
+      delete el.dataset.state;
+    },
+  };
 }
 
 export function scrawlCard(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {

@@ -30,10 +30,10 @@ function useSketch<T extends HTMLElement>(
 
 type ButtonProps = ScrawlButtonOptions & ComponentProps<"button">;
 
-export function ScrawlButton({ seed, roughness, boil, stroke, fill, paper, width, variant, className, children, ...rest }: ButtonProps): ReactElement {
+export function ScrawlButton({ seed, roughness, boil, stroke, fill, paper, width, variant, state, className, children, ...rest }: ButtonProps): ReactElement {
   const ref = useSketch<HTMLButtonElement>(
-    (el) => scrawlButton(el, { seed, roughness, boil, stroke, fill, paper, width, variant }),
-    [seed, roughness, boil, stroke, fill, paper, width, variant, className],
+    (el) => scrawlButton(el, { seed, roughness, boil, stroke, fill, paper, width, variant, state }),
+    [seed, roughness, boil, stroke, fill, paper, width, variant, state, className],
   );
   return createElement("button", { type: "button", ...rest, className, ref }, children);
 }

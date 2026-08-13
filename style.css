@@ -1,6 +1,7 @@
 .scrawl-host {
   position: relative;
   isolation: isolate;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .scrawl-svg {
@@ -15,7 +16,7 @@
 
 .scrawl-svg path {
   fill: none;
-  stroke: var(--scrawl-stroke, #2724d1);
+  stroke: var(--scrawl-ink, var(--scrawl-stroke, #2724d1));
   stroke-width: var(--scrawl-width, 2);
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -34,8 +35,8 @@
 }
 
 .scrawl-svg .scrawl-blob {
-  fill: var(--scrawl-fill, #2724d1);
-  stroke: var(--scrawl-fill, #2724d1);
+  fill: var(--scrawl-ink, var(--scrawl-fill, #2724d1));
+  stroke: var(--scrawl-ink, var(--scrawl-fill, #2724d1));
   stroke-width: 4;
 }
 
@@ -51,7 +52,8 @@
   border: 0;
   background: none;
   font: inherit;
-  color: var(--scrawl-stroke, #2724d1);
+  font-family: Inter, system-ui, sans-serif;
+  color: var(--scrawl-ink, var(--scrawl-stroke, #2724d1));
   cursor: pointer;
   outline: none;
   transition: transform 120ms ease;
@@ -59,6 +61,24 @@
 
 .scrawl-button:active {
   transform: scale(0.92);
+}
+
+.scrawl-button[data-state="error"] {
+  --scrawl-ink: var(--scrawl-error, #d12724);
+}
+
+.scrawl-button[data-state="success"] {
+  --scrawl-ink: var(--scrawl-success, #188a42);
+}
+
+.scrawl-button[data-state="loading"] {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.scrawl-button[data-state="loading"] .scrawl-boil {
+  animation-duration: 450ms;
+  animation-delay: calc(var(--boil-i, 0) * -150ms);
 }
 
 .scrawl-button--solid {

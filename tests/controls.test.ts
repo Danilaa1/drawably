@@ -92,6 +92,23 @@ describe("scrawlButton", () => {
     expect(d()).not.toBe(d2);
   });
 
+  it("state option and setState drive data-state", () => {
+    const { el, sketch } = mountButton({ seed: 1, state: "loading" });
+    expect(el.dataset.state).toBe("loading");
+    sketch.setState("error");
+    expect(el.dataset.state).toBe("error");
+    sketch.setState("success");
+    expect(el.dataset.state).toBe("success");
+    sketch.setState("idle");
+    expect(el.dataset.state).toBeUndefined();
+  });
+
+  it("destroy clears data-state", () => {
+    const { el, sketch } = mountButton({ seed: 1, state: "error" });
+    sketch.destroy();
+    expect(el.dataset.state).toBeUndefined();
+  });
+
   it("destroy removes the svg, classes and listeners", () => {
     const { el, sketch } = mountButton({ seed: 1 });
     sketch.destroy();
