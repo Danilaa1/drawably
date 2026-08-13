@@ -3,52 +3,718 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>scrawl</title>
+    <title>scrawl — hand-drawn UI controls</title>
+    <meta
+      name="description"
+      content="Hand-drawn UI controls. Every mount a fresh pen sketch. Zero dependencies."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+    />
     <link rel="stylesheet" href="../style.css" />
     <style>
+      :root {
+        --ink: #18181b;
+        --ink-2: #52525b;
+        --ink-3: #a1a1aa;
+        --pen: #2724d1;
+        --hairline: rgba(0, 0, 0, 0.07);
+        --green: #22c55e;
+        --surface: rgba(255, 255, 255, 0.72);
+        --control-bg: #ffffff;
+        --tabs-bg: rgba(0, 0, 0, 0.05);
+        --bg: radial-gradient(120% 90% at 50% 0%, #f7f6f3 0%, #efece6 55%, #e3e3e1 100%);
+        --code-k: #2724d1;
+        --code-s: #0f766e;
+        --radius-sm: 6px;
+        --radius-md: 9px;
+        --radius-lg: 10px;
+        --ease-out: cubic-bezier(0.2, 0, 0, 1);
+        --shadow-control:
+          0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          0 2px 5px rgba(0, 0, 0, 0.08);
+        --shadow-card:
+          0 0 0 1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0, 0, 0, 0.06);
+        --shadow-pill: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.07);
+        --scrawl-stroke: #2724d1;
+        --scrawl-fill: #2724d1;
+        --scrawl-paper: #f7f6f3;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
       body {
         margin: 0;
-        min-height: 100vh;
+        min-height: 100dvh;
         display: grid;
-        place-content: center;
-        gap: 28px;
-        background: #e3e3e1;
-        font-family: "Comic Sans MS", "Segoe Print", cursive;
-        color: #2724d1;
+        place-items: center;
+        overflow-x: clip;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          400 14px/1.5 Geist,
+          ui-sans-serif,
+          system-ui,
+          sans-serif;
+        letter-spacing: -0.01em;
       }
-      .row {
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.04;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      }
+
+      main {
+        width: 100%;
+        max-width: 440px;
+        padding: 56px 24px;
+        position: relative;
+      }
+
+      main.scrawl-card {
+        padding: 56px 24px;
+      }
+
+      .top {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 20px;
+        gap: 8px 12px;
+        margin-bottom: 6px;
       }
-      label {
+
+      h1 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+      }
+
+      .top-right {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 40px;
+        border: 0;
+        padding: 0;
+        background: none;
+        font:
+          500 12px/1 Geist Mono,
+          ui-monospace,
+          monospace;
+        color: var(--ink-2);
+        cursor: crosshair;
+      }
+
+      .status-label {
+        display: grid;
+        justify-items: start;
+      }
+
+      .status-label span {
+        grid-area: 1 / 1;
+      }
+
+      .status-label .off {
+        visibility: hidden;
+      }
+
+      .status[data-static] .on {
+        visibility: hidden;
+      }
+
+      .status[data-static] .off {
+        visibility: visible;
+      }
+
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+      }
+
+      .dot[data-static] {
+        background: var(--ink-3);
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+      }
+
+      .meta {
+        font:
+          400 12px/1 Geist Mono,
+          ui-monospace,
+          monospace;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+        min-width: 7.2ch;
+        text-align: right;
+      }
+
+      .tagline {
+        margin: 0 0 36px;
+        color: var(--ink-2);
+        text-wrap: pretty;
+      }
+
+      .bench {
+        margin-bottom: 44px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .namebox {
+        width: 100%;
+      }
+
+      .namebox input {
+        font:
+          400 14px/1.5 Geist,
+          ui-sans-serif,
+          system-ui,
+          sans-serif;
+        color: var(--ink);
+      }
+
+      .namebox input::placeholder {
+        color: var(--ink-3);
+      }
+
+      .check-row {
         display: flex;
         align-items: center;
         gap: 10px;
+        font-size: 13px;
+        color: var(--ink-2);
+        min-height: 40px;
+      }
+
+      .caption {
+        margin: 12px 0 0;
+        font:
+          400 12px/1 Geist Mono,
+          ui-monospace,
+          monospace;
+        color: var(--ink-3);
+      }
+
+      .rows {
+        margin-bottom: 44px;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 52px;
+        border-top: 1px solid var(--hairline);
+      }
+
+      .row:last-child {
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .row-name {
+        font:
+          400 12px/1 Geist Mono,
+          ui-monospace,
+          monospace;
+        color: var(--ink-3);
+      }
+
+      .install {
+        margin-bottom: 36px;
+      }
+
+      .cmd {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 12px;
+        border: 0;
+        border-radius: var(--radius-md);
+        background: var(--control-bg);
+        box-shadow: var(--shadow-card);
+        font:
+          500 12.5px/1 Geist Mono,
+          ui-monospace,
+          monospace;
+        color: var(--ink);
+        cursor: crosshair;
+        transition:
+          transform 120ms var(--ease-out),
+          box-shadow 220ms var(--ease-out);
+      }
+
+      .cmd:hover {
+        box-shadow: var(--shadow-control);
+      }
+
+      .cmd:active {
+        transform: scale(0.98);
+      }
+
+      .cmd:focus-visible {
+        outline: 1.5px solid var(--pen);
+        outline-offset: 2px;
+      }
+
+      .dollar {
+        color: var(--ink-3);
+      }
+
+      .cmd-text {
+        flex: 1;
+        text-align: left;
+      }
+
+      .cmd-icons {
+        position: relative;
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+      }
+
+      .cmd-icons svg {
+        position: absolute;
+        inset: 0;
+        width: 15px;
+        height: 15px;
+        fill: none;
+        stroke: var(--ink-2);
+        stroke-width: 1.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition:
+          opacity 300ms var(--ease-out),
+          transform 300ms var(--ease-out),
+          filter 300ms var(--ease-out);
+      }
+
+      .cmd-icons .check {
+        opacity: 0;
+        transform: scale(0.25);
+        filter: blur(4px);
+      }
+
+      .cmd[data-copied] .copy {
+        opacity: 0;
+        transform: scale(0.25);
+        filter: blur(4px);
+      }
+
+      .cmd[data-copied] .check {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+        stroke: var(--green);
+      }
+
+      .usage-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink-2);
+      }
+
+      .tabs {
+        display: inline-flex;
+        gap: 2px;
+        padding: 2px;
+        border-radius: 8px;
+        background: var(--tabs-bg);
+      }
+
+      .tab {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        padding: 5px 10px;
+        border-radius: var(--radius-sm);
+        font:
+          500 11.5px/1 Geist,
+          ui-sans-serif,
+          system-ui,
+          sans-serif;
+        color: var(--ink-2);
+        cursor: crosshair;
+        min-height: 28px;
+        position: relative;
+        transition:
+          color 220ms var(--ease-out),
+          background 220ms var(--ease-out),
+          box-shadow 220ms var(--ease-out),
+          transform 120ms var(--ease-out);
+      }
+
+      .tab::after {
+        content: "";
+        position: absolute;
+        inset: -6px 0;
+      }
+
+      .tab[aria-selected="true"] {
+        background: var(--control-bg);
+        color: var(--ink);
+        box-shadow: var(--shadow-pill);
+      }
+
+      .tab:active {
+        transform: scale(0.96);
+      }
+
+      .tab:focus-visible {
+        outline: 1.5px solid var(--pen);
+        outline-offset: 2px;
+      }
+
+      .code {
+        display: grid;
+        background: var(--surface);
+        backdrop-filter: blur(8px);
+        border-radius: var(--radius-lg);
+        padding: 14px 16px;
+        box-shadow: var(--shadow-card);
+        overflow-x: auto;
+      }
+
+      .panel {
+        grid-area: 1 / 1;
+        margin: 0;
+        font:
+          400 12.5px/1.7 Geist Mono,
+          ui-monospace,
+          monospace;
+        color: var(--ink);
+        opacity: 0;
+        filter: blur(3px);
+        transform: translateY(3px);
+        pointer-events: none;
+        transition:
+          opacity 260ms var(--ease-out),
+          filter 260ms var(--ease-out),
+          transform 260ms var(--ease-out);
+      }
+
+      .panel[data-active] {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .k {
+        color: var(--code-k);
+      }
+      .s {
+        color: var(--code-s);
+      }
+
+      footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+        margin-top: 44px;
+        font:
+          400 12px/1 Geist Mono,
+          ui-monospace,
+          monospace;
+        color: var(--ink-3);
+      }
+
+      footer a {
+        color: inherit;
+        text-decoration: none;
+        cursor: crosshair;
+      }
+
+      footer a:hover {
+        color: var(--ink-2);
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        main > *:not(.scrawl-svg) {
+          opacity: 0;
+          animation: enter 600ms var(--ease-out) forwards;
+        }
+        .top {
+          animation-delay: 0ms;
+        }
+        .tagline {
+          animation-delay: 90ms;
+        }
+        .bench {
+          animation-delay: 180ms;
+        }
+        .rows {
+          animation-delay: 270ms;
+        }
+        .install {
+          animation-delay: 360ms;
+        }
+        #usage {
+          animation-delay: 450ms;
+        }
+        footer {
+          animation-delay: 540ms;
+        }
+      }
+
+      @keyframes enter {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+          filter: blur(3px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+          filter: none;
+        }
+      }
+
+      @media (max-width: 480px) {
+        main,
+        main.scrawl-card {
+          padding: 36px 18px 44px;
+        }
+        .tagline {
+          margin-bottom: 28px;
+        }
+        .bench,
+        .rows {
+          margin-bottom: 36px;
+        }
+        .install {
+          margin-bottom: 28px;
+        }
+        .usage-head {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        footer {
+          margin-top: 36px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .panel {
+          transition: none;
+          filter: none;
+          transform: none;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="row">
-      <button id="done">Done</button>
-      <button id="cancel">Cancel</button>
-      <button id="save">Save</button>
-    </div>
-    <div class="row">
-      <label><span id="check"><input type="checkbox" checked /></span>Ship it</label>
-      <span id="name"><input placeholder="your name" /></span>
-    </div>
-    <div id="card" style="max-width: 320px">
-      Every stroke on this page is generated at load. Reload for a fresh sketch.
-    </div>
+    <main id="page">
+      <header class="top">
+        <h1>scrawl</h1>
+        <div class="top-right">
+          <button class="status" id="resketch" type="button" aria-label="Resketch controls">
+            <span class="dot" id="dot"></span>
+            <span class="status-label">
+              <span class="on">boiling</span>
+              <span class="off">static</span>
+            </span>
+          </button>
+          <span class="meta" id="count">sketch 01</span>
+        </div>
+      </header>
+
+      <p class="tagline">Hand-drawn UI. Fresh pen sketch every mount. Zero dependencies.</p>
+
+      <section class="bench" aria-label="Live sketch">
+        <div class="field">
+          <span class="namebox" id="name"
+            ><input type="text" placeholder="your name" autocomplete="name"
+          /></span>
+          <label class="check-row">
+            <span id="check"><input type="checkbox" checked /></span>
+            Ship it
+          </label>
+        </div>
+        <p class="caption">Hover a control to re-sketch. Check draws on.</p>
+      </section>
+
+      <section class="rows" aria-label="Variants">
+        <div class="row">
+          <span class="row-name">outline</span>
+          <button id="v-outline" type="button">Edit</button>
+        </div>
+        <div class="row">
+          <span class="row-name">solid</span>
+          <button id="v-solid" type="button">Publish</button>
+        </div>
+        <div class="row">
+          <span class="row-name">scribble</span>
+          <button id="v-scribble" type="button">Draft</button>
+        </div>
+      </section>
+
+      <div class="install">
+        <button class="cmd" id="copy" type="button" aria-label="Copy install command">
+          <span class="dollar">$</span>
+          <span class="cmd-text">npm i scrawl</span>
+          <span class="cmd-icons" aria-hidden="true">
+            <svg class="copy" viewBox="0 0 16 16">
+              <rect x="5.5" y="5.5" width="8" height="8" rx="1.2" />
+              <path
+                d="M10.5 5.5V4.2A1.2 1.2 0 0 0 9.3 3H4.2A1.2 1.2 0 0 0 3 4.2v5.1A1.2 1.2 0 0 0 4.2 10.5H5.5"
+              />
+            </svg>
+            <svg class="check" viewBox="0 0 16 16">
+              <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <section id="usage" aria-label="Usage">
+        <div class="usage-head">
+          <h2>Use</h2>
+          <div class="tabs" role="tablist" aria-label="API">
+            <button
+              class="tab"
+              role="tab"
+              id="tab-js"
+              aria-selected="true"
+              aria-controls="panel-js"
+              type="button"
+            >
+              Vanilla
+            </button>
+            <button
+              class="tab"
+              role="tab"
+              id="tab-react"
+              aria-selected="false"
+              aria-controls="panel-react"
+              type="button"
+            >
+              React
+            </button>
+          </div>
+        </div>
+        <div class="code">
+          <pre class="panel" id="panel-js" role="tabpanel" aria-labelledby="tab-js" data-active>
+<span class="k">import</span> { scrawlButton } <span class="k">from</span> <span class="s">"scrawl"</span>;
+<span class="k">import</span> <span class="s">"scrawl/style.css"</span>;
+
+scrawlButton(done, { variant: <span class="s">"solid"</span> });</pre>
+          <pre class="panel" id="panel-react" role="tabpanel" aria-labelledby="tab-react">
+<span class="k">import</span> { ScrawlButton } <span class="k">from</span> <span class="s">"scrawl/react"</span>;
+
+&lt;ScrawlButton variant=<span class="s">"solid"</span> onClick={submit}&gt;
+  Done
+&lt;/ScrawlButton&gt;</pre>
+        </div>
+      </section>
+
+      <footer>
+        <span>MIT</span>
+        <span>v0.1.0</span>
+      </footer>
+    </main>
+
     <script type="module">
-      import { scrawlButton, scrawlCheckbox, scrawlInput, scrawlCard } from "../dist/index.js";
-      scrawlButton(document.getElementById("done"), { variant: "solid" });
-      scrawlButton(document.getElementById("cancel"));
-      scrawlButton(document.getElementById("save"), { variant: "scribble" });
-      scrawlCheckbox(document.getElementById("check"));
-      scrawlInput(document.getElementById("name"));
-      scrawlCard(document.getElementById("card"));
+      import { scrawlButton, scrawlCard, scrawlCheckbox, scrawlInput } from "../dist/index.js";
+
+      const sketches = [
+        scrawlCard(document.getElementById("page")),
+        scrawlInput(document.getElementById("name")),
+        scrawlCheckbox(document.getElementById("check")),
+        scrawlButton(document.getElementById("v-outline")),
+        scrawlButton(document.getElementById("v-solid"), { variant: "solid" }),
+        scrawlButton(document.getElementById("v-scribble"), { variant: "scribble" }),
+      ];
+
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const dot = document.getElementById("dot");
+      const resketch = document.getElementById("resketch");
+      const count = document.getElementById("count");
+      let n = 1;
+
+      if (reduced) {
+        dot.dataset.static = "";
+        resketch.dataset.static = "";
+      }
+
+      resketch.addEventListener("click", () => {
+        sketches.forEach((s) => s.resketch());
+        n = (n % 99) + 1;
+        count.textContent = `sketch ${String(n).padStart(2, "0")}`;
+      });
+
+      const copy = document.getElementById("copy");
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText("npm i scrawl");
+        } catch {
+          /* ponytail: clipboard may be blocked on file:// */
+        }
+        copy.dataset.copied = "";
+        window.setTimeout(() => delete copy.dataset.copied, 1400);
+      });
+
+      const tabs = [
+        [document.getElementById("tab-js"), document.getElementById("panel-js")],
+        [document.getElementById("tab-react"), document.getElementById("panel-react")],
+      ];
+
+      function select(next) {
+        for (const [tab, panel] of tabs) {
+          const on = tab === next;
+          tab.setAttribute("aria-selected", String(on));
+          panel.toggleAttribute("data-active", on);
+          panel.toggleAttribute("inert", !on);
+        }
+      }
+
+      select(tabs[0][0]);
+
+      for (const [tab] of tabs) {
+        tab.addEventListener("click", () => select(tab));
+      }
     </script>
   </body>
 </html>

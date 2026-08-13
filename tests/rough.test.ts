@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { roughCheckmark, roughLine, roughRoundedRect, scribbleFill, variants } from "../src/rough.js";
+import {
+  type RoughOptions,
+  roughCheckmark,
+  roughLine,
+  roughRoundedRect,
+  scribbleFill,
+  variants,
+} from "../src/rough.js";
 
 const o = { seed: 42, roughness: 1 };
 
@@ -37,12 +44,31 @@ describe("rough generators", () => {
 });
 
 describe("variants", () => {
-  it("returns 3 distinct deterministic paths", () => {
-    const gen = (ro: { seed: number; roughness: number }) => roughRoundedRect(0, 0, 100, 40, 8, ro);
-    const a = variants(gen, o);
-    const b = variants(gen, o);
+  const gen = (ro: RoughOptions) => roughRoundedRect(0, 0, 100, 40, 8, ro);
+
+  it("returns 3 distinct deterministic frames when boiling", () => {
+    const bo = { ...o, boil: 0.5 };
+    const a = variants(gen, bo);
+    const b = variants(gen, bo);
     expect(a).toHaveLength(3);
     expect(a).toEqual(b);
     expect(new Set(a).size).toBe(3);
+  });
+
+  it("returns identical frames without boil", () => {
+    expect(new Set(variants(gen, o)).size).toBe(1);
+  });
+
+  it("boil moves points less than a different seed does", () => {
+    const nums = (d: string) => [...d.matchAll(/-?[\d.]+/g)].map((m) => Number(m[0]));
+    const drift = (a: string, b: string) => {
+      const na = nums(a);
+      const nb = nums(b);
+      return Math.max(...na.map((v, i) => Math.abs(v - nb[i])));
+    };
+    const [f0, f1] = variants(gen, { ...o, boil: 0.5 });
+    const other = gen({ ...o, seed: 43 });
+    expect(drift(f0, f1)).toBeLessThanOrEqual(2 * 0.5 + 1e-9);
+    expect(drift(f0, other)).toBeGreaterThan(2 * 0.5);
   });
 });

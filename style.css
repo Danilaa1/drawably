@@ -23,8 +23,8 @@
 
 .scrawl-boil {
   opacity: 0;
-  animation: scrawl-boil 375ms infinite;
-  animation-delay: calc(var(--boil-i, 0) * -125ms);
+  animation: scrawl-boil 900ms infinite;
+  animation-delay: calc(var(--boil-i, 0) * -300ms);
 }
 
 @keyframes scrawl-boil {

@@ -3,6 +3,8 @@ import { mulberry32 } from "./prng.js";
 export interface RoughOptions {
   seed: number;
   roughness: number;
+  boil?: number;
+  boilSeed?: number;
 }
 
 type Pt = [number, number];
@@ -53,10 +55,18 @@ function toPath(points: Pt[], close: boolean): string {
   return close ? d + "Z" : d;
 }
 
+function boilPass(points: Pt[], o: RoughOptions): Pt[] {
+  if (!o.boil || o.boilSeed === undefined) return points;
+  return jitter(points, mulberry32(o.boilSeed), o.boil);
+}
+
 function doubleStroke(points: Pt[], o: RoughOptions, close: boolean): string {
   const rand = mulberry32(o.seed);
   const amp = 1.5 * o.roughness;
-  return toPath(jitter(points, rand, amp), close) + toPath(jitter(points, rand, amp * 1.4), close);
+  return (
+    toPath(boilPass(jitter(points, rand, amp), o), close) +
+    toPath(boilPass(jitter(points, rand, amp * 1.4), o), close)
+  );
 }
 
 export function roughLine(x1: number, y1: number, x2: number, y2: number, o: RoughOptions): string {
@@ -81,7 +91,7 @@ export function roughCheckmark(x: number, y: number, w: number, h: number, o: Ro
     // ponytail: duplicate vertex keeps the corner sharp under midpoint smoothing
     ...sampleLine(x + w * 0.35, y + h, x + w, y, 4),
   ];
-  return toPath(jitter(pts, rand, 1.2 * o.roughness), false);
+  return toPath(boilPass(jitter(pts, rand, 1.2 * o.roughness), o), false);
 }
 
 export function scribbleFill(x: number, y: number, w: number, h: number, o: RoughOptions): string {
@@ -96,7 +106,7 @@ export function scribbleFill(x: number, y: number, w: number, h: number, o: Roug
     flip = !flip;
   }
   if (pts.length < 2) return "";
-  return toPath(jitter(pts, rand, 1.2 * o.roughness), false);
+  return toPath(boilPass(jitter(pts, rand, 1.2 * o.roughness), o), false);
 }
 
 export function variants(
@@ -104,5 +114,5 @@ export function variants(
   o: RoughOptions,
   n = 3,
 ): string[] {
-  return Array.from({ length: n }, (_, i) => gen({ ...o, seed: o.seed + i * 7919 }));
+  return Array.from({ length: n }, (_, i) => gen({ ...o, boilSeed: o.seed + (i + 1) * 7919 }));
 }

@@ -10,8 +10,11 @@ import {
 export interface ScrawlOptions {
   seed?: number;
   roughness?: number;
+  boil?: number;
   stroke?: string;
   fill?: string;
+  paper?: string;
+  width?: number;
 }
 
 export interface Sketch {
@@ -38,6 +41,8 @@ function attachChrome(
   el.classList.add("scrawl-host");
   if (opts.stroke) el.style.setProperty("--scrawl-stroke", opts.stroke);
   if (opts.fill) el.style.setProperty("--scrawl-fill", opts.fill);
+  if (opts.paper) el.style.setProperty("--scrawl-paper", opts.paper);
+  if (opts.width !== undefined) el.style.setProperty("--scrawl-width", String(opts.width));
 
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.setAttribute("class", "scrawl-svg");
@@ -45,6 +50,7 @@ function attachChrome(
   el.prepend(svg);
 
   const roughness = opts.roughness ?? 1;
+  const boil = opts.boil ?? 0.5;
   let seed = opts.seed ?? randomSeed();
 
   function draw() {
@@ -53,11 +59,11 @@ function attachChrome(
     svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
     svg.textContent = "";
     for (const layer of layers) {
-      const ds = variants((o) => layer.gen(w, h, o), { seed, roughness });
+      const ds = variants((o) => layer.gen(w, h, o), { seed, roughness, boil }, boil > 0 ? 3 : 1);
       ds.forEach((d, i) => {
         const p = document.createElementNS(SVG_NS, "path");
         p.setAttribute("d", d);
-        p.setAttribute("class", `scrawl-boil ${layer.className}`);
+        p.setAttribute("class", ds.length > 1 ? `scrawl-boil ${layer.className}` : layer.className);
         p.dataset.i = String(i);
         p.style.setProperty("--boil-i", String(i));
         if (layer.pathLength) p.setAttribute("pathLength", "1");

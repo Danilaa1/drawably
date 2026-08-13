@@ -28,6 +28,18 @@ describe("scrawlButton", () => {
     expect(new Set([...paths].map((p) => p.getAttribute("d"))).size).toBe(3);
   });
 
+  it("boil 0 draws a single static path per layer", () => {
+    const { el } = mountButton({ seed: 1, boil: 0 });
+    expect(el.querySelectorAll("path")).toHaveLength(1);
+    expect(el.querySelectorAll("path.scrawl-boil")).toHaveLength(0);
+  });
+
+  it("sets paper and width custom properties from options", () => {
+    const { el } = mountButton({ paper: "#fff", width: 3 });
+    expect(el.style.getPropertyValue("--scrawl-paper")).toBe("#fff");
+    expect(el.style.getPropertyValue("--scrawl-width")).toBe("3");
+  });
+
   it("adds host and variant classes", () => {
     const { el } = mountButton({ seed: 1, variant: "solid" });
     expect(el.classList.contains("scrawl-host")).toBe(true);
