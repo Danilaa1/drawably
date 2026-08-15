@@ -1,49 +1,109 @@
-# scrawl
+# drawably
 
 Hand-drawn UI controls. Every mount generates a fresh pen sketch from seeded
-randomness; the stroke boils like an animated doodle. Zero dependencies.
+randomness, and the stroke boils like an animated doodle. Zero dependencies,
+~4 KB of JS and one stylesheet.
 
-## Use
+![Buttons, checkbox, radio and toggle drawn in a boiling pen stroke](assets/demo.svg)
 
-    npm i scrawl
+## Install
 
-    import { scrawlButton } from "scrawl";
-    import "scrawl/style.css";
+```sh
+npm i drawably
+```
 
-    scrawlButton(document.querySelector("#done"), { variant: "solid" });
+## Quick start
+
+```js
+import { drawablyButton } from "drawably";
+import "drawably/style.css";
+
+drawablyButton(document.querySelector("#done"), { variant: "solid" });
+```
 
 React:
 
-    import { ScrawlButton } from "scrawl/react";
+```jsx
+import { DrawablyButton } from "drawably/react";
+import "drawably/style.css";
 
-    <ScrawlButton variant="solid" onClick={submit}>Done</ScrawlButton>
+<DrawablyButton variant="solid" onClick={submit}>Done</DrawablyButton>
+```
+
+Each attach call returns a sketch handle:
+
+```js
+const sketch = drawablyButton(el);
+sketch.resketch();     // redraw with a new random seed
+sketch.resketch(42);   // redraw with a specific seed
+sketch.destroy();      // remove the SVG and all listeners
+```
+
+## Buttons
+
+Three variants: `outline` (default), `solid`, `scribble`. Buttons also carry a
+state machine for async work:
+
+![The four button states: idle, loading, error, success](assets/states.svg)
+
+```js
+const button = drawablyButton(el);
+button.setState("loading");  // dims the button, boils faster
+button.setState("error");    // redraws in red
+button.setState("success");  // redraws in green
+button.setState("idle");
+```
+
+In React, pass the `state` prop; the sketch stays put and only the state
+changes:
+
+```jsx
+<DrawablyButton state={saving ? "loading" : "idle"}>Save</DrawablyButton>
+```
+
+Override the state colours with `--drawably-error` and `--drawably-success`.
+For secondary or destructive actions, set `tone: "neutral"` (warm grey) or
+`tone: "danger"` (red).
 
 ## Controls
 
-- `scrawlButton(el, opts)` — variants: `outline` (default), `solid`, `scribble`.
-  Returns a sketch with `setState("idle" | "loading" | "error" | "success")`:
-  loading dims the button and boils faster, error redraws in red, success in
-  green. Initial state via `opts.state`; in React, the `state` prop. Override
-  the colours with `--scrawl-error` / `--scrawl-success`.
-  Tone via `opts.tone`: `neutral` (warm grey, for cancel/secondary actions) or
-  `danger` (red).
-- `scrawlCheckbox(wrapper, opts)` — wrapper contains an `<input type="checkbox">`
-- `scrawlRadio(wrapper, opts)` — wrapper contains an `<input type="radio">`;
-  hand-drawn circle with a scribbled dot
-- `scrawlToggle(wrapper, opts)` — wrapper contains an `<input type="checkbox">`;
-  sketched pill with an ink-blob knob that slides on flip
-- `scrawlInput(wrapper, opts)` — wrapper contains an `<input>`
-- `scrawlDivider(el, opts)` — a rough line across an `<hr>` or div
-- `scrawlCard(el, opts)`
+| Function | Element it expects |
+| --- | --- |
+| `drawablyButton(el, opts)` | a `<button>` |
+| `drawablyCheckbox(el, opts)` | wrapper containing `<input type="checkbox">` |
+| `drawablyRadio(el, opts)` | wrapper containing `<input type="radio">` |
+| `drawablyToggle(el, opts)` | wrapper containing `<input type="checkbox">` |
+| `drawablyInput(el, opts)` | wrapper containing an `<input>` |
+| `drawablyDivider(el, opts)` | an `<hr>` or div |
+| `drawablyCard(el, opts)` | any block element |
 
-Options:
+The real inputs stay in the DOM, so keyboard, forms, labels and screen readers
+all work as usual. The sketch is an `aria-hidden` SVG layered underneath.
 
-- `seed` — omit for a unique sketch per mount, pass for a reproducible one
-- `roughness` — wobble of the base sketch, default `1`
-- `boil` — px of frame-to-frame flicker, default `0.3`; `0` renders one
-  static path
-- `stroke`, `fill`, `paper`, `width` — set the matching `--scrawl-*` custom
-  property; equally settable in plain CSS
+Every control has a React counterpart in `drawably/react`: `DrawablyButton`,
+`DrawablyCheckbox`, `DrawablyRadio`, `DrawablyToggle`, `DrawablyInput`,
+`DrawablyDivider`, `DrawablyCard`.
+
+## Options
+
+All controls take the same base options:
+
+| Option | Default | What it does |
+| --- | --- | --- |
+| `seed` | random | Omit for a unique sketch per mount, pass a number for a reproducible one |
+| `roughness` | `1` | Wobble of the base sketch |
+| `boil` | `0.3` | Px of frame-to-frame flicker; `0` renders one static path |
+| `stroke`, `fill`, `paper` | ink blue / white | Colours, set as `--drawably-*` custom properties |
+| `width` | `2` | Stroke width in px |
+
+The colours are plain CSS custom properties, so a theme can set them once:
+
+```css
+:root {
+  --drawably-stroke: #1a1a1a;
+  --drawably-fill: #1a1a1a;
+}
+```
 
 Type is set in Inter when the page has it loaded (the library ships no font
 files — load Inter yourself), falling back to `system-ui`.
@@ -52,10 +112,27 @@ files — load Inter yourself), falling back to `system-ui`.
 
 Strokes boil gently: three frames of the same sketch, micro-wobbled around a
 shared base, cycled by pure CSS at 1200ms. Hover or press re-sketches buttons
-and checkboxes. `prefers-reduced-motion` freezes everything to a static
-sketch.
+and checkboxes. `prefers-reduced-motion` freezes everything to a single static
+sketch — including the demo images above.
 
-The rough renderer (`roughRoundedRect`, `roughLine`, `roughCheckmark`,
-`scribbleFill`) is exported — build your own shapes on it.
+## Build your own shapes
+
+The rough renderer is exported. Each function returns an SVG path string, and
+`variants` produces the boil frames:
+
+```js
+import { roughRoundedRect, roughLine, roughCircle, variants } from "drawably";
+
+const frames = variants(
+  (o) => roughRoundedRect(0, 0, 200, 100, 12, o),
+  { seed: 7, roughness: 1, boil: 0.3 },
+);
+// three path strings — render them and cycle opacity
+```
+
+Also exported: `roughCheckmark`, `scribbleFill`, and the seeded PRNG
+`mulberry32`.
+
+## License
 
 MIT.

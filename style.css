@@ -1,10 +1,10 @@
-.scrawl-host {
+.drawably-host {
   position: relative;
   isolation: isolate;
   font-family: Inter, system-ui, sans-serif;
 }
 
-.scrawl-svg {
+.drawably-svg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -14,10 +14,10 @@
   z-index: -1;
 }
 
-.scrawl-svg path {
+.drawably-svg path {
   fill: none;
-  stroke: var(--scrawl-ink, var(--scrawl-stroke, #2724d1));
-  stroke-width: var(--scrawl-width, 2);
+  stroke: var(--drawably-ink, var(--drawably-stroke, #2724d1));
+  stroke-width: var(--drawably-width, 2);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -25,47 +25,47 @@
 /* the three frames swap on shared keyframe percentages, so every hide and the
    next show compute to the same instant — the delay-offset version left a
    sub-ms gap where no frame was visible, sampling as a blank-frame flash */
-.scrawl-boil {
+.drawably-boil {
   opacity: 0;
-  animation: scrawl-boil-0 1200ms step-end infinite;
+  animation: drawably-boil-0 1200ms step-end infinite;
 }
 
-.scrawl-boil[data-i="1"] {
-  animation-name: scrawl-boil-1;
+.drawably-boil[data-i="1"] {
+  animation-name: drawably-boil-1;
 }
 
-.scrawl-boil[data-i="2"] {
-  animation-name: scrawl-boil-2;
+.drawably-boil[data-i="2"] {
+  animation-name: drawably-boil-2;
 }
 
-@keyframes scrawl-boil-0 {
+@keyframes drawably-boil-0 {
   0% { opacity: 1; }
   33.33% { opacity: 0; }
 }
 
-@keyframes scrawl-boil-1 {
+@keyframes drawably-boil-1 {
   0% { opacity: 0; }
   33.33% { opacity: 1; }
   66.67% { opacity: 0; }
 }
 
-@keyframes scrawl-boil-2 {
+@keyframes drawably-boil-2 {
   0% { opacity: 0; }
   66.67% { opacity: 1; }
   100% { opacity: 0; }
 }
 
-.scrawl-svg .scrawl-blob {
-  fill: var(--scrawl-ink, var(--scrawl-fill, #2724d1));
-  stroke: var(--scrawl-ink, var(--scrawl-fill, #2724d1));
+.drawably-svg .drawably-blob {
+  fill: var(--drawably-ink, var(--drawably-fill, #2724d1));
+  stroke: var(--drawably-ink, var(--drawably-fill, #2724d1));
   stroke-width: 4;
 }
 
-.scrawl-svg .scrawl-scribble {
+.drawably-svg .drawably-scribble {
   stroke-width: 1.5;
 }
 
-.scrawl-button {
+.drawably-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -74,70 +74,70 @@
   background: none;
   font: inherit;
   font-family: Inter, system-ui, sans-serif;
-  color: var(--scrawl-ink, var(--scrawl-stroke, #2724d1));
+  color: var(--drawably-ink, var(--drawably-stroke, #2724d1));
   cursor: pointer;
   outline: none;
   transition: transform 120ms ease;
 }
 
-.scrawl-button:active {
+.drawably-button:active {
   transform: scale(0.92);
 }
 
-.scrawl-button--neutral {
-  --scrawl-stroke: #6e675f;
-  --scrawl-fill: #6e675f;
+.drawably-button--neutral {
+  --drawably-stroke: #6e675f;
+  --drawably-fill: #6e675f;
 }
 
-.scrawl-button--danger {
-  --scrawl-stroke: var(--scrawl-error, #d12724);
-  --scrawl-fill: var(--scrawl-error, #d12724);
+.drawably-button--danger {
+  --drawably-stroke: var(--drawably-error, #d12724);
+  --drawably-fill: var(--drawably-error, #d12724);
 }
 
-.scrawl-button[data-state="error"] {
-  --scrawl-ink: var(--scrawl-error, #d12724);
+.drawably-button[data-state="error"] {
+  --drawably-ink: var(--drawably-error, #d12724);
 }
 
-.scrawl-button[data-state="success"] {
-  --scrawl-ink: var(--scrawl-success, #188a42);
+.drawably-button[data-state="success"] {
+  --drawably-ink: var(--drawably-success, #188a42);
 }
 
-.scrawl-button[data-state="loading"] {
+.drawably-button[data-state="loading"] {
   cursor: progress;
   opacity: 0.6;
 }
 
-.scrawl-button[data-state="loading"] .scrawl-boil {
+.drawably-button[data-state="loading"] .drawably-boil {
   animation-duration: 450ms;
 }
 
-.scrawl-button--solid {
-  color: var(--scrawl-paper, #fff);
+.drawably-button--solid {
+  color: var(--drawably-paper, #fff);
 }
 
-.scrawl-svg .scrawl-focus {
+.drawably-svg .drawably-focus {
   visibility: hidden;
   stroke-width: 1.5;
 }
 
-.scrawl-host:is(:focus-visible, :has(:focus-visible)) .scrawl-focus {
+.drawably-host:is(:focus-visible, :has(:focus-visible)) .drawably-focus {
   visibility: visible;
 }
 
-.scrawl-checkbox,
-.scrawl-radio {
+.drawably-checkbox,
+.drawably-radio {
   display: inline-block;
   width: 22px;
   height: 22px;
 }
 
-.scrawl-toggle {
+.drawably-toggle {
   display: inline-block;
   width: 44px;
   height: 24px;
 }
 
-:is(.scrawl-checkbox, .scrawl-radio, .scrawl-toggle) input {
+:is(.drawably-checkbox, .drawably-radio, .drawably-toggle) input {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -147,9 +147,9 @@
   cursor: pointer;
 }
 
-.scrawl-svg .scrawl-dot {
-  fill: var(--scrawl-ink, var(--scrawl-fill, #2724d1));
-  stroke: var(--scrawl-ink, var(--scrawl-fill, #2724d1));
+.drawably-svg .drawably-dot {
+  fill: var(--drawably-ink, var(--drawably-fill, #2724d1));
+  stroke: var(--drawably-ink, var(--drawably-fill, #2724d1));
   visibility: hidden;
   transform: scale(0.5);
   transform-box: fill-box;
@@ -157,42 +157,42 @@
   transition: transform 160ms ease-out;
 }
 
-.scrawl-radio[data-checked] .scrawl-dot {
+.drawably-radio[data-checked] .drawably-dot {
   visibility: visible;
   transform: scale(1);
 }
 
-.scrawl-svg .scrawl-knob {
+.drawably-svg .drawably-knob {
   transition: transform 160ms ease-out;
 }
 
 /* travel = toggle width 44px minus height 24px; resizing the toggle in CSS
    means overriding this too */
-.scrawl-toggle[data-checked] .scrawl-knob {
+.drawably-toggle[data-checked] .drawably-knob {
   transform: translateX(20px);
 }
 
-.scrawl-divider {
+.drawably-divider {
   display: block;
   height: 10px;
   border: 0;
 }
 
-.scrawl-svg .scrawl-check {
+.drawably-svg .drawably-check {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   transition: stroke-dashoffset 240ms ease-out;
 }
 
-.scrawl-checkbox[data-checked] .scrawl-check {
+.drawably-checkbox[data-checked] .drawably-check {
   stroke-dashoffset: 0;
 }
 
-.scrawl-inputbox {
+.drawably-inputbox {
   display: inline-block;
 }
 
-.scrawl-inputbox input {
+.drawably-inputbox input {
   border: 0;
   background: none;
   font: inherit;
@@ -203,20 +203,20 @@
   outline: none;
 }
 
-.scrawl-card {
+.drawably-card {
   padding: 16px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scrawl-boil {
+  .drawably-boil {
     animation: none;
   }
-  .scrawl-boil[data-i="0"] {
+  .drawably-boil[data-i="0"] {
     opacity: 1;
   }
-  .scrawl-svg .scrawl-check,
-  .scrawl-svg .scrawl-dot,
-  .scrawl-svg .scrawl-knob {
+  .drawably-svg .drawably-check,
+  .drawably-svg .drawably-dot,
+  .drawably-svg .drawably-knob {
     transition: none;
   }
 }

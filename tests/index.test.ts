@@ -1,12 +1,12 @@
 import { expect, it } from "vitest";
-import * as scrawl from "../src/index.js";
+import * as drawably from "../src/index.js";
 
 it("exports the public surface", () => {
   for (const name of [
-    "scrawlButton",
-    "scrawlCheckbox",
-    "scrawlInput",
-    "scrawlCard",
+    "drawablyButton",
+    "drawablyCheckbox",
+    "drawablyInput",
+    "drawablyCard",
     "roughLine",
     "roughRoundedRect",
     "roughCheckmark",
@@ -15,5 +15,5 @@ it("exports the public surface", () => {
     "mulberry32",
     "randomSeed",
   ])
-    expect(scrawl, name).toHaveProperty(name);
+    expect(drawably, name).toHaveProperty(name);
 });

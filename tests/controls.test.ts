@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { scrawlButton, scrawlCard } from "../src/controls.js";
+import { drawablyButton, drawablyCard } from "../src/controls.js";
 
 beforeEach(() => {
   document.body.innerHTML = "";
@@ -9,19 +9,19 @@ function mountButton(opts = {}) {
   const el = document.createElement("button");
   el.textContent = "Done";
   document.body.append(el);
-  return { el, sketch: scrawlButton(el, opts) };
+  return { el, sketch: drawablyButton(el, opts) };
 }
 
-describe("scrawlButton", () => {
+describe("drawablyButton", () => {
   it("throws on a null element", () => {
-    expect(() => scrawlButton(null as unknown as HTMLElement)).toThrow();
+    expect(() => drawablyButton(null as unknown as HTMLElement)).toThrow();
   });
 
   it("injects an aria-hidden svg with 3 boil variants per layer", () => {
     const { el } = mountButton({ seed: 1 });
-    const svg = el.querySelector("svg.scrawl-svg");
+    const svg = el.querySelector("svg.drawably-svg");
     expect(svg?.getAttribute("aria-hidden")).toBe("true");
-    const paths = el.querySelectorAll("path.scrawl-boil.scrawl-outline");
+    const paths = el.querySelectorAll("path.drawably-boil.drawably-outline");
     expect(paths).toHaveLength(3);
     expect(paths[0].dataset.i).toBe("0");
     expect(paths[2].dataset.i).toBe("2");
@@ -30,44 +30,44 @@ describe("scrawlButton", () => {
 
   it("boil 0 draws a single static path per layer", () => {
     const { el } = mountButton({ seed: 1, boil: 0 });
-    expect(el.querySelectorAll("path.scrawl-outline")).toHaveLength(1);
-    expect(el.querySelectorAll("path.scrawl-boil")).toHaveLength(0);
+    expect(el.querySelectorAll("path.drawably-outline")).toHaveLength(1);
+    expect(el.querySelectorAll("path.drawably-boil")).toHaveLength(0);
   });
 
   it("draws a hand-drawn focus ring layer", () => {
     const { el } = mountButton({ seed: 1 });
-    expect(el.querySelectorAll("path.scrawl-focus")).toHaveLength(3);
+    expect(el.querySelectorAll("path.drawably-focus")).toHaveLength(3);
   });
 
   it("sets paper and width custom properties from options", () => {
     const { el } = mountButton({ paper: "#fff", width: 3 });
-    expect(el.style.getPropertyValue("--scrawl-paper")).toBe("#fff");
-    expect(el.style.getPropertyValue("--scrawl-width")).toBe("3");
+    expect(el.style.getPropertyValue("--drawably-paper")).toBe("#fff");
+    expect(el.style.getPropertyValue("--drawably-width")).toBe("3");
   });
 
   it("adds host and variant classes", () => {
     const { el } = mountButton({ seed: 1, variant: "solid" });
-    expect(el.classList.contains("scrawl-host")).toBe(true);
-    expect(el.classList.contains("scrawl-button")).toBe(true);
-    expect(el.classList.contains("scrawl-button--solid")).toBe(true);
+    expect(el.classList.contains("drawably-host")).toBe(true);
+    expect(el.classList.contains("drawably-button")).toBe(true);
+    expect(el.classList.contains("drawably-button--solid")).toBe(true);
   });
 
   it("solid variant adds a blob layer under the outline", () => {
     const { el } = mountButton({ seed: 1, variant: "solid" });
     expect(el.querySelectorAll("path")).toHaveLength(9);
-    expect(el.querySelectorAll("path.scrawl-blob")).toHaveLength(3);
-    expect(el.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
+    expect(el.querySelectorAll("path.drawably-blob")).toHaveLength(3);
+    expect(el.querySelectorAll("path.drawably-outline")).toHaveLength(3);
   });
 
   it("scribble variant adds a scribble layer", () => {
     const { el } = mountButton({ seed: 1, variant: "scribble" });
-    expect(el.querySelectorAll("path.scrawl-scribble")).toHaveLength(3);
+    expect(el.querySelectorAll("path.drawably-scribble")).toHaveLength(3);
   });
 
   it("sets colour custom properties from options", () => {
     const { el } = mountButton({ stroke: "red", fill: "blue" });
-    expect(el.style.getPropertyValue("--scrawl-stroke")).toBe("red");
-    expect(el.style.getPropertyValue("--scrawl-fill")).toBe("blue");
+    expect(el.style.getPropertyValue("--drawably-stroke")).toBe("red");
+    expect(el.style.getPropertyValue("--drawably-fill")).toBe("blue");
   });
 
   it("resketch is deterministic per seed and changes the drawing", () => {
@@ -94,7 +94,7 @@ describe("scrawlButton", () => {
 
   it("tone adds a tone class", () => {
     const { el } = mountButton({ seed: 1, tone: "neutral" });
-    expect(el.classList.contains("scrawl-button--neutral")).toBe(true);
+    expect(el.classList.contains("drawably-button--neutral")).toBe(true);
   });
 
   it("state option and setState drive data-state", () => {
@@ -118,17 +118,17 @@ describe("scrawlButton", () => {
     const { el, sketch } = mountButton({ seed: 1 });
     sketch.destroy();
     expect(el.querySelector("svg")).toBeNull();
-    expect(el.classList.contains("scrawl-host")).toBe(false);
+    expect(el.classList.contains("drawably-host")).toBe(false);
     el.dispatchEvent(new Event("pointerenter"));
     expect(el.querySelector("svg")).toBeNull();
   });
 });
 
-describe("scrawlCard", () => {
+describe("drawablyCard", () => {
   it("draws a single outline layer and ignores pointer events", () => {
     const el = document.createElement("div");
     document.body.append(el);
-    scrawlCard(el, { seed: 1 });
+    drawablyCard(el, { seed: 1 });
     expect(el.querySelectorAll("path")).toHaveLength(3);
     const d1 = el.querySelector("path")?.getAttribute("d");
     el.dispatchEvent(new Event("pointerenter"));
@@ -136,9 +136,9 @@ describe("scrawlCard", () => {
   });
 });
 
-import { scrawlCheckbox, scrawlDivider, scrawlInput, scrawlRadio, scrawlToggle } from "../src/controls.js";
+import { drawablyCheckbox, drawablyDivider, drawablyInput, drawablyRadio, drawablyToggle } from "../src/controls.js";
 
-describe("scrawlCheckbox", () => {
+describe("drawablyCheckbox", () => {
   function mountCheckbox(checked = false) {
     const wrap = document.createElement("span");
     const input = document.createElement("input");
@@ -146,19 +146,19 @@ describe("scrawlCheckbox", () => {
     input.checked = checked;
     wrap.append(input);
     document.body.append(wrap);
-    return { wrap, input, sketch: scrawlCheckbox(wrap, { seed: 1 }) };
+    return { wrap, input, sketch: drawablyCheckbox(wrap, { seed: 1 }) };
   }
 
   it("throws without an inner checkbox input", () => {
     const wrap = document.createElement("span");
     document.body.append(wrap);
-    expect(() => scrawlCheckbox(wrap)).toThrow();
+    expect(() => drawablyCheckbox(wrap)).toThrow();
   });
 
   it("draws box outline plus a pathLength-normalised check layer", () => {
     const { wrap } = mountCheckbox();
-    expect(wrap.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
-    const checks = wrap.querySelectorAll("path.scrawl-check");
+    expect(wrap.querySelectorAll("path.drawably-outline")).toHaveLength(3);
+    const checks = wrap.querySelectorAll("path.drawably-check");
     expect(checks).toHaveLength(3);
     for (const p of checks) expect(p.getAttribute("pathLength")).toBe("1");
   });
@@ -195,7 +195,7 @@ describe("scrawlCheckbox", () => {
   });
 });
 
-describe("scrawlRadio", () => {
+describe("drawablyRadio", () => {
   function mountRadio(name = "g") {
     const wrap = document.createElement("span");
     const input = document.createElement("input");
@@ -203,21 +203,21 @@ describe("scrawlRadio", () => {
     input.name = name;
     wrap.append(input);
     document.body.append(wrap);
-    return { wrap, input, sketch: scrawlRadio(wrap, { seed: 1 }) };
+    return { wrap, input, sketch: drawablyRadio(wrap, { seed: 1 }) };
   }
 
   it("throws without an inner radio input", () => {
     const wrap = document.createElement("span");
     document.body.append(wrap);
-    expect(() => scrawlRadio(wrap)).toThrow();
+    expect(() => drawablyRadio(wrap)).toThrow();
   });
 
   it("draws circle outline, dot and focus layers", () => {
     const { wrap } = mountRadio();
-    expect(wrap.classList.contains("scrawl-radio")).toBe(true);
-    expect(wrap.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
-    expect(wrap.querySelectorAll("path.scrawl-dot")).toHaveLength(3);
-    expect(wrap.querySelectorAll("path.scrawl-focus")).toHaveLength(3);
+    expect(wrap.classList.contains("drawably-radio")).toBe(true);
+    expect(wrap.querySelectorAll("path.drawably-outline")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.drawably-dot")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.drawably-focus")).toHaveLength(3);
   });
 
   it("syncs data-checked across a group via document change events", () => {
@@ -241,7 +241,7 @@ describe("scrawlRadio", () => {
   });
 });
 
-describe("scrawlToggle", () => {
+describe("drawablyToggle", () => {
   function mountToggle(checked = false) {
     const wrap = document.createElement("span");
     const input = document.createElement("input");
@@ -249,15 +249,15 @@ describe("scrawlToggle", () => {
     input.checked = checked;
     wrap.append(input);
     document.body.append(wrap);
-    return { wrap, input, sketch: scrawlToggle(wrap, { seed: 1 }) };
+    return { wrap, input, sketch: drawablyToggle(wrap, { seed: 1 }) };
   }
 
   it("draws pill outline, knob blob and focus layers", () => {
     const { wrap } = mountToggle();
-    expect(wrap.classList.contains("scrawl-toggle")).toBe(true);
-    expect(wrap.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
-    expect(wrap.querySelectorAll("path.scrawl-knob.scrawl-blob")).toHaveLength(3);
-    expect(wrap.querySelectorAll("path.scrawl-focus")).toHaveLength(3);
+    expect(wrap.classList.contains("drawably-toggle")).toBe(true);
+    expect(wrap.querySelectorAll("path.drawably-outline")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.drawably-knob.drawably-blob")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.drawably-focus")).toHaveLength(3);
   });
 
   it("mirrors checked state to data-checked", () => {
@@ -271,27 +271,27 @@ describe("scrawlToggle", () => {
   });
 });
 
-describe("scrawlDivider", () => {
+describe("drawablyDivider", () => {
   it("draws a single line layer", () => {
     const el = document.createElement("hr");
     document.body.append(el);
-    scrawlDivider(el, { seed: 1 });
-    expect(el.classList.contains("scrawl-divider")).toBe(true);
-    expect(el.querySelectorAll("path.scrawl-boil.scrawl-outline")).toHaveLength(3);
+    drawablyDivider(el, { seed: 1 });
+    expect(el.classList.contains("drawably-divider")).toBe(true);
+    expect(el.querySelectorAll("path.drawably-boil.drawably-outline")).toHaveLength(3);
   });
 });
 
-describe("scrawlInput", () => {
+describe("drawablyInput", () => {
   it("throws without an inner input and draws one outline layer with one", () => {
     const bare = document.createElement("span");
     document.body.append(bare);
-    expect(() => scrawlInput(bare)).toThrow();
+    expect(() => drawablyInput(bare)).toThrow();
     const wrap = document.createElement("span");
     wrap.append(document.createElement("input"));
     document.body.append(wrap);
-    scrawlInput(wrap, { seed: 1 });
-    expect(wrap.classList.contains("scrawl-inputbox")).toBe(true);
-    expect(wrap.querySelectorAll("path.scrawl-outline")).toHaveLength(3);
-    expect(wrap.querySelectorAll("path.scrawl-focus")).toHaveLength(3);
+    drawablyInput(wrap, { seed: 1 });
+    expect(wrap.classList.contains("drawably-inputbox")).toBe(true);
+    expect(wrap.querySelectorAll("path.drawably-outline")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.drawably-focus")).toHaveLength(3);
   });
 });

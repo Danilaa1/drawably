@@ -1,5 +1,5 @@
 {
-  "name": "scrawl",
+  "name": "drawably",
   "version": "0.1.0",
   "description": "Hand-drawn UI controls. Every render a fresh pen sketch, boiling like a doodle.",
   "license": "MIT",
@@ -30,7 +30,8 @@
     "./style.css": {
       "types": "./style.css.d.ts",
       "default": "./style.css"
-    }
+    },
+    "./agent.md": "./agent.md"
   },
   "scripts": {
     "prepublishOnly": "npm run build",

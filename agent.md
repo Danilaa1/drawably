@@ -1,87 +1,87 @@
-# scrawl
+# drawably
 
 Zero-dependency hand-drawn UI. Real HTML controls with SVG chrome. A unique seeded sketch per mount. Strokes boil in CSS.
 
 Install Inter yourself if you want the intended type. The library does not ship font files.
 
 ```
-npm i scrawl
+npm i drawably
 ```
 
 ## Vanilla
 
 ```js
 import {
-  scrawlButton,
-  scrawlCheckbox,
-  scrawlRadio,
-  scrawlToggle,
-  scrawlInput,
-  scrawlDivider,
-  scrawlCard,
-} from "scrawl";
-import "scrawl/style.css";
+  drawablyButton,
+  drawablyCheckbox,
+  drawablyRadio,
+  drawablyToggle,
+  drawablyInput,
+  drawablyDivider,
+  drawablyCard,
+} from "drawably";
+import "drawably/style.css";
 
-scrawlButton(document.querySelector("#done"), { variant: "solid" });
-scrawlCheckbox(document.querySelector("#check")); // wrapper must contain <input type="checkbox">
-scrawlRadio(document.querySelector("#pen")); // wrapper must contain <input type="radio">
-scrawlToggle(document.querySelector("#tog")); // wrapper must contain <input type="checkbox">
-scrawlInput(document.querySelector("#name")); // wrapper must contain <input>
-scrawlDivider(document.querySelector("#rule")); // <hr> or div
-scrawlCard(document.querySelector("#card"));
+drawablyButton(document.querySelector("#done"), { variant: "solid" });
+drawablyCheckbox(document.querySelector("#check")); // wrapper must contain <input type="checkbox">
+drawablyRadio(document.querySelector("#pen")); // wrapper must contain <input type="radio">
+drawablyToggle(document.querySelector("#tog")); // wrapper must contain <input type="checkbox">
+drawablyInput(document.querySelector("#name")); // wrapper must contain <input>
+drawablyDivider(document.querySelector("#rule")); // <hr> or div
+drawablyCard(document.querySelector("#card"));
 ```
 
 Each attacher throws if the element is missing. Checkbox/radio/toggle/input throw if the inner `<input>` is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
 
 ## React
 
-Optional peer. Subpath `"scrawl/react"`. Client-only (uses `useEffect`).
+Optional peer. Subpath `"drawably/react"`. Client-only (uses `useEffect`).
 
 ```jsx
 import {
-  ScrawlButton,
-  ScrawlCheckbox,
-  ScrawlRadio,
-  ScrawlToggle,
-  ScrawlInput,
-  ScrawlDivider,
-  ScrawlCard,
-} from "scrawl/react";
-import "scrawl/style.css";
+  DrawablyButton,
+  DrawablyCheckbox,
+  DrawablyRadio,
+  DrawablyToggle,
+  DrawablyInput,
+  DrawablyDivider,
+  DrawablyCard,
+} from "drawably/react";
+import "drawably/style.css";
 
-<ScrawlButton variant="solid" state="idle" onClick={submit}>Done</ScrawlButton>
-<ScrawlButton tone="neutral">Cancel</ScrawlButton>
-<ScrawlButton tone="danger">Delete</ScrawlButton>
-<ScrawlCheckbox defaultChecked />
-<ScrawlRadio name="ink" defaultChecked />
-<ScrawlToggle />
-<ScrawlInput placeholder="your name" />
-<ScrawlDivider />
-<ScrawlCard>…</ScrawlCard>
+<DrawablyButton variant="solid" state="idle" onClick={submit}>Done</DrawablyButton>
+<DrawablyButton tone="neutral">Cancel</DrawablyButton>
+<DrawablyButton tone="danger">Delete</DrawablyButton>
+<DrawablyCheckbox defaultChecked />
+<DrawablyRadio name="ink" defaultChecked />
+<DrawablyToggle />
+<DrawablyInput placeholder="your name" />
+<DrawablyDivider />
+<DrawablyCard>…</DrawablyCard>
 ```
 
 Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant`, `state`, and `tone`.
 
 ## Button
 
-`scrawlButton(el, opts)` → `ButtonSketch`
+`drawablyButton(el, opts)` → `ButtonSketch`
 
 - `variant`: `"outline"` (default) | `"solid"` | `"scribble"`
 - `state`: `"idle"` | `"loading"` | `"error"` | `"success"`
 - `tone`: `"neutral"` (warm grey, secondary) | `"danger"` (red)
 - `setState(state)` after mount. React: `state` prop.
 - loading: dimmed, faster boil, `cursor: progress`
-- error: `--scrawl-error` (default `#d12724`)
-- success: `--scrawl-success` (default `#188a42`)
+- error: `--drawably-error` (default `#d12724`)
+- success: `--drawably-success` (default `#188a42`)
 
 ## Other controls
 
-- `scrawlCheckbox(wrap, opts)` — checkbox in a wrapper
-- `scrawlRadio(wrap, opts)` — radio in a wrapper; scribbled dot when checked. Same `name` groups them.
-- `scrawlToggle(wrap, opts)` — checkbox in a wrapper; pill with a sliding ink-blob knob. React sets `role="switch"`.
-- `scrawlInput(wrap, opts)` — text input in a wrapper
-- `scrawlDivider(el, opts)` — rough line on an `<hr>` or div
-- `scrawlCard(el, opts)` — sketched container
+- `drawablyCheckbox(wrap, opts)` — checkbox in a wrapper
+- `drawablyRadio(wrap, opts)` — radio in a wrapper; scribbled dot when checked. Same `name` groups them.
+- `drawablyToggle(wrap, opts)` — checkbox in a wrapper; pill with a sliding ink-blob knob. React sets `role="switch"`.
+- `drawablyInput(wrap, opts)` — text input in a wrapper
+- `drawablyDivider(el, opts)` — rough line on an `<hr>` or div
+- `drawablyCard(el, opts)` — sketched container
 
 ## Options (all controls)
 
@@ -90,12 +90,12 @@ Native element props pass through. Sketch options are top-level props: `seed`, `
 | `seed`                          | random   | omit for a unique sketch per mount                                          |
 | `roughness`                     | `1`      | wobble of the base sketch                                                   |
 | `boil`                          | `0.3`    | frame-to-frame flicker in px; `0` = one static path                         |
-| `stroke` `fill` `paper` `width` | CSS vars | also `--scrawl-stroke`, `--scrawl-fill`, `--scrawl-paper`, `--scrawl-width` |
+| `stroke` `fill` `paper` `width` | CSS vars | also `--drawably-stroke`, `--drawably-fill`, `--drawably-paper`, `--drawably-width` |
 
 ## Rules
 
 - Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input wrapper, `hr`, or `div`.
-- Import `scrawl/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
+- Import `drawably/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
 - Respect `prefers-reduced-motion`: the library already freezes boil and skips hover re-sketch. Do not add extra motion on top when that media query matches.
 - Hover/press re-sketches buttons, checkboxes, radios, and toggles.
 - Renderer exports if you need custom shapes: `roughRoundedRect`, `roughCircle`, `roughLine`, `roughCheckmark`, `scribbleFill`, `variants`, `mulberry32`, `randomSeed`.

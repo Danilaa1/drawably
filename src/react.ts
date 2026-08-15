@@ -6,15 +6,16 @@ import {
   useRef,
 } from "react";
 import {
-  type ScrawlButtonOptions,
-  type ScrawlOptions,
-  scrawlButton,
-  scrawlCard,
-  scrawlCheckbox,
-  scrawlDivider,
-  scrawlInput,
-  scrawlRadio,
-  scrawlToggle,
+  type ButtonSketch,
+  type DrawablyButtonOptions,
+  type DrawablyOptions,
+  drawablyButton,
+  drawablyCard,
+  drawablyCheckbox,
+  drawablyDivider,
+  drawablyInput,
+  drawablyRadio,
+  drawablyToggle,
   type Sketch,
 } from "./controls.js";
 
@@ -31,67 +32,71 @@ function useSketch<T extends HTMLElement>(
   return ref;
 }
 
-type ButtonProps = ScrawlButtonOptions & ComponentProps<"button">;
+type ButtonProps = DrawablyButtonOptions & ComponentProps<"button">;
 
-export function ScrawlButton({ seed, roughness, boil, stroke, fill, paper, width, variant, state, tone, className, children, ...rest }: ButtonProps): ReactElement {
+export function DrawablyButton({ seed, roughness, boil, stroke, fill, paper, width, variant, state, tone, className, children, ...rest }: ButtonProps): ReactElement {
+  const sketchRef = useRef<ButtonSketch | null>(null);
   const ref = useSketch<HTMLButtonElement>(
-    (el) => scrawlButton(el, { seed, roughness, boil, stroke, fill, paper, width, variant, state, tone }),
-    [seed, roughness, boil, stroke, fill, paper, width, variant, state, tone, className],
+    (el) => (sketchRef.current = drawablyButton(el, { seed, roughness, boil, stroke, fill, paper, width, variant, state, tone })),
+    [seed, roughness, boil, stroke, fill, paper, width, variant, tone, className],
   );
+  useEffect(() => {
+    sketchRef.current?.setState(state ?? "idle");
+  }, [state]);
   return createElement("button", { type: "button", ...rest, className, ref }, children);
 }
 
-type CheckboxProps = ScrawlOptions & ComponentProps<"input">;
+type CheckboxProps = DrawablyOptions & ComponentProps<"input">;
 
-export function ScrawlCheckbox({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: CheckboxProps): ReactElement {
+export function DrawablyCheckbox({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: CheckboxProps): ReactElement {
   const ref = useSketch<HTMLSpanElement>(
-    (el) => scrawlCheckbox(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    (el) => drawablyCheckbox(el, { seed, roughness, boil, stroke, fill, paper, width }),
     [seed, roughness, boil, stroke, fill, paper, width, className],
   );
   return createElement("span", { className, ref }, createElement("input", { ...rest, type: "checkbox" }));
 }
 
-type InputProps = ScrawlOptions & ComponentProps<"input">;
+type InputProps = DrawablyOptions & ComponentProps<"input">;
 
-export function ScrawlInput({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: InputProps): ReactElement {
+export function DrawablyInput({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: InputProps): ReactElement {
   const ref = useSketch<HTMLSpanElement>(
-    (el) => scrawlInput(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    (el) => drawablyInput(el, { seed, roughness, boil, stroke, fill, paper, width }),
     [seed, roughness, boil, stroke, fill, paper, width, className],
   );
   return createElement("span", { className, ref }, createElement("input", rest));
 }
 
-export function ScrawlRadio({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: InputProps): ReactElement {
+export function DrawablyRadio({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: InputProps): ReactElement {
   const ref = useSketch<HTMLSpanElement>(
-    (el) => scrawlRadio(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    (el) => drawablyRadio(el, { seed, roughness, boil, stroke, fill, paper, width }),
     [seed, roughness, boil, stroke, fill, paper, width, className],
   );
   return createElement("span", { className, ref }, createElement("input", { ...rest, type: "radio" }));
 }
 
-export function ScrawlToggle({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: CheckboxProps): ReactElement {
+export function DrawablyToggle({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: CheckboxProps): ReactElement {
   const ref = useSketch<HTMLSpanElement>(
-    (el) => scrawlToggle(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    (el) => drawablyToggle(el, { seed, roughness, boil, stroke, fill, paper, width }),
     [seed, roughness, boil, stroke, fill, paper, width, className],
   );
   return createElement("span", { className, ref }, createElement("input", { ...rest, type: "checkbox", role: "switch" }));
 }
 
-type DividerProps = ScrawlOptions & ComponentProps<"hr">;
+type DividerProps = DrawablyOptions & ComponentProps<"hr">;
 
-export function ScrawlDivider({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: DividerProps): ReactElement {
+export function DrawablyDivider({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: DividerProps): ReactElement {
   const ref = useSketch<HTMLHRElement>(
-    (el) => scrawlDivider(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    (el) => drawablyDivider(el, { seed, roughness, boil, stroke, fill, paper, width }),
     [seed, roughness, boil, stroke, fill, paper, width, className],
   );
   return createElement("hr", { ...rest, className, ref });
 }
 
-type CardProps = ScrawlOptions & ComponentProps<"div">;
+type CardProps = DrawablyOptions & ComponentProps<"div">;
 
-export function ScrawlCard({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: CardProps): ReactElement {
+export function DrawablyCard({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: CardProps): ReactElement {
   const ref = useSketch<HTMLDivElement>(
-    (el) => scrawlCard(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    (el) => drawablyCard(el, { seed, roughness, boil, stroke, fill, paper, width }),
     [seed, roughness, boil, stroke, fill, paper, width, className],
   );
   return createElement("div", { ...rest, className, ref }, children);

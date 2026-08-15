@@ -9,7 +9,7 @@ import {
   variants,
 } from "./rough.js";
 
-export interface ScrawlOptions {
+export interface DrawablyOptions {
   seed?: number;
   roughness?: number;
   boil?: number;
@@ -36,18 +36,18 @@ const INSET = 3;
 function attachChrome(
   el: HTMLElement,
   layers: Layer[],
-  opts: ScrawlOptions,
+  opts: DrawablyOptions,
   interactive: boolean,
 ): Sketch {
-  if (!(el instanceof HTMLElement)) throw new Error("scrawl: expected an HTMLElement");
-  el.classList.add("scrawl-host");
-  if (opts.stroke) el.style.setProperty("--scrawl-stroke", opts.stroke);
-  if (opts.fill) el.style.setProperty("--scrawl-fill", opts.fill);
-  if (opts.paper) el.style.setProperty("--scrawl-paper", opts.paper);
-  if (opts.width !== undefined) el.style.setProperty("--scrawl-width", String(opts.width));
+  if (!(el instanceof HTMLElement)) throw new Error("drawably: expected an HTMLElement");
+  el.classList.add("drawably-host");
+  if (opts.stroke) el.style.setProperty("--drawably-stroke", opts.stroke);
+  if (opts.fill) el.style.setProperty("--drawably-fill", opts.fill);
+  if (opts.paper) el.style.setProperty("--drawably-paper", opts.paper);
+  if (opts.width !== undefined) el.style.setProperty("--drawably-width", String(opts.width));
 
   const svg = document.createElementNS(SVG_NS, "svg");
-  svg.setAttribute("class", "scrawl-svg");
+  svg.setAttribute("class", "drawably-svg");
   svg.setAttribute("aria-hidden", "true");
   el.prepend(svg);
 
@@ -65,7 +65,7 @@ function attachChrome(
       ds.forEach((d, i) => {
         const p = document.createElementNS(SVG_NS, "path");
         p.setAttribute("d", d);
-        p.setAttribute("class", ds.length > 1 ? `scrawl-boil ${layer.className}` : layer.className);
+        p.setAttribute("class", ds.length > 1 ? `drawably-boil ${layer.className}` : layer.className);
         p.dataset.i = String(i);
         if (layer.pathLength) p.setAttribute("pathLength", "1");
         svg.append(p);
@@ -98,7 +98,7 @@ function attachChrome(
       el.removeEventListener("pointerenter", onPointer);
       el.removeEventListener("pointerdown", onPointer);
       svg.remove();
-      el.classList.remove("scrawl-host");
+      el.classList.remove("drawably-host");
     },
   };
 }
@@ -113,33 +113,33 @@ const focusRect =
   (w, h, o) =>
     roughRoundedRect(-1, -1, w + 2, h + 2, r, o);
 
-export type ScrawlButtonState = "idle" | "loading" | "error" | "success";
+export type DrawablyButtonState = "idle" | "loading" | "error" | "success";
 
-export interface ScrawlButtonOptions extends ScrawlOptions {
+export interface DrawablyButtonOptions extends DrawablyOptions {
   variant?: "outline" | "solid" | "scribble";
-  state?: ScrawlButtonState;
+  state?: DrawablyButtonState;
   tone?: "neutral" | "danger";
 }
 
 export interface ButtonSketch extends Sketch {
-  setState(state: ScrawlButtonState): void;
+  setState(state: DrawablyButtonState): void;
 }
 
-export function scrawlButton(el: HTMLElement, opts: ScrawlButtonOptions = {}): ButtonSketch {
+export function drawablyButton(el: HTMLElement, opts: DrawablyButtonOptions = {}): ButtonSketch {
   const variant = opts.variant ?? "outline";
   const layers: Layer[] = [];
-  if (variant === "solid") layers.push({ className: "scrawl-blob", gen: outlineRect(8) });
+  if (variant === "solid") layers.push({ className: "drawably-blob", gen: outlineRect(8) });
   if (variant === "scribble")
     layers.push({
-      className: "scrawl-scribble",
+      className: "drawably-scribble",
       gen: (w, h, o) => scribbleFill(INSET + 2, INSET + 2, w - 2 * INSET - 4, h - 2 * INSET - 4, o),
     });
-  layers.push({ className: "scrawl-outline", gen: outlineRect(8) });
-  layers.push({ className: "scrawl-focus", gen: focusRect(10) });
+  layers.push({ className: "drawably-outline", gen: outlineRect(8) });
+  layers.push({ className: "drawably-focus", gen: focusRect(10) });
   const sketch = attachChrome(el, layers, opts, true);
-  el.classList.add("scrawl-button", `scrawl-button--${variant}`);
-  if (opts.tone) el.classList.add(`scrawl-button--${opts.tone}`);
-  const setState = (state: ScrawlButtonState) => {
+  el.classList.add("drawably-button", `drawably-button--${variant}`);
+  if (opts.tone) el.classList.add(`drawably-button--${opts.tone}`);
+  const setState = (state: DrawablyButtonState) => {
     if (state === "idle") delete el.dataset.state;
     else el.dataset.state = state;
   };
@@ -154,9 +154,9 @@ export function scrawlButton(el: HTMLElement, opts: ScrawlButtonOptions = {}): B
   };
 }
 
-export function scrawlCard(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
-  const sketch = attachChrome(el, [{ className: "scrawl-outline", gen: outlineRect(10) }], opts, false);
-  el.classList.add("scrawl-card");
+export function drawablyCard(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  const sketch = attachChrome(el, [{ className: "drawably-outline", gen: outlineRect(10) }], opts, false);
+  el.classList.add("drawably-card");
   return sketch;
 }
 
@@ -164,11 +164,11 @@ function syncedControl(
   el: HTMLElement,
   type: "checkbox" | "radio",
   layers: Layer[],
-  opts: ScrawlOptions,
+  opts: DrawablyOptions,
   cls: string,
 ): Sketch {
   const input = el?.querySelector?.<HTMLInputElement>(`input[type="${type}"]`);
-  if (!input) throw new Error(`scrawl: ${cls} wrapper needs an <input type="${type}">`);
+  if (!input) throw new Error(`drawably: ${cls} wrapper needs an <input type="${type}">`);
   const sync = () => {
     if (input.checked) el.dataset.checked = "";
     else delete el.dataset.checked;
@@ -191,86 +191,86 @@ function syncedControl(
   };
 }
 
-export function scrawlCheckbox(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+export function drawablyCheckbox(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
   return syncedControl(
     el,
     "checkbox",
     [
-      { className: "scrawl-outline", gen: outlineRect(5) },
+      { className: "drawably-outline", gen: outlineRect(5) },
       {
-        className: "scrawl-check",
+        className: "drawably-check",
         pathLength: true,
         gen: (w, h, o) => roughCheckmark(w * 0.24, h * 0.2, w * 0.52, h * 0.5, o),
       },
-      { className: "scrawl-focus", gen: focusRect(7) },
+      { className: "drawably-focus", gen: focusRect(7) },
     ],
     opts,
-    "scrawl-checkbox",
+    "drawably-checkbox",
   );
 }
 
-export function scrawlRadio(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+export function drawablyRadio(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
   return syncedControl(
     el,
     "radio",
     [
       {
-        className: "scrawl-outline",
+        className: "drawably-outline",
         gen: (w, h, o) => roughCircle(w / 2, h / 2, Math.min(w, h) / 2 - INSET, o),
       },
       {
-        className: "scrawl-dot",
+        className: "drawably-dot",
         gen: (w, h, o) => roughCircle(w / 2, h / 2, Math.min(w, h) * 0.18, o),
       },
       {
-        className: "scrawl-focus",
+        className: "drawably-focus",
         gen: (w, h, o) => roughCircle(w / 2, h / 2, Math.min(w, h) / 2 + 1, o),
       },
     ],
     opts,
-    "scrawl-radio",
+    "drawably-radio",
   );
 }
 
-export function scrawlToggle(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+export function drawablyToggle(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
   return syncedControl(
     el,
     "checkbox",
     [
-      { className: "scrawl-outline", gen: (w, h, o) => outlineRect((h - 2 * INSET) / 2)(w, h, o) },
+      { className: "drawably-outline", gen: (w, h, o) => outlineRect((h - 2 * INSET) / 2)(w, h, o) },
       {
-        className: "scrawl-blob scrawl-knob",
+        className: "drawably-blob drawably-knob",
         gen: (w, h, o) => roughCircle(h / 2, h / 2, h / 2 - INSET - 3, o),
       },
-      { className: "scrawl-focus", gen: focusRect(12) },
+      { className: "drawably-focus", gen: focusRect(12) },
     ],
     opts,
-    "scrawl-toggle",
+    "drawably-toggle",
   );
 }
 
-export function scrawlDivider(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
+export function drawablyDivider(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
   const sketch = attachChrome(
     el,
-    [{ className: "scrawl-outline", gen: (w, h, o) => roughLine(INSET, h / 2, w - INSET, h / 2, o) }],
+    [{ className: "drawably-outline", gen: (w, h, o) => roughLine(INSET, h / 2, w - INSET, h / 2, o) }],
     opts,
     false,
   );
-  el.classList.add("scrawl-divider");
+  el.classList.add("drawably-divider");
   return sketch;
 }
 
-export function scrawlInput(el: HTMLElement, opts: ScrawlOptions = {}): Sketch {
-  if (!el?.querySelector?.("input")) throw new Error("scrawl: input wrapper needs an <input>");
+export function drawablyInput(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  if (!el?.querySelector?.("input")) throw new Error("drawably: input wrapper needs an <input>");
   const sketch = attachChrome(
     el,
     [
-      { className: "scrawl-outline", gen: outlineRect(6) },
-      { className: "scrawl-focus", gen: focusRect(8) },
+      { className: "drawably-outline", gen: outlineRect(6) },
+      { className: "drawably-focus", gen: focusRect(8) },
     ],
     opts,
     false,
   );
-  el.classList.add("scrawl-inputbox");
+  el.classList.add("drawably-inputbox");
   return sketch;
 }

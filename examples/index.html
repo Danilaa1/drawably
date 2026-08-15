@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>scrawl — hand-drawn UI controls</title>
+    <title>drawably — hand-drawn UI controls</title>
     <meta
       name="description"
       content="Hand-drawn UI controls. Every mount a fresh pen sketch. Zero dependencies."
@@ -28,9 +28,9 @@
         --code-o: #b45309;
         --code-p: #71717a;
         --ease: cubic-bezier(0.2, 0, 0, 1);
-        --scrawl-stroke: #2724d1;
-        --scrawl-fill: #2724d1;
-        --scrawl-paper: #e3e3e1;
+        --drawably-stroke: #2724d1;
+        --drawably-fill: #2724d1;
+        --drawably-paper: #e3e3e1;
       }
 
       * {
@@ -381,7 +381,7 @@
         max-width: 82vw;
       }
 
-      #install-card.scrawl-card {
+      #install-card.drawably-card {
         padding: 6px 10px;
       }
 
@@ -644,7 +644,7 @@
     </style>
   </head>
   <body>
-    <section class="hero" id="top" aria-label="scrawl">
+    <section class="hero" id="top" aria-label="drawably">
       <button class="agent" id="agent" type="button" aria-label="Copy agent.md">
         agent.md
         <span class="cmd-icons" aria-hidden="true">
@@ -660,7 +660,7 @@
         </span>
       </button>
       <div class="brand">
-        <h1>scrawl</h1>
+        <h1>drawably</h1>
         <p class="tagline">Hand-drawn UI. Fresh pen sketch every mount.</p>
       </div>
 
@@ -720,7 +720,7 @@
     <div class="rest">
       <nav class="toc" aria-label="On this page">
         <ol>
-          <li><a href="#top">Scrawl</a></li>
+          <li><a href="#top">Drawably</a></li>
           <li><a href="#install">Install</a></li>
           <li><a href="#api">API</a></li>
         </ol>
@@ -731,7 +731,7 @@
           <div class="cmd-wrap" id="install-card">
             <button class="cmd" id="copy" type="button" aria-label="Copy install command">
               <span class="dollar">$</span>
-              <span class="cmd-text">npm i scrawl</span>
+              <span class="cmd-text">npm i drawably</span>
               <span class="cmd-icons" aria-hidden="true">
                 <svg class="copy" viewBox="0 0 16 16">
                   <rect x="5.5" y="5.5" width="8" height="8" rx="1.2" />
@@ -751,10 +751,10 @@
           <p class="piece piece-mit meta">MIT</p>
           <p class="piece piece-ver meta">v0.1.0</p>
           <div class="piece piece-react" id="react-card">
-            <pre><span class="k">import</span> <span class="p">{</span> <span class="n">ScrawlButton</span> <span class="p">}</span>
-<span class="k">from</span> <span class="s">"scrawl/react"</span>
+            <pre><span class="k">import</span> <span class="p">{</span> <span class="n">DrawablyButton</span> <span class="p">}</span>
+<span class="k">from</span> <span class="s">"drawably/react"</span>
 
-<span class="p">&lt;</span><span class="n">ScrawlButton</span> <span class="o">state</span><span class="p">=</span><span class="s">"loading"</span><span class="p">&gt;</span></pre>
+<span class="p">&lt;</span><span class="n">DrawablyButton</span> <span class="o">state</span><span class="p">=</span><span class="s">"loading"</span><span class="p">&gt;</span></pre>
           </div>
         </div>
       </section>
@@ -762,54 +762,54 @@
       <section class="board" id="api" aria-label="API">
         <div class="brand">
           <div class="code-wrap" id="usage-card">
-            <pre><span class="k">import</span> <span class="p">{</span> <span class="n">scrawlButton</span> <span class="p">}</span> <span class="k">from</span> <span class="s">"scrawl"</span><span class="p">;</span>
-<span class="k">import</span> <span class="s">"scrawl/style.css"</span><span class="p">;</span>
+            <pre><span class="k">import</span> <span class="p">{</span> <span class="n">drawablyButton</span> <span class="p">}</span> <span class="k">from</span> <span class="s">"drawably"</span><span class="p">;</span>
+<span class="k">import</span> <span class="s">"drawably/style.css"</span><span class="p">;</span>
 
-<span class="n">scrawlButton</span><span class="p">(</span><span class="o">done</span><span class="p">,</span> <span class="p">{</span> <span class="o">variant:</span> <span class="s">"solid"</span><span class="p">,</span> <span class="o">state:</span> <span class="s">"success"</span> <span class="p">});</span></pre>
+<span class="n">drawablyButton</span><span class="p">(</span><span class="o">done</span><span class="p">,</span> <span class="p">{</span> <span class="o">variant:</span> <span class="s">"solid"</span><span class="p">,</span> <span class="o">state:</span> <span class="s">"success"</span> <span class="p">});</span></pre>
           </div>
         </div>
 
         <div class="scatter">
           <div class="piece piece-fn-btn" id="fn-btn">
             <p class="fn">
-              <span class="n">scrawlButton</span><span class="p">(</span><span class="o">el</span
+              <span class="n">drawablyButton</span><span class="p">(</span><span class="o">el</span
               ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
             </p>
           </div>
           <div class="piece piece-fn-check" id="fn-check">
             <p class="fn">
-              <span class="n">scrawlCheckbox</span><span class="p">(</span
+              <span class="n">drawablyCheckbox</span><span class="p">(</span
               ><span class="o">wrap</span><span class="p">,</span> <span class="o">opts</span
               ><span class="p">)</span>
             </p>
           </div>
           <div class="piece piece-fn-input" id="fn-input">
             <p class="fn">
-              <span class="n">scrawlInput</span><span class="p">(</span><span class="o">wrap</span
+              <span class="n">drawablyInput</span><span class="p">(</span><span class="o">wrap</span
               ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
             </p>
           </div>
           <div class="piece piece-fn-card" id="fn-card">
             <p class="fn">
-              <span class="n">scrawlCard</span><span class="p">(</span><span class="o">el</span
+              <span class="n">drawablyCard</span><span class="p">(</span><span class="o">el</span
               ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
             </p>
           </div>
           <div class="piece piece-fn-radio" id="fn-radio">
             <p class="fn">
-              <span class="n">scrawlRadio</span><span class="p">(</span><span class="o">wrap</span
+              <span class="n">drawablyRadio</span><span class="p">(</span><span class="o">wrap</span
               ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
             </p>
           </div>
           <div class="piece piece-fn-toggle" id="fn-toggle">
             <p class="fn">
-              <span class="n">scrawlToggle</span><span class="p">(</span><span class="o">wrap</span
+              <span class="n">drawablyToggle</span><span class="p">(</span><span class="o">wrap</span
               ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
             </p>
           </div>
           <div class="piece piece-fn-div" id="fn-div">
             <p class="fn">
-              <span class="n">scrawlDivider</span><span class="p">(</span><span class="o">el</span
+              <span class="n">drawablyDivider</span><span class="p">(</span><span class="o">el</span
               ><span class="p">,</span> <span class="o">opts</span><span class="p">)</span>
             </p>
           </div>
@@ -818,90 +818,90 @@
     </div>
 
     <script type="text/plain" id="agent-src">
-      # scrawl
+      # drawably
 
       Zero-dependency hand-drawn UI. Real HTML controls with SVG chrome. A unique seeded sketch per mount. Strokes boil in CSS.
 
       Install Inter yourself if you want the intended type. The library does not ship font files.
 
       ```
-      npm i scrawl
+      npm i drawably
       ```
 
       ## Vanilla
 
       ```js
       import {
-        scrawlButton,
-        scrawlCheckbox,
-        scrawlRadio,
-        scrawlToggle,
-        scrawlInput,
-        scrawlDivider,
-        scrawlCard,
-      } from "scrawl";
-      import "scrawl/style.css";
+        drawablyButton,
+        drawablyCheckbox,
+        drawablyRadio,
+        drawablyToggle,
+        drawablyInput,
+        drawablyDivider,
+        drawablyCard,
+      } from "drawably";
+      import "drawably/style.css";
 
-      scrawlButton(document.querySelector("#done"), { variant: "solid" });
-      scrawlCheckbox(document.querySelector("#check")); // wrapper must contain <input type="checkbox">
-      scrawlRadio(document.querySelector("#pen"));     // wrapper must contain <input type="radio">
-      scrawlToggle(document.querySelector("#tog"));    // wrapper must contain <input type="checkbox">
-      scrawlInput(document.querySelector("#name"));    // wrapper must contain <input>
-      scrawlDivider(document.querySelector("#rule"));  // <hr> or div
-      scrawlCard(document.querySelector("#card"));
+      drawablyButton(document.querySelector("#done"), { variant: "solid" });
+      drawablyCheckbox(document.querySelector("#check")); // wrapper must contain <input type="checkbox">
+      drawablyRadio(document.querySelector("#pen"));     // wrapper must contain <input type="radio">
+      drawablyToggle(document.querySelector("#tog"));    // wrapper must contain <input type="checkbox">
+      drawablyInput(document.querySelector("#name"));    // wrapper must contain <input>
+      drawablyDivider(document.querySelector("#rule"));  // <hr> or div
+      drawablyCard(document.querySelector("#card"));
       ```
 
       Each attacher throws if the element is missing. Checkbox/radio/toggle/input throw if the inner `<input>` is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
 
       ## React
 
-      Optional peer. Subpath `"scrawl/react"`. Client-only (uses `useEffect`).
+      Optional peer. Subpath `"drawably/react"`. Client-only (uses `useEffect`).
 
       ```jsx
       import {
-        ScrawlButton,
-        ScrawlCheckbox,
-        ScrawlRadio,
-        ScrawlToggle,
-        ScrawlInput,
-        ScrawlDivider,
-        ScrawlCard,
-      } from "scrawl/react";
-      import "scrawl/style.css";
+        DrawablyButton,
+        DrawablyCheckbox,
+        DrawablyRadio,
+        DrawablyToggle,
+        DrawablyInput,
+        DrawablyDivider,
+        DrawablyCard,
+      } from "drawably/react";
+      import "drawably/style.css";
 
-      <ScrawlButton variant="solid" state="idle" onClick={submit}>Done</ScrawlButton>
-      <ScrawlButton tone="neutral">Cancel</ScrawlButton>
-      <ScrawlButton tone="danger">Delete</ScrawlButton>
-      <ScrawlCheckbox defaultChecked />
-      <ScrawlRadio name="ink" defaultChecked />
-      <ScrawlToggle />
-      <ScrawlInput placeholder="your name" />
-      <ScrawlDivider />
-      <ScrawlCard>…</ScrawlCard>
+      <DrawablyButton variant="solid" state="idle" onClick={submit}>Done</DrawablyButton>
+      <DrawablyButton tone="neutral">Cancel</DrawablyButton>
+      <DrawablyButton tone="danger">Delete</DrawablyButton>
+      <DrawablyCheckbox defaultChecked />
+      <DrawablyRadio name="ink" defaultChecked />
+      <DrawablyToggle />
+      <DrawablyInput placeholder="your name" />
+      <DrawablyDivider />
+      <DrawablyCard>…</DrawablyCard>
       ```
 
       Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant`, `state`, and `tone`.
 
       ## Button
 
-      `scrawlButton(el, opts)` → `ButtonSketch`
+      `drawablyButton(el, opts)` → `ButtonSketch`
 
       - `variant`: `"outline"` (default) | `"solid"` | `"scribble"`
       - `state`: `"idle"` | `"loading"` | `"error"` | `"success"`
       - `tone`: `"neutral"` (warm grey, secondary) | `"danger"` (red)
       - `setState(state)` after mount. React: `state` prop.
       - loading: dimmed, faster boil, `cursor: progress`
-      - error: `--scrawl-error` (default `#d12724`)
-      - success: `--scrawl-success` (default `#188a42`)
+      - error: `--drawably-error` (default `#d12724`)
+      - success: `--drawably-success` (default `#188a42`)
 
       ## Other controls
 
-      - `scrawlCheckbox(wrap, opts)` — checkbox in a wrapper
-      - `scrawlRadio(wrap, opts)` — radio in a wrapper; scribbled dot when checked. Same `name` groups them.
-      - `scrawlToggle(wrap, opts)` — checkbox in a wrapper; pill with a sliding ink-blob knob. React sets `role="switch"`.
-      - `scrawlInput(wrap, opts)` — text input in a wrapper
-      - `scrawlDivider(el, opts)` — rough line on an `<hr>` or div
-      - `scrawlCard(el, opts)` — sketched container
+      - `drawablyCheckbox(wrap, opts)` — checkbox in a wrapper
+      - `drawablyRadio(wrap, opts)` — radio in a wrapper; scribbled dot when checked. Same `name` groups them.
+      - `drawablyToggle(wrap, opts)` — checkbox in a wrapper; pill with a sliding ink-blob knob. React sets `role="switch"`.
+      - `drawablyInput(wrap, opts)` — text input in a wrapper
+      - `drawablyDivider(el, opts)` — rough line on an `<hr>` or div
+      - `drawablyCard(el, opts)` — sketched container
 
       ## Options (all controls)
 
@@ -910,12 +910,12 @@
       | `seed` | random | omit for a unique sketch per mount |
       | `roughness` | `1` | wobble of the base sketch |
       | `boil` | `0.3` | frame-to-frame flicker in px; `0` = one static path |
-      | `stroke` `fill` `paper` `width` | CSS vars | also `--scrawl-stroke`, `--scrawl-fill`, `--scrawl-paper`, `--scrawl-width` |
+      | `stroke` `fill` `paper` `width` | CSS vars | also `--drawably-stroke`, `--drawably-fill`, `--drawably-paper`, `--drawably-width` |
 
       ## Rules
 
       - Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input wrapper, `hr`, or `div`.
-      - Import `scrawl/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
+      - Import `drawably/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
       - Respect `prefers-reduced-motion`: the library already freezes boil and skips hover re-sketch. Do not add extra motion on top when that media query matches.
       - Hover/press re-sketches buttons, checkboxes, radios, and toggles.
       - Renderer exports if you need custom shapes: `roughRoundedRect`, `roughCircle`, `roughLine`, `roughCheckmark`, `scribbleFill`, `variants`, `mulberry32`, `randomSeed`.
@@ -926,44 +926,44 @@
 
     <script type="module">
       import {
-        scrawlButton,
-        scrawlCard,
-        scrawlCheckbox,
-        scrawlDivider,
-        scrawlInput,
-        scrawlRadio,
-        scrawlToggle,
+        drawablyButton,
+        drawablyCard,
+        drawablyCheckbox,
+        drawablyDivider,
+        drawablyInput,
+        drawablyRadio,
+        drawablyToggle,
       } from "../dist/index.js";
 
-      scrawlButton(document.getElementById("done"), { variant: "solid" });
-      scrawlButton(document.getElementById("cancel"), { tone: "neutral" });
-      scrawlButton(document.getElementById("save"), { variant: "scribble" });
-      scrawlButton(document.getElementById("wait"), { state: "loading" });
-      scrawlButton(document.getElementById("retry"), { variant: "outline", state: "error" });
-      scrawlButton(document.getElementById("ok"), { variant: "solid", state: "success" });
-      scrawlButton(document.getElementById("del"), { tone: "danger" });
-      scrawlCheckbox(document.getElementById("check"));
-      scrawlRadio(document.getElementById("radio-a"));
-      scrawlRadio(document.getElementById("radio-b"));
-      scrawlToggle(document.getElementById("tog"));
-      scrawlInput(document.getElementById("name"));
-      scrawlDivider(document.getElementById("rule"));
-      scrawlCard(document.getElementById("card"));
-      scrawlCard(document.getElementById("install-card"));
-      scrawlCard(document.getElementById("react-card"));
-      scrawlCard(document.getElementById("usage-card"));
-      scrawlCard(document.getElementById("fn-btn"));
-      scrawlCard(document.getElementById("fn-check"));
-      scrawlCard(document.getElementById("fn-input"));
-      scrawlCard(document.getElementById("fn-card"));
-      scrawlCard(document.getElementById("fn-radio"));
-      scrawlCard(document.getElementById("fn-toggle"));
-      scrawlCard(document.getElementById("fn-div"));
+      drawablyButton(document.getElementById("done"), { variant: "solid" });
+      drawablyButton(document.getElementById("cancel"), { tone: "neutral" });
+      drawablyButton(document.getElementById("save"), { variant: "scribble" });
+      drawablyButton(document.getElementById("wait"), { state: "loading" });
+      drawablyButton(document.getElementById("retry"), { variant: "outline", state: "error" });
+      drawablyButton(document.getElementById("ok"), { variant: "solid", state: "success" });
+      drawablyButton(document.getElementById("del"), { tone: "danger" });
+      drawablyCheckbox(document.getElementById("check"));
+      drawablyRadio(document.getElementById("radio-a"));
+      drawablyRadio(document.getElementById("radio-b"));
+      drawablyToggle(document.getElementById("tog"));
+      drawablyInput(document.getElementById("name"));
+      drawablyDivider(document.getElementById("rule"));
+      drawablyCard(document.getElementById("card"));
+      drawablyCard(document.getElementById("install-card"));
+      drawablyCard(document.getElementById("react-card"));
+      drawablyCard(document.getElementById("usage-card"));
+      drawablyCard(document.getElementById("fn-btn"));
+      drawablyCard(document.getElementById("fn-check"));
+      drawablyCard(document.getElementById("fn-input"));
+      drawablyCard(document.getElementById("fn-card"));
+      drawablyCard(document.getElementById("fn-radio"));
+      drawablyCard(document.getElementById("fn-toggle"));
+      drawablyCard(document.getElementById("fn-div"));
 
       const copy = document.getElementById("copy");
       copy.addEventListener("click", async () => {
         try {
-          await navigator.clipboard.writeText("npm i scrawl");
+          await navigator.clipboard.writeText("npm i drawably");
         } catch {
           /* ponytail: clipboard may be blocked on file:// */
         }
