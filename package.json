@@ -10,7 +10,7 @@
     "style.css",
     "style.css.d.ts",
     "README.md",
-    "agent.md",
+    ".github/agent.md",
     "LICENSE"
   ],
   "type": "module",
@@ -31,7 +31,7 @@
       "types": "./style.css.d.ts",
       "default": "./style.css"
     },
-    "./agent.md": "./agent.md"
+    "./agent.md": "./.github/agent.md"
   },
   "scripts": {
     "prepublishOnly": "npm run build",
