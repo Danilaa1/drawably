@@ -328,6 +328,24 @@ describe("inline decorations", () => {
     expect(el.querySelector("path")?.getAttribute("d")).toBe(d1);
   });
 
+  it("a wrapped highlight gets one wash per line box and an svg covering them all", () => {
+    const el = mountWord();
+    const rect = (left: number, top: number, w: number, h: number) =>
+      ({ left, top, right: left + w, bottom: top + h, width: w, height: h }) as DOMRect;
+    // "Fresh pen" ends line 1 at x=200, "sketch" starts line 2 at x=0
+    el.getClientRects = () => [rect(120, 0, 80, 20), rect(0, 24, 60, 20)] as unknown as DOMRectList;
+    drawablyHighlight(el, { seed: 1 });
+    const svg = el.querySelector("svg")!;
+    expect(svg.style.left).toBe("-120px");
+    expect(svg.style.width).toBe("200px");
+    expect(svg.style.height).toBe("44px");
+    expect(svg.getAttribute("viewBox")).toBe("0 0 200 44");
+    const washes = el.querySelectorAll("path.drawably-wash");
+    expect(washes).toHaveLength(6);
+    expect(washes[0].getAttribute("transform")).toBe("translate(120 0)");
+    expect(washes[3].getAttribute("transform")).toBe("translate(0 24)");
+  });
+
   it("circle draws a closed ellipse layer and re-sketches on hover", () => {
     expect(() => drawablyCircle(null as unknown as HTMLElement)).toThrow();
     const el = mountWord();

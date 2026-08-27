@@ -49,20 +49,64 @@ function createSvg(): SVGSVGElement {
   return svg;
 }
 
-function paint(svg: SVGSVGElement, layers: Layer[], w: number, h: number, o: RoughOptions) {
+interface Box {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+// each layer is drawn once per box; a control has one, an inline decoration
+// has one per line it wraps onto
+function paint(svg: SVGSVGElement, layers: Layer[], boxes: Box[], o: RoughOptions) {
+  const w = Math.max(...boxes.map((b) => b.x + b.w));
+  const h = Math.max(...boxes.map((b) => b.y + b.h));
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   svg.textContent = "";
   for (const layer of layers) {
-    const ds = variants((lo) => layer.gen(w, h, lo), o, o.boil ? 3 : 1);
-    ds.forEach((d, i) => {
-      const p = document.createElementNS(SVG_NS, "path");
-      p.setAttribute("d", d);
-      p.setAttribute("class", ds.length > 1 ? `drawably-boil ${layer.className}` : layer.className);
-      p.dataset.i = String(i);
-      if (layer.pathLength) p.setAttribute("pathLength", "1");
-      svg.append(p);
+    boxes.forEach((box, k) => {
+      const ds = variants((lo) => layer.gen(box.w, box.h, lo), { ...o, seed: o.seed + k }, o.boil ? 3 : 1);
+      ds.forEach((d, i) => {
+        const p = document.createElementNS(SVG_NS, "path");
+        p.setAttribute("d", d);
+        p.setAttribute("class", ds.length > 1 ? `drawably-boil ${layer.className}` : layer.className);
+        p.dataset.i = String(i);
+        if (layer.pathLength) p.setAttribute("pathLength", "1");
+        if (box.x || box.y) p.setAttribute("transform", `translate(${box.x} ${box.y})`);
+        svg.append(p);
+      });
     });
   }
+}
+
+function elementBox(el: HTMLElement): Box[] {
+  return [{ x: 0, y: 0, w: el.offsetWidth || 120, h: el.offsetHeight || 36 }];
+}
+
+// an inline element that wraps is several boxes; its absolutely positioned
+// svg lands on the first one's corner, so the svg is offset and sized to
+// cover them all and each line gets its own drawing
+function lineBoxes(el: HTMLElement, svg: SVGSVGElement): Box[] {
+  const rects = [...el.getClientRects()];
+  if (rects.length < 2) {
+    svg.style.cssText = "";
+    return elementBox(el);
+  }
+  const [first] = rects;
+  const left = Math.min(...rects.map((r) => r.left));
+  const top = Math.min(...rects.map((r) => r.top));
+  const right = Math.max(...rects.map((r) => r.right));
+  const bottom = Math.max(...rects.map((r) => r.bottom));
+  svg.style.cssText = `left:${left - first.left}px;top:${top - first.top}px;width:${right - left}px;height:${bottom - top}px`;
+  return rects.map((r) => ({ x: r.left - left, y: r.top - top, w: r.width, h: r.height }));
+}
+
+// ResizeObserver ignores inline boxes, so a wrapping decoration watches the
+// block that lays it out
+function blockAncestor(el: HTMLElement): Element | null {
+  let p = el.parentElement;
+  while (p && getComputedStyle(p).display === "inline") p = p.parentElement;
+  return p;
 }
 
 function reducedMotion(): boolean {
@@ -74,6 +118,7 @@ function attachChrome(
   layers: Layer[],
   opts: DrawablyOptions,
   interactive: boolean,
+  boxes: (el: HTMLElement, svg: SVGSVGElement) => Box[] = elementBox,
 ): Sketch {
   if (!(el instanceof HTMLElement)) throw new Error("drawably: expected an HTMLElement");
   el.classList.add("drawably-host");
@@ -86,11 +131,15 @@ function attachChrome(
   const boil = opts.boil ?? 0.3;
   let seed = opts.seed ?? randomSeed();
 
-  const draw = () => paint(svg, layers, el.offsetWidth || 120, el.offsetHeight || 36, { seed, roughness, boil });
+  const draw = () => paint(svg, layers, boxes(el, svg), { seed, roughness, boil });
   draw();
 
   const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => draw()) : null;
   ro?.observe(el);
+  if (boxes === lineBoxes) {
+    const block = blockAncestor(el);
+    if (block) ro?.observe(block);
+  }
 
   const resketch = (s?: number) => {
     seed = s ?? randomSeed();
@@ -322,7 +371,7 @@ function pickerFrame(select: HTMLSelectElement, o: () => RoughOptions) {
   const draw = () => {
     const w = frame.clientWidth;
     const h = frame.clientHeight;
-    if (w && h) paint(frame, [{ className: "drawably-outline", gen: outlineRect(PICKER_RADIUS) }], w, h, o());
+    if (w && h) paint(frame, [{ className: "drawably-outline", gen: outlineRect(PICKER_RADIUS) }], [{ x: 0, y: 0, w, h }], o());
   };
   const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(draw) : null;
   ro?.observe(frame);
@@ -460,7 +509,7 @@ function decoration(
   opts: DrawablyOptions,
   interactive: boolean,
 ): Sketch {
-  const sketch = attachChrome(el, layers, opts, interactive);
+  const sketch = attachChrome(el, layers, opts, interactive, lineBoxes);
   el.classList.add(cls);
   return {
     resketch: sketch.resketch,
@@ -566,8 +615,7 @@ export function drawablyArrow(from: HTMLElement, to: HTMLElement, opts: Drawably
     paint(
       svg,
       [{ className: "drawably-outline", gen: (_w, _h, o) => roughArrow(x1, y1, x2, y2, o) }],
-      w,
-      h,
+      [{ x: 0, y: 0, w, h }],
       { seed, roughness, boil },
     );
   }
