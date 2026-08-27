@@ -335,12 +335,14 @@ function pickerFrame(select: HTMLSelectElement, o: () => RoughOptions) {
   };
 }
 
-// the checkbox draws its check at 24%/20% of a 22px box; the same proportions
-// in the picker's 1em (16px) box. A data URI can't read custom properties, so
-// it is a mask and the CSS supplies the colour
-const CHECK_BOX = 16;
+// the picker's check fills its 0.875em (14px) box bar a 2px inset for the
+// stroke and jitter, landing at the checkbox's ~11px check size. A data URI
+// can't read custom properties, so it is a mask and the CSS supplies the colour
+const CHECK_BOX = 14;
+const CHECK_INSET = 2;
 function checkMask(o: RoughOptions): string {
-  const d = roughCheckmark(CHECK_BOX * 0.24, CHECK_BOX * 0.2, CHECK_BOX * 0.52, CHECK_BOX * 0.5, o);
+  const side = CHECK_BOX - CHECK_INSET * 2;
+  const d = roughCheckmark(CHECK_INSET, CHECK_INSET, side, side, o);
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${CHECK_BOX} ${CHECK_BOX}'><path d='${d}' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }

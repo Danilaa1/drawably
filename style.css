@@ -285,14 +285,13 @@
   }
 
   /* every option gets the same empty box so text lines up whether or not it
-     is chosen; the chosen one paints the attacher's sketched check through it */
+     is chosen; the chosen one paints the attacher's sketched check through it.
+     Chromium lays the option out as flex with a 0.5em gap, so no margin here */
   .drawably-select option::checkmark {
     content: "";
     display: inline-block;
-    width: 1em;
-    height: 1em;
-    margin-inline-end: 0.5em;
-    vertical-align: -0.15em;
+    width: 0.875em;
+    height: 0.875em;
   }
 
   .drawably-select option:checked::checkmark {
