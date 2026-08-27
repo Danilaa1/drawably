@@ -1,0 +1,9 @@
+/* Drawably Pen: the library's own strokes as a font. Opt in — import this
+   file and set font-family: "Drawably Pen" where you want it. style.css never
+   loads it, so nothing changes for anyone who doesn't ask. */
+@font-face {
+  font-family: "Drawably Pen";
+  src: url("./DrawablyPen.ttf") format("truetype");
+  font-weight: 400;
+  font-display: block;
+}

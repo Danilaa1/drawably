@@ -2,7 +2,7 @@
 
 Hand-drawn UI controls. Every mount generates a fresh pen sketch from seeded
 randomness, and the stroke boils like an animated doodle. Zero dependencies,
-~4 KB of JS gzipped and one stylesheet.
+~4 KB of JS gzipped and one stylesheet. An optional pen font is a separate 31 KB.
 
 ![Buttons, checkbox, radio and toggle drawn in a boiling pen stroke](assets/demo.svg)
 
@@ -148,6 +148,23 @@ Strokes boil gently: three frames of the same sketch, micro-wobbled around a
 shared base, cycled by pure CSS at 1200ms. Hover or press re-sketches buttons
 and checkboxes. `prefers-reduced-motion` freezes everything to a single static
 sketch — including the demo images above.
+
+## Font (optional)
+
+Drawably Pen is the same strokes as a typeface: a–z, A–Z, digits and
+punctuation, built by the library's own pen code (`font/`) into a 31 KB
+TrueType. It is not loaded by `style.css`; nothing in the library needs it.
+If you want labels in the same hand as the chrome:
+
+```ts
+import "drawably/font.css";
+```
+
+```css
+.drawably-button {
+  font-family: "Drawably Pen", Inter, sans-serif;
+}
+```
 
 ## Build your own shapes
 

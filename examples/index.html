@@ -887,7 +887,7 @@
 
       Zero-dependency hand-drawn UI. Real HTML controls with SVG chrome. A unique seeded sketch per mount. Strokes boil in CSS.
 
-      Install Inter yourself if you want the intended type. The library does not ship font files.
+      Install Inter yourself if you want the intended type. The library loads no font unless you import the optional `drawably/font.css`.
 
       ```
       npm i drawably
@@ -1023,6 +1023,10 @@
       | `boil`                          | `0.3`    | frame-to-frame flicker in px; `0` = one static path                         |
       | `stroke` `fill` `paper` `width` | CSS vars | also `--drawably-stroke`, `--drawably-fill`, `--drawably-paper`, `--drawably-width` |
 
+      ## Font (optional)
+
+      `import "drawably/font.css"` registers "Drawably Pen", the library's strokes as a 31 KB TrueType (a–z, A–Z, digits, punctuation). Apply it yourself with `font-family: "Drawably Pen", Inter, sans-serif`. Nothing loads it by default.
+
       ## Rules
 
       - Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input/textarea/select wrapper, `hr`, `div`, `ul`, or inline text element.
@@ -1031,6 +1035,7 @@
       - Hover/press re-sketches buttons, checkboxes, radios, toggles, underlines and circles.
       - Select: in Chromium the options list gets a sketched frame and pen checkmark (`appearance: base-select`); Safari and Firefox keep the OS popup. Options are measured once at attach — re-attach if they change.
       - Renderer exports if you need custom shapes: `roughRoundedRect`, `roughCircle`, `roughEllipse`, `roughLine`, `roughArrow`, `roughCheckmark`, `scribbleFill`, `variants`, `mulberry32`, `randomSeed`.
+      - Do not apply Drawably Pen unless the user asks for the font; controls default to the page's own type.
       - No Vue/Svelte adapters. Vanilla or React.
 
       MIT.

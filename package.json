@@ -9,13 +9,17 @@
     "examples",
     "style.css",
     "style.css.d.ts",
+    "font/font.css",
+    "font/font.css.d.ts",
+    "font/DrawablyPen.ttf",
     "README.md",
     ".github/agent.md",
     "LICENSE"
   ],
   "type": "module",
   "sideEffects": [
-    "./style.css"
+    "./style.css",
+    "./font/font.css"
   ],
   "types": "./dist/index.d.ts",
   "exports": {
@@ -30,6 +34,10 @@
     "./style.css": {
       "types": "./style.css.d.ts",
       "default": "./style.css"
+    },
+    "./font.css": {
+      "types": "./font/font.css.d.ts",
+      "default": "./font/font.css"
     },
     "./agent.md": "./.github/agent.md"
   },
