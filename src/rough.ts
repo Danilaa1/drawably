@@ -7,9 +7,9 @@ export interface RoughOptions {
   boilSeed?: number;
 }
 
-type Pt = [number, number];
+export type Pt = [number, number];
 
-function sampleLine(x1: number, y1: number, x2: number, y2: number, step = 8): Pt[] {
+export function sampleLine(x1: number, y1: number, x2: number, y2: number, step = 8): Pt[] {
   const n = Math.max(2, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / step));
   return Array.from({ length: n + 1 }, (_, i) => [
     x1 + ((x2 - x1) * i) / n,
@@ -21,7 +21,7 @@ function arcPoints(cx: number, cy: number, r: number, a0: number, a1: number, n 
   return ellipsePoints(cx, cy, r, r, a0, a1, n);
 }
 
-function ellipsePoints(
+export function ellipsePoints(
   cx: number,
   cy: number,
   rx: number,
@@ -50,7 +50,7 @@ function roundedRectPoints(x: number, y: number, w: number, h: number, r: number
   ];
 }
 
-function jitter(points: Pt[], rand: () => number, amp: number): Pt[] {
+export function jitter(points: Pt[], rand: () => number, amp: number): Pt[] {
   return points.map(([x, y]) => [x + (rand() * 2 - 1) * amp, y + (rand() * 2 - 1) * amp]);
 }
 
