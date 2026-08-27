@@ -147,7 +147,7 @@ Decorates existing inline text; the element keeps its own layout. Use on a word 
 - Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input/textarea/select wrapper, `hr`, `div`, `ul`, or inline text element.
 - Import `drawably/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
 - Respect `prefers-reduced-motion`: the library already freezes boil and skips hover re-sketch. Do not add extra motion on top when that media query matches.
-- Hover/press re-sketches buttons, checkboxes, radios, toggles, underlines and circles.
+- Hover/press re-sketches buttons, checkboxes, radios, toggles, underlines and circles. A decoration that wraps gets one drawing per line.
 - Select: in Chromium the options list gets a sketched frame and pen checkmark (`appearance: base-select`); Safari and Firefox keep the OS popup. Options are measured once at attach — re-attach if they change.
 - Renderer exports if you need custom shapes: `roughRoundedRect`, `roughCircle`, `roughEllipse`, `roughLine`, `roughArrow`, `roughCheckmark`, `scribbleFill`, `variants`, `mulberry32`, `randomSeed`.
 - Do not apply Drawably Pen unless the user asks for the font; controls default to the page's own type.

@@ -2,7 +2,8 @@
 
 Hand-drawn UI controls. Every mount generates a fresh pen sketch from seeded
 randomness, and the stroke boils like an animated doodle. Zero dependencies,
-~4 KB of JS gzipped and one stylesheet. An optional pen font is a separate 31 KB.
+~7 KB of JS gzipped (React wrappers add under 1 KB) and a 3 KB stylesheet. An
+optional pen font is a separate 31 KB.
 
 ![Buttons, checkbox, radio and toggle drawn in a boiling pen stroke](assets/demo.svg)
 
@@ -82,7 +83,10 @@ For secondary or destructive actions, set `tone: "neutral"` (warm grey) or
 | `drawablyList(el, opts)` | a `<ul>` or `<ol>`; each `<li>` gets a sketched marker |
 
 Badges take `variant: "outline" | "scribble"`; lists take
-`marker: "dash" | "check"`.
+`marker: "dash" | "check"`. Selects reserve the widest option's width so
+picking never shifts layout; in Chromium the options list gets a sketched
+frame and pen check (`appearance: base-select`), Safari and Firefox keep the
+OS popup.
 
 The real inputs stay in the DOM, so keyboard, forms, labels and screen readers
 all work as usual. The sketch is an `aria-hidden` SVG layered underneath.
@@ -115,7 +119,8 @@ import { DrawablyUnderline, DrawablyHighlight, DrawablyCircle, DrawablyArrow } f
 <DrawablyArrow from={noteRef} to={buttonRef} />
 ```
 
-The arrow's SVG is appended to `<body>` in document coordinates and redraws on
+A decoration that wraps onto several lines gets one drawing per line. The
+arrow's SVG is appended to `<body>` in document coordinates and redraws on
 resize. Anchors inside a scrolling container will drift as it scrolls.
 
 ## Options
@@ -127,7 +132,7 @@ All controls take the same base options:
 | `seed` | random | Omit for a unique sketch per mount, pass a number for a reproducible one |
 | `roughness` | `1` | Wobble of the base sketch |
 | `boil` | `0.3` | Px of frame-to-frame flicker; `0` renders one static path |
-| `stroke`, `fill`, `paper` | ink blue / white | Colours, set as `--drawably-*` custom properties |
+| `stroke`, `fill`, `paper` | pen blue / white | Colours, set as `--drawably-*` custom properties |
 | `width` | `2` | Stroke width in px |
 
 The colours are plain CSS custom properties, so a theme can set them once:
@@ -139,15 +144,16 @@ The colours are plain CSS custom properties, so a theme can set them once:
 }
 ```
 
-Type is set in Inter when the page has it loaded (the library ships no font
-files — load Inter yourself), falling back to `system-ui`.
+Type is Inter when the page has it loaded, falling back to `system-ui`. The
+library loads no font unless you opt into the one below.
 
 ## Motion
 
 Strokes boil gently: three frames of the same sketch, micro-wobbled around a
-shared base, cycled by pure CSS at 1200ms. Hover or press re-sketches buttons
-and checkboxes. `prefers-reduced-motion` freezes everything to a single static
-sketch — including the demo images above.
+shared base, cycled by pure CSS at 1200ms. Hover or press re-sketches
+buttons, checkboxes, radios, toggles, underlines and circles; buttons also lift
+on hover and sink on press. `prefers-reduced-motion` freezes everything to a
+single static sketch, including the demo images above.
 
 ## Font (optional)
 
@@ -182,7 +188,7 @@ const frames = variants(
 ```
 
 Also exported: `roughEllipse`, `roughArrow`, `roughCheckmark`, `scribbleFill`,
-and the seeded PRNG `mulberry32`.
+and the seeded PRNG `mulberry32` with `randomSeed`.
 
 ## License
 

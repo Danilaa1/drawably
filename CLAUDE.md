@@ -35,17 +35,22 @@ fresh pen sketch from seeded randomness.
   so path markup and class names are API — change them deliberately.
 - **No layout shift.** The SVG overlays the element's own box. A control's
   size comes from the element, never from the sketch.
+- **The font is opt-in.** Nothing loads Drawably Pen unless the consumer
+  imports `drawably/font.css`; docs describe it, never recommend it.
+  Rebuild it with `node --experimental-strip-types font/build.ts` after
+  touching `font/` (it reads `dist/`, so `npm run build` first).
 
 ## Architecture
 
 | File | Owns |
 | --- | --- |
-| `src/rough.ts` | geometry: point sampling, jitter, `roughRoundedRect`, `roughCircle`, `roughLine`, `roughCheckmark`, `scribbleFill`, `variants` |
+| `src/rough.ts` | geometry: point sampling, jitter, `roughRoundedRect`, `roughCircle`, `roughEllipse`, `roughLine`, `roughArrow`, `roughCheckmark`, `scribbleFill`, `variants`; `sampleLine`/`ellipsePoints`/`jitter` are module exports for the font build, not public API |
 | `src/prng.ts` | `mulberry32`, `randomSeed` |
 | `src/controls.ts` | attachers: layer definitions per control, mount/teardown, state machine |
 | `src/react.ts` | thin client-only wrappers; native props pass through, sketch options are top-level props |
 | `src/index.ts` | public exports |
 | `style.css` | host/svg positioning, boil keyframes, state colours, reduced-motion |
+| `font/` | Drawably Pen: `glyphs.ts` skeletons, `stroke.ts` pen → outline, `ttf.ts` TrueType writer, `build.ts` → `DrawablyPen.ttf`, `preview.ts` glyph sheet. Node stdlib only. Ships as the opt-in `drawably/font.css`; `style.css` never loads it |
 
 New shape generators go in `rough.ts`. New controls are layer definitions in
 `controls.ts` reusing existing generators — write a new generator only when no

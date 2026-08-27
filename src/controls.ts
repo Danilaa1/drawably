@@ -118,7 +118,7 @@ function attachChrome(
   layers: Layer[],
   opts: DrawablyOptions,
   interactive: boolean,
-  boxes: (el: HTMLElement, svg: SVGSVGElement) => Box[] = elementBox,
+  inline = false,
 ): Sketch {
   if (!(el instanceof HTMLElement)) throw new Error("drawably: expected an HTMLElement");
   el.classList.add("drawably-host");
@@ -131,12 +131,13 @@ function attachChrome(
   const boil = opts.boil ?? 0.3;
   let seed = opts.seed ?? randomSeed();
 
-  const draw = () => paint(svg, layers, boxes(el, svg), { seed, roughness, boil });
+  const draw = () =>
+    paint(svg, layers, inline ? lineBoxes(el, svg) : elementBox(el), { seed, roughness, boil });
   draw();
 
   const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => draw()) : null;
   ro?.observe(el);
-  if (boxes === lineBoxes) {
+  if (inline) {
     const block = blockAncestor(el);
     if (block) ro?.observe(block);
   }
@@ -301,7 +302,7 @@ export function drawablyToggle(el: HTMLElement, opts: DrawablyOptions = {}): Ske
       { className: "drawably-outline", gen: (w, h, o) => outlineRect((h - 2 * INSET) / 2)(w, h, o) },
       {
         className: "drawably-blob drawably-knob",
-        gen: (w, h, o) => roughCircle(h / 2, h / 2, h / 2 - INSET - 3, o),
+        gen: (_w, h, o) => roughCircle(h / 2, h / 2, h / 2 - INSET - 3, o),
       },
       { className: "drawably-focus", gen: focusRect(12) },
     ],
@@ -509,7 +510,7 @@ function decoration(
   opts: DrawablyOptions,
   interactive: boolean,
 ): Sketch {
-  const sketch = attachChrome(el, layers, opts, interactive, lineBoxes);
+  const sketch = attachChrome(el, layers, opts, interactive, true);
   el.classList.add(cls);
   return {
     resketch: sketch.resketch,
