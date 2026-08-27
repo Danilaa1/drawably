@@ -291,10 +291,12 @@ export function drawablyTextarea(el: HTMLElement, opts: DrawablyOptions = {}): S
   return fieldBox(el, "textarea", "drawably-textarea", [], opts);
 }
 
-// chevron sits in the right-hand gutter the select's CSS padding reserves
-const CHEVRON_W = 10;
-const CHEVRON_H = 5;
+// chevron sits in the right-hand gutter the select's CSS padding reserves;
+// at this size full roughness turns the V into noise, so it takes a fraction
+const CHEVRON_W = 12;
+const CHEVRON_H = 6;
 const CHEVRON_RIGHT = 12;
+const CHEVRON_ROUGHNESS = 0.4;
 
 export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
   const chevron: Layer = {
@@ -302,9 +304,10 @@ export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Ske
     gen: (w, h, o) => {
       const x = w - CHEVRON_RIGHT - CHEVRON_W;
       const y = h / 2 - CHEVRON_H / 2;
+      const co = { ...o, roughness: o.roughness * CHEVRON_ROUGHNESS };
       return (
-        roughLine(x, y, x + CHEVRON_W / 2, y + CHEVRON_H, o) +
-        roughLine(x + CHEVRON_W / 2, y + CHEVRON_H, x + CHEVRON_W, y, { ...o, seed: o.seed + 1 })
+        roughLine(x, y, x + CHEVRON_W / 2, y + CHEVRON_H, co) +
+        roughLine(x + CHEVRON_W / 2, y + CHEVRON_H, x + CHEVRON_W, y, { ...co, seed: o.seed + 1 })
       );
     },
   };

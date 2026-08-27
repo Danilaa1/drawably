@@ -217,8 +217,9 @@
   cursor: pointer;
 }
 
-/* Chromium's customisable select lets the options list take the paper and
-   pen; elsewhere the OS draws the popup and this block is ignored */
+/* Chromium's customisable select lets the options list be styled; elsewhere
+   the OS draws the popup and this block is ignored. The picker can't carry a
+   sketch, so it stays a flat paper panel and the pen only marks the choice */
 @supports (appearance: base-select) {
   .drawably-select select,
   .drawably-select select::picker(select) {
@@ -230,13 +231,14 @@
   }
 
   .drawably-select select::picker(select) {
-    margin-top: 4px;
+    margin-top: 6px;
     padding: 4px;
-    border: 2px solid var(--drawably-ink, var(--drawably-stroke, #2724d1));
+    border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
     border-radius: 6px;
     background: var(--drawably-paper, #fff);
     color: inherit;
     font: inherit;
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.08);
   }
 
   .drawably-select option {
@@ -245,7 +247,7 @@
   }
 
   .drawably-select option:is(:hover, :focus-visible) {
-    background: color-mix(in srgb, var(--drawably-stroke, #2724d1) 12%, transparent);
+    background: color-mix(in srgb, var(--drawably-stroke, #2724d1) 10%, transparent);
   }
 
   .drawably-select option::checkmark {
