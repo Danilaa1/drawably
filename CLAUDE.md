@@ -72,11 +72,9 @@ roughness 0.55) — see the site repo.
 
 ## The site
 
-`~/Developer/scrawl-site` is the landing page. It vendors the library as a
-tarball (`drawably-X.Y.Z.tgz` committed in the repo) because Cloudflare can't
-reach a local `file:` path. After changing the library: bump the version,
-`npm pack`, copy the tarball over, update the site's `package.json`
-dependency, delete the old tarball.
+`~/developer/portfolio-work/scrawl-site` is the landing page. It depends on
+the published `drawably` from npm. After changing the library: bump, publish,
+then bump the site's `package.json` dependency and `npm install`.
 
 ## Conventions
 
