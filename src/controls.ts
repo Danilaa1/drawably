@@ -298,15 +298,7 @@ const CHEVRON_H = 6;
 const CHEVRON_RIGHT = 12;
 const CHEVRON_ROUGHNESS = 0.4;
 
-// the picker's border-image source; PICKER_SLICE (see style.css) must cover
-// INSET plus the stroke so corners survive the 9-slice
-const PICKER_W = 200;
-const PICKER_H = 120;
-const PICKER_RADIUS = 6;
-const DEFAULT_STROKE = "#2724d1";
-
-// ponytail: options are measured once at attach; a select whose options
-// change afterwards should be re-attached
+// ponytail: options are measured once at attach; re-attach if they change
 function reserveWidestOption(select: HTMLSelectElement) {
   const ctx = document.createElement("canvas").getContext("2d");
   if (!ctx) return;
@@ -317,25 +309,30 @@ function reserveWidestOption(select: HTMLSelectElement) {
   select.style.minWidth = `${Math.ceil(widest + pad)}px`;
 }
 
-// ponytail: the stroke colour is baked into the data URI, so a theme change
-// after mount needs a resketch() to show in the picker
-function paintPicker(select: HTMLSelectElement, o: RoughOptions) {
-  const cs = getComputedStyle(select);
-  const stroke =
-    cs.getPropertyValue("--drawably-ink").trim() ||
-    cs.getPropertyValue("--drawably-stroke").trim() ||
-    DEFAULT_STROKE;
-  const width = cs.getPropertyValue("--drawably-width").trim() || "2";
-  const frames = variants(
-    (lo) => roughRoundedRect(INSET, INSET, PICKER_W - 2 * INSET, PICKER_H - 2 * INSET, PICKER_RADIUS, lo),
-    o,
-  );
-  frames.forEach((d, i) => {
-    const svg =
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${PICKER_W}" height="${PICKER_H}" viewBox="0 0 ${PICKER_W} ${PICKER_H}">` +
-      `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    select.style.setProperty(`--drawably-picker-${i}`, `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
-  });
+const PICKER_RADIUS = 6;
+
+// Chromium's base-select renders the select's children inside the picker, so
+// a real SVG can sit in there like any other chrome. It has no size until the
+// picker opens; the observer draws it at the size it gets. Other engines keep
+// the OS popup and ignore the element.
+function pickerFrame(select: HTMLSelectElement, o: () => RoughOptions) {
+  const frame = createSvg();
+  frame.classList.add("drawably-picker");
+  select.append(frame);
+  const draw = () => {
+    const w = frame.clientWidth;
+    const h = frame.clientHeight;
+    if (w && h) paint(frame, [{ className: "drawably-outline", gen: outlineRect(PICKER_RADIUS) }], w, h, o());
+  };
+  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(draw) : null;
+  ro?.observe(frame);
+  return {
+    draw,
+    destroy() {
+      ro?.disconnect();
+      frame.remove();
+    },
+  };
 }
 
 export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
@@ -357,17 +354,17 @@ export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Ske
   const roughness = opts.roughness ?? 1;
   const boil = opts.boil ?? 0.3;
   reserveWidestOption(select);
-  paintPicker(select, { seed, roughness, boil });
+  const frame = pickerFrame(select, () => ({ seed, roughness, boil }));
   return {
     resketch(s?: number) {
       seed = s ?? randomSeed();
       sketch.resketch(seed);
-      paintPicker(select, { seed, roughness, boil });
+      frame.draw();
     },
     destroy() {
       sketch.destroy();
+      frame.destroy();
       select.style.removeProperty("min-width");
-      for (let i = 0; i < 3; i++) select.style.removeProperty(`--drawably-picker-${i}`);
     },
   };
 }

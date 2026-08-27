@@ -36,7 +36,7 @@ drawablyRadio(document.querySelector("#pen")); // wrapper must contain <input ty
 drawablyToggle(document.querySelector("#tog")); // wrapper must contain <input type="checkbox">
 drawablyInput(document.querySelector("#name")); // wrapper must contain <input>
 drawablyTextarea(document.querySelector("#msg")); // wrapper must contain <textarea>
-drawablySelect(document.querySelector("#pick")); // wrapper must contain <select>
+drawablySelect(document.querySelector("#pick")); // wrapper must contain <select>; reserves the widest option's width so picking never shifts layout
 drawablyDivider(document.querySelector("#rule")); // <hr> or div
 drawablyCard(document.querySelector("#card"));
 drawablyBadge(document.querySelector("#tag"), { variant: "scribble" });
@@ -102,6 +102,7 @@ Native element props pass through. Sketch options are top-level props: `seed`, `
 - `state`: `"idle"` | `"loading"` | `"error"` | `"success"`
 - `tone`: `"neutral"` (warm grey, secondary) | `"danger"` (red)
 - `setState(state)` after mount. React: `state` prop.
+- hover: lifts 1px and washes the inside with the stroke at 10% (outline/scribble); press: sinks and the outline thickens. Native `disabled` dims it and drops both.
 - loading: dimmed, faster boil, `cursor: progress`
 - error: `--drawably-error` (default `#d12724`)
 - success: `--drawably-success` (default `#188a42`)
@@ -143,6 +144,7 @@ Decorates existing inline text; the element keeps its own layout. Use on a word 
 - Import `drawably/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
 - Respect `prefers-reduced-motion`: the library already freezes boil and skips hover re-sketch. Do not add extra motion on top when that media query matches.
 - Hover/press re-sketches buttons, checkboxes, radios, toggles, underlines and circles.
+- Select: in Chromium the options list gets a sketched frame and pen checkmark (`appearance: base-select`); Safari and Firefox keep the OS popup. Options are measured once at attach — re-attach if they change.
 - Renderer exports if you need custom shapes: `roughRoundedRect`, `roughCircle`, `roughEllipse`, `roughLine`, `roughArrow`, `roughCheckmark`, `scribbleFill`, `variants`, `mulberry32`, `randomSeed`.
 - No Vue/Svelte adapters. Vanilla or React.
 

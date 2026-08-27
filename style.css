@@ -49,12 +49,6 @@
   66.67% { opacity: 0; }
 }
 
-@keyframes drawably-picker-boil {
-  0% { border-image-source: var(--drawably-picker-0); }
-  33.33% { border-image-source: var(--drawably-picker-1); }
-  66.67% { border-image-source: var(--drawably-picker-2); }
-}
-
 @keyframes drawably-boil-2 {
   0% { opacity: 0; }
   66.67% { opacity: 1; }
@@ -86,8 +80,39 @@
   transition: transform 120ms ease;
 }
 
+/* press: the pen pushes into the paper — the sketch sinks and the outline
+   thickens; hover lifts it and tints the inside with the stroke at 10%, the
+   same wash the picker uses for its hovered option */
 .drawably-button:active {
-  transform: scale(0.92);
+  transform: translateY(1px) scale(0.98);
+}
+
+.drawably-button .drawably-outline {
+  transition: stroke-width 120ms ease, fill 120ms ease;
+}
+
+.drawably-button:active .drawably-outline {
+  stroke-width: calc(var(--drawably-width, 2) * 1.4);
+}
+
+@media (hover: hover) {
+  .drawably-button:hover:not(:disabled, [data-state="loading"]) {
+    transform: translateY(-1px);
+  }
+
+  .drawably-button:not(.drawably-button--solid):hover:not(:disabled) .drawably-outline {
+    fill: color-mix(in srgb, var(--drawably-ink, var(--drawably-stroke, #2724d1)) 10%, transparent);
+  }
+
+  .drawably-button:hover:active {
+    transform: translateY(1px) scale(0.98);
+  }
+}
+
+.drawably-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
 }
 
 .drawably-button--neutral {
@@ -223,9 +248,9 @@
   cursor: pointer;
 }
 
-/* Chromium's customisable select lets the options list be styled; elsewhere
-   the OS draws the popup and this block is ignored. The picker can't carry a
-   sketch, so it stays a flat paper panel and the pen only marks the choice */
+/* Chromium's customisable select lets the options list be styled and renders
+   the select's children inside it, which is where the .drawably-picker frame
+   lives; elsewhere the OS draws the popup and this block is ignored */
 @supports (appearance: base-select) {
   .drawably-select select,
   .drawably-select select::picker(select) {
@@ -236,18 +261,15 @@
     display: none;
   }
 
-  /* the picker can't hold an SVG, so its frame is the sketch as a
-     border-image: three frames on --drawably-picker-N, cycled like .drawably-boil.
-     PICKER_SLICE = INSET + stroke, so the 9-slice keeps the corners */
+  /* the picker is a fixed-position popover, so the absolute frame fills it.
+     ponytail: it scrolls with a long option list; clip the frame if that shows */
   .drawably-select select::picker(select) {
     margin-top: 4px;
-    padding: 2px;
-    border: 10px solid transparent;
-    border-image: var(--drawably-picker-0) 10 stretch;
+    padding: 6px;
+    border: 0;
     background: var(--drawably-paper, #fff);
     color: inherit;
     font: inherit;
-    animation: drawably-picker-boil 1200ms step-end infinite;
   }
 
   .drawably-select option {
@@ -307,8 +329,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .drawably-boil,
-  .drawably-select select::picker(select) {
+  .drawably-boil {
     animation: none;
   }
   .drawably-boil[data-i="0"] {

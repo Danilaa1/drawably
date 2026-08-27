@@ -552,15 +552,13 @@ describe("drawablySelect sizing and picker", () => {
     }
   });
 
-  it("bakes three boil frames of a rough rect into picker custom properties", () => {
+  it("puts a sketched frame inside the select for Chromium's picker, removed on destroy", () => {
     const { select } = mountSelect();
     const sketch = drawablySelect(select.parentElement!, { seed: 1 });
-    const frames = [0, 1, 2].map((i) => select.style.getPropertyValue(`--drawably-picker-${i}`));
-    for (const f of frames) expect(f).toMatch(/^url\("data:image\/svg\+xml,/);
-    expect(new Set(frames).size).toBe(3);
-    sketch.resketch(2);
-    expect(select.style.getPropertyValue("--drawably-picker-0")).not.toBe(frames[0]);
-    sketch.resketch(1);
-    expect(select.style.getPropertyValue("--drawably-picker-0")).toBe(frames[0]);
+    const frame = select.querySelector("svg.drawably-svg.drawably-picker");
+    expect(frame).not.toBeNull();
+    expect([...select.options].map((o) => o.text)).toEqual(["Pen", "Pencil", "Marker"]);
+    sketch.destroy();
+    expect(select.querySelector("svg")).toBeNull();
   });
 });
