@@ -217,6 +217,42 @@
   cursor: pointer;
 }
 
+/* Chromium's customisable select lets the options list take the paper and
+   pen; elsewhere the OS draws the popup and this block is ignored */
+@supports (appearance: base-select) {
+  .drawably-select select,
+  .drawably-select select::picker(select) {
+    appearance: base-select;
+  }
+
+  .drawably-select select::picker-icon {
+    display: none;
+  }
+
+  .drawably-select select::picker(select) {
+    margin-top: 4px;
+    padding: 4px;
+    border: 2px solid var(--drawably-ink, var(--drawably-stroke, #2724d1));
+    border-radius: 6px;
+    background: var(--drawably-paper, #fff);
+    color: inherit;
+    font: inherit;
+  }
+
+  .drawably-select option {
+    padding: 4px 8px;
+    border-radius: 3px;
+  }
+
+  .drawably-select option:is(:hover, :focus-visible) {
+    background: color-mix(in srgb, var(--drawably-stroke, #2724d1) 12%, transparent);
+  }
+
+  .drawably-select option::checkmark {
+    color: var(--drawably-ink, var(--drawably-stroke, #2724d1));
+  }
+}
+
 .drawably-badge {
   display: inline-block;
   padding: 1px 7px;
@@ -238,12 +274,18 @@
 }
 
 /* marker wash: stroke as wide as the scribble gap so the hatching reads as
-   one swipe, multiplied so the text stays legible over it */
+   one swipe, multiplied so the text stays legible over it. stroke-opacity,
+   not opacity — the boil keyframes animate opacity and would override it */
 .drawably-svg .drawably-wash {
   stroke: var(--drawably-ink, var(--drawably-fill, #2724d1));
   stroke-width: 6;
-  opacity: 0.3;
+  stroke-opacity: 0.3;
   mix-blend-mode: multiply;
+}
+
+/* text decorations sit on body copy, where the 2px control stroke reads heavy */
+:is(.drawably-underline, .drawably-circle) .drawably-svg path {
+  stroke-width: var(--drawably-width, 1.5);
 }
 
 /* body-level overlay positioned in document coordinates by the attacher;
