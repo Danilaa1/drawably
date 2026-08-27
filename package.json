@@ -36,7 +36,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "tsc -p tsconfig.json",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit && tsc -p font",
     "pack:check": "npm pack --dry-run",
     "test": "vitest run"
   },
