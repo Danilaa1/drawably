@@ -1,6 +1,6 @@
 {
   "name": "drawably",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Hand-drawn UI controls. Every render a fresh pen sketch, boiling like a doodle.",
   "license": "MIT",
   "author": "Daniel Belyi",
