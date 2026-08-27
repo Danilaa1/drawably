@@ -1,4 +1,5 @@
 .drawably-host {
+  --drawably-ease: cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   isolation: isolate;
   font-family: Inter, system-ui, sans-serif;
@@ -22,37 +23,39 @@
   stroke-linejoin: round;
 }
 
-/* the three frames swap on shared keyframe percentages, so every hide and the
-   next show compute to the same instant — the delay-offset version left a
-   sub-ms gap where no frame was visible, sampling as a blank-frame flash */
+/* one animation on the svg steps a frame counter; every path derives its
+   opacity from the inherited value in the same style pass, so frames can never
+   sample out of step with each other (three per-path animations flashed blank
+   on tab refocus when their clocks re-aligned separately) */
+@property --drawably-frame {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.drawably-svg {
+  --drawably-frame: 0;
+  animation: drawably-boil 1200ms step-end infinite;
+}
+
+@keyframes drawably-boil {
+  0% { --drawably-frame: 0; }
+  33.33% { --drawably-frame: 1; }
+  66.67% { --drawably-frame: 2; }
+}
+
+/* 1 when the counter equals this frame's index, 0 for the other two */
 .drawably-boil {
-  opacity: 0;
-  animation: drawably-boil-0 1200ms step-end infinite;
+  --drawably-i: 0;
+  opacity: clamp(0, 1 - (var(--drawably-frame) - var(--drawably-i)) * (var(--drawably-frame) - var(--drawably-i)), 1);
 }
 
 .drawably-boil[data-i="1"] {
-  animation-name: drawably-boil-1;
+  --drawably-i: 1;
 }
 
 .drawably-boil[data-i="2"] {
-  animation-name: drawably-boil-2;
-}
-
-@keyframes drawably-boil-0 {
-  0% { opacity: 1; }
-  33.33% { opacity: 0; }
-}
-
-@keyframes drawably-boil-1 {
-  0% { opacity: 0; }
-  33.33% { opacity: 1; }
-  66.67% { opacity: 0; }
-}
-
-@keyframes drawably-boil-2 {
-  0% { opacity: 0; }
-  66.67% { opacity: 1; }
-  100% { opacity: 0; }
+  --drawably-i: 2;
 }
 
 .drawably-svg .drawably-blob {
@@ -138,7 +141,7 @@
   opacity: 0.6;
 }
 
-.drawably-button[data-state="loading"] .drawably-boil {
+.drawably-button[data-state="loading"] .drawably-svg {
   animation-duration: 450ms;
 }
 
@@ -185,7 +188,7 @@
   transform: scale(0.5);
   transform-box: fill-box;
   transform-origin: center;
-  transition: transform 160ms ease-out;
+  transition: transform 160ms var(--drawably-ease);
 }
 
 .drawably-radio[data-checked] .drawably-dot {
@@ -194,7 +197,7 @@
 }
 
 .drawably-svg .drawably-knob {
-  transition: transform 160ms ease-out;
+  transition: transform 160ms var(--drawably-ease);
 }
 
 /* travel = toggle width 44px minus height 24px; resizing the toggle in CSS
@@ -212,7 +215,7 @@
 .drawably-svg .drawably-check {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset 240ms ease-out;
+  transition: stroke-dashoffset 240ms var(--drawably-ease);
 }
 
 .drawably-checkbox[data-checked] .drawably-check {
@@ -281,8 +284,20 @@
     background: color-mix(in srgb, var(--drawably-stroke, #2724d1) 10%, transparent);
   }
 
+  /* every option gets the same empty box so text lines up whether or not it
+     is chosen; the chosen one paints the attacher's sketched check through it */
   .drawably-select option::checkmark {
-    color: var(--drawably-ink, var(--drawably-stroke, #2724d1));
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-inline-end: 0.5em;
+    vertical-align: -0.15em;
+  }
+
+  .drawably-select option:checked::checkmark {
+    background: var(--drawably-ink, var(--drawably-stroke, #2724d1));
+    mask: var(--drawably-check) center / contain no-repeat;
   }
 }
 
@@ -329,11 +344,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .drawably-boil {
+  .drawably-svg {
     animation: none;
-  }
-  .drawably-boil[data-i="0"] {
-    opacity: 1;
   }
   .drawably-svg .drawably-check,
   .drawably-svg .drawably-dot,

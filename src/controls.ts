@@ -335,6 +335,16 @@ function pickerFrame(select: HTMLSelectElement, o: () => RoughOptions) {
   };
 }
 
+// the checkbox draws its check at 24%/20% of a 22px box; the same proportions
+// in the picker's 1em (16px) box. A data URI can't read custom properties, so
+// it is a mask and the CSS supplies the colour
+const CHECK_BOX = 16;
+function checkMask(o: RoughOptions): string {
+  const d = roughCheckmark(CHECK_BOX * 0.24, CHECK_BOX * 0.2, CHECK_BOX * 0.52, CHECK_BOX * 0.5, o);
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${CHECK_BOX} ${CHECK_BOX}'><path d='${d}' fill='none' stroke='#000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
 export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
   const chevron: Layer = {
     className: "drawably-chevron",
@@ -355,16 +365,20 @@ export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Ske
   const boil = opts.boil ?? 0.3;
   reserveWidestOption(select);
   const frame = pickerFrame(select, () => ({ seed, roughness, boil }));
+  const mark = () => select.style.setProperty("--drawably-check", checkMask({ seed, roughness }));
+  mark();
   return {
     resketch(s?: number) {
       seed = s ?? randomSeed();
       sketch.resketch(seed);
       frame.draw();
+      mark();
     },
     destroy() {
       sketch.destroy();
       frame.destroy();
       select.style.removeProperty("min-width");
+      select.style.removeProperty("--drawably-check");
     },
   };
 }

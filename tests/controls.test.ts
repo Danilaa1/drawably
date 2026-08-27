@@ -561,4 +561,16 @@ describe("drawablySelect sizing and picker", () => {
     sketch.destroy();
     expect(select.querySelector("svg")).toBeNull();
   });
+
+  it("hands the picker a seeded check mask for the chosen option, removed on destroy", () => {
+    const { select } = mountSelect();
+    const sketch = drawablySelect(select.parentElement!, { seed: 1 });
+    const mask = select.style.getPropertyValue("--drawably-check");
+    expect(mask).toMatch(/^url\("data:image\/svg\+xml,/);
+    const { select: other } = mountSelect();
+    drawablySelect(other.parentElement!, { seed: 1 });
+    expect(other.style.getPropertyValue("--drawably-check")).toBe(mask);
+    sketch.destroy();
+    expect(select.style.getPropertyValue("--drawably-check")).toBe("");
+  });
 });
