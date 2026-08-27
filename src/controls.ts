@@ -298,6 +298,46 @@ const CHEVRON_H = 6;
 const CHEVRON_RIGHT = 12;
 const CHEVRON_ROUGHNESS = 0.4;
 
+// the picker's border-image source; PICKER_SLICE (see style.css) must cover
+// INSET plus the stroke so corners survive the 9-slice
+const PICKER_W = 200;
+const PICKER_H = 120;
+const PICKER_RADIUS = 6;
+const DEFAULT_STROKE = "#2724d1";
+
+// ponytail: options are measured once at attach; a select whose options
+// change afterwards should be re-attached
+function reserveWidestOption(select: HTMLSelectElement) {
+  const ctx = document.createElement("canvas").getContext("2d");
+  if (!ctx) return;
+  const cs = getComputedStyle(select);
+  ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const widest = Math.max(0, ...[...select.options].map((o) => ctx.measureText(o.text).width));
+  const pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+  select.style.minWidth = `${Math.ceil(widest + pad)}px`;
+}
+
+// ponytail: the stroke colour is baked into the data URI, so a theme change
+// after mount needs a resketch() to show in the picker
+function paintPicker(select: HTMLSelectElement, o: RoughOptions) {
+  const cs = getComputedStyle(select);
+  const stroke =
+    cs.getPropertyValue("--drawably-ink").trim() ||
+    cs.getPropertyValue("--drawably-stroke").trim() ||
+    DEFAULT_STROKE;
+  const width = cs.getPropertyValue("--drawably-width").trim() || "2";
+  const frames = variants(
+    (lo) => roughRoundedRect(INSET, INSET, PICKER_W - 2 * INSET, PICKER_H - 2 * INSET, PICKER_RADIUS, lo),
+    o,
+  );
+  frames.forEach((d, i) => {
+    const svg =
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${PICKER_W}" height="${PICKER_H}" viewBox="0 0 ${PICKER_W} ${PICKER_H}">` +
+      `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    select.style.setProperty(`--drawably-picker-${i}`, `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+  });
+}
+
 export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
   const chevron: Layer = {
     className: "drawably-chevron",
@@ -311,7 +351,25 @@ export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Ske
       );
     },
   };
-  return fieldBox(el, "select", "drawably-select", [chevron], opts);
+  let seed = opts.seed ?? randomSeed();
+  const sketch = fieldBox(el, "select", "drawably-select", [chevron], { ...opts, seed });
+  const select = el.querySelector("select")!;
+  const roughness = opts.roughness ?? 1;
+  const boil = opts.boil ?? 0.3;
+  reserveWidestOption(select);
+  paintPicker(select, { seed, roughness, boil });
+  return {
+    resketch(s?: number) {
+      seed = s ?? randomSeed();
+      sketch.resketch(seed);
+      paintPicker(select, { seed, roughness, boil });
+    },
+    destroy() {
+      sketch.destroy();
+      select.style.removeProperty("min-width");
+      for (let i = 0; i < 3; i++) select.style.removeProperty(`--drawably-picker-${i}`);
+    },
+  };
 }
 
 export interface DrawablyBadgeOptions extends DrawablyOptions {

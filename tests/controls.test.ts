@@ -522,3 +522,45 @@ describe("drawablyList", () => {
     expect(ul.querySelector("li.drawably-host")).toBeNull();
   });
 });
+
+describe("drawablySelect sizing and picker", () => {
+  function mountSelect(labels = ["Pen", "Pencil", "Marker"]) {
+    const wrap = document.createElement("span");
+    const select = document.createElement("select");
+    for (const l of labels) {
+      const o = document.createElement("option");
+      o.textContent = l;
+      select.append(o);
+    }
+    wrap.append(select);
+    document.body.append(wrap);
+    return { wrap, select };
+  }
+
+  it("reserves the widest option's width so choosing another never shifts layout", () => {
+    const orig = HTMLCanvasElement.prototype.getContext;
+    // ponytail: happy-dom has no canvas; 7px per character stands in for a font
+    HTMLCanvasElement.prototype.getContext = (() => ({
+      measureText: (t: string) => ({ width: t.length * 7 }),
+    })) as unknown as typeof orig;
+    try {
+      const { select } = mountSelect();
+      drawablySelect(select.parentElement!, { seed: 1 });
+      expect(select.style.minWidth).toBe("42px");
+    } finally {
+      HTMLCanvasElement.prototype.getContext = orig;
+    }
+  });
+
+  it("bakes three boil frames of a rough rect into picker custom properties", () => {
+    const { select } = mountSelect();
+    const sketch = drawablySelect(select.parentElement!, { seed: 1 });
+    const frames = [0, 1, 2].map((i) => select.style.getPropertyValue(`--drawably-picker-${i}`));
+    for (const f of frames) expect(f).toMatch(/^url\("data:image\/svg\+xml,/);
+    expect(new Set(frames).size).toBe(3);
+    sketch.resketch(2);
+    expect(select.style.getPropertyValue("--drawably-picker-0")).not.toBe(frames[0]);
+    sketch.resketch(1);
+    expect(select.style.getPropertyValue("--drawably-picker-0")).toBe(frames[0]);
+  });
+});

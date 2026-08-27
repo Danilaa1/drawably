@@ -49,6 +49,12 @@
   66.67% { opacity: 0; }
 }
 
+@keyframes drawably-picker-boil {
+  0% { border-image-source: var(--drawably-picker-0); }
+  33.33% { border-image-source: var(--drawably-picker-1); }
+  66.67% { border-image-source: var(--drawably-picker-2); }
+}
+
 @keyframes drawably-boil-2 {
   0% { opacity: 0; }
   66.67% { opacity: 1; }
@@ -230,15 +236,18 @@
     display: none;
   }
 
+  /* the picker can't hold an SVG, so its frame is the sketch as a
+     border-image: three frames on --drawably-picker-N, cycled like .drawably-boil.
+     PICKER_SLICE = INSET + stroke, so the 9-slice keeps the corners */
   .drawably-select select::picker(select) {
-    margin-top: 6px;
-    padding: 4px;
-    border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
-    border-radius: 6px;
+    margin-top: 4px;
+    padding: 2px;
+    border: 10px solid transparent;
+    border-image: var(--drawably-picker-0) 10 stretch;
     background: var(--drawably-paper, #fff);
     color: inherit;
     font: inherit;
-    box-shadow: 0 6px 16px rgb(0 0 0 / 0.08);
+    animation: drawably-picker-boil 1200ms step-end infinite;
   }
 
   .drawably-select option {
@@ -298,7 +307,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .drawably-boil {
+  .drawably-boil,
+  .drawably-select select::picker(select) {
     animation: none;
   }
   .drawably-boil[data-i="0"] {

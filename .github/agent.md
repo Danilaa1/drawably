@@ -113,7 +113,7 @@ Native element props pass through. Sketch options are top-level props: `seed`, `
 - `drawablyToggle(wrap, opts)` — checkbox in a wrapper; pill with a sliding ink-blob knob. React sets `role="switch"`.
 - `drawablyInput(wrap, opts)` — text input in a wrapper
 - `drawablyTextarea(wrap, opts)` — textarea in a wrapper; vertical resize redraws the sketch
-- `drawablySelect(wrap, opts)` — select in a wrapper; native arrow hidden, sketched chevron in its place
+- `drawablySelect(wrap, opts)` — select in a wrapper; native arrow hidden, sketched chevron in its place. Width is reserved for the widest option at attach, so changing the value never shifts layout (re-attach if options change). In Chromium the options popup gets a sketched frame too; other browsers show the OS popup.
 - `drawablyDivider(el, opts)` — rough line on an `<hr>` or div
 - `drawablyCard(el, opts)` — sketched container
 - `drawablyBadge(el, opts)` — tight sharp-cornered tag on an inline element; `variant`: `"outline"` (default) | `"scribble"`
