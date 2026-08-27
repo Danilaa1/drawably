@@ -2,7 +2,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { useRef } from "react";
-import { DrawablyArrow, DrawablyButton, DrawablyCheckbox, DrawablyCircle, DrawablyHighlight, DrawablyUnderline } from "../src/react.js";
+import { DrawablyArrow, DrawablyBadge, DrawablyButton, DrawablyCheckbox, DrawablyCircle, DrawablyHighlight, DrawablyList, DrawablySelect, DrawablyTextarea, DrawablyUnderline } from "../src/react.js";
 
 (globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -98,4 +98,26 @@ it("DrawablyArrow draws between two refs and cleans up on unmount", () => {
   expect(document.body.querySelector("svg.drawably-arrow path")).toBeTruthy();
   act(() => root.render(<span />));
   expect(document.body.querySelector("svg.drawably-arrow")).toBeNull();
+});
+
+it("form set wrappers render native fields inside sketched wrappers", () => {
+  act(() =>
+    root.render(
+      <form>
+        <DrawablyTextarea seed={1} name="msg" />
+        <DrawablySelect seed={1} name="pick">
+          <option>a</option>
+        </DrawablySelect>
+        <DrawablyBadge seed={1} variant="scribble">new</DrawablyBadge>
+        <DrawablyList seed={1} marker="check">
+          <li>one</li>
+          <li>two</li>
+        </DrawablyList>
+      </form>,
+    ),
+  );
+  expect(host.querySelector("span.drawably-textarea textarea[name=msg]")).toBeTruthy();
+  expect(host.querySelector("span.drawably-select select[name=pick] option")).toBeTruthy();
+  expect(host.querySelector("span.drawably-badge--scribble path.drawably-scribble")).toBeTruthy();
+  expect(host.querySelectorAll("ul.drawably-list li > svg")).toHaveLength(2);
 });

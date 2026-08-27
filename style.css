@@ -188,11 +188,13 @@
   stroke-dashoffset: 0;
 }
 
-.drawably-inputbox {
+.drawably-inputbox,
+.drawably-textarea,
+.drawably-select {
   display: inline-block;
 }
 
-.drawably-inputbox input {
+:is(.drawably-inputbox, .drawably-textarea, .drawably-select) :is(input, textarea, select) {
   border: 0;
   background: none;
   font: inherit;
@@ -201,6 +203,34 @@
   width: 100%;
   box-sizing: border-box;
   outline: none;
+}
+
+.drawably-textarea textarea {
+  display: block;
+  resize: vertical;
+}
+
+/* right padding reserves the gutter the sketched chevron sits in */
+.drawably-select select {
+  appearance: none;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.drawably-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  font:
+    500 12px/1.4 Geist Mono,
+    ui-monospace,
+    monospace;
+  color: var(--drawably-ink, var(--drawably-stroke, #2724d1));
+}
+
+/* padding is the gutter the marker is drawn into (see MARKER_LEFT) */
+.drawably-list {
+  list-style: none;
+  padding-left: 24px;
 }
 
 .drawably-card {

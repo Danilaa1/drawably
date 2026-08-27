@@ -8,9 +8,12 @@ import {
 } from "react";
 import {
   type ButtonSketch,
+  type DrawablyBadgeOptions,
   type DrawablyButtonOptions,
+  type DrawablyListOptions,
   type DrawablyOptions,
   drawablyArrow,
+  drawablyBadge,
   drawablyButton,
   drawablyCard,
   drawablyCheckbox,
@@ -18,7 +21,10 @@ import {
   drawablyDivider,
   drawablyHighlight,
   drawablyInput,
+  drawablyList,
   drawablyRadio,
+  drawablySelect,
+  drawablyTextarea,
   drawablyToggle,
   drawablyUnderline,
   type Sketch,
@@ -135,4 +141,44 @@ export function DrawablyArrow({ from, to, seed, roughness, boil, stroke, fill, p
     return () => sketch.destroy();
   }, [from, to, seed, roughness, boil, stroke, fill, paper, width]);
   return null;
+}
+
+type TextareaProps = DrawablyOptions & ComponentProps<"textarea">;
+
+export function DrawablyTextarea({ seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: TextareaProps): ReactElement {
+  const ref = useSketch<HTMLSpanElement>(
+    (el) => drawablyTextarea(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    [seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  return createElement("span", { className, ref }, createElement("textarea", rest));
+}
+
+type SelectProps = DrawablyOptions & ComponentProps<"select">;
+
+export function DrawablySelect({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: SelectProps): ReactElement {
+  const ref = useSketch<HTMLSpanElement>(
+    (el) => drawablySelect(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    [seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  return createElement("span", { className, ref }, createElement("select", rest, children));
+}
+
+type BadgeProps = DrawablyBadgeOptions & ComponentProps<"span">;
+
+export function DrawablyBadge({ seed, roughness, boil, stroke, fill, paper, width, variant, className, children, ...rest }: BadgeProps): ReactElement {
+  const ref = useSketch<HTMLSpanElement>(
+    (el) => drawablyBadge(el, { seed, roughness, boil, stroke, fill, paper, width, variant }),
+    [seed, roughness, boil, stroke, fill, paper, width, variant, className],
+  );
+  return createElement("span", { ...rest, className, ref }, children);
+}
+
+type ListProps = DrawablyListOptions & ComponentProps<"ul">;
+
+export function DrawablyList({ seed, roughness, boil, stroke, fill, paper, width, marker, className, children, ...rest }: ListProps): ReactElement {
+  const ref = useSketch<HTMLUListElement>(
+    (el) => drawablyList(el, { seed, roughness, boil, stroke, fill, paper, width, marker }),
+    [seed, roughness, boil, stroke, fill, paper, width, marker, className],
+  );
+  return createElement("ul", { ...rest, className, ref }, children);
 }

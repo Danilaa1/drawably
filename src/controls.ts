@@ -272,19 +272,111 @@ export function drawablyDivider(el: HTMLElement, opts: DrawablyOptions = {}): Sk
   return sketch;
 }
 
-export function drawablyInput(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
-  if (!el?.querySelector?.("input")) throw new Error("drawably: input wrapper needs an <input>");
-  const sketch = attachChrome(
+function fieldBox(el: HTMLElement, field: string, cls: string, extra: Layer[], opts: DrawablyOptions): Sketch {
+  if (!el?.querySelector?.(field)) throw new Error(`drawably: ${cls} wrapper needs a <${field}>`);
+  return decoration(
     el,
-    [
-      { className: "drawably-outline", gen: outlineRect(6) },
-      { className: "drawably-focus", gen: focusRect(8) },
-    ],
+    cls,
+    [{ className: "drawably-outline", gen: outlineRect(6) }, ...extra, { className: "drawably-focus", gen: focusRect(8) }],
     opts,
     false,
   );
-  el.classList.add("drawably-inputbox");
-  return sketch;
+}
+
+export function drawablyInput(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  return fieldBox(el, "input", "drawably-inputbox", [], opts);
+}
+
+export function drawablyTextarea(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  return fieldBox(el, "textarea", "drawably-textarea", [], opts);
+}
+
+// chevron sits in the right-hand gutter the select's CSS padding reserves
+const CHEVRON_W = 10;
+const CHEVRON_H = 5;
+const CHEVRON_RIGHT = 12;
+
+export function drawablySelect(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  const chevron: Layer = {
+    className: "drawably-chevron",
+    gen: (w, h, o) => {
+      const x = w - CHEVRON_RIGHT - CHEVRON_W;
+      const y = h / 2 - CHEVRON_H / 2;
+      return (
+        roughLine(x, y, x + CHEVRON_W / 2, y + CHEVRON_H, o) +
+        roughLine(x + CHEVRON_W / 2, y + CHEVRON_H, x + CHEVRON_W, y, { ...o, seed: o.seed + 1 })
+      );
+    },
+  };
+  return fieldBox(el, "select", "drawably-select", [chevron], opts);
+}
+
+export interface DrawablyBadgeOptions extends DrawablyOptions {
+  variant?: "outline" | "scribble";
+}
+
+export function drawablyBadge(el: HTMLElement, opts: DrawablyBadgeOptions = {}): Sketch {
+  const variant = opts.variant ?? "outline";
+  const layers: Layer[] = [];
+  if (variant === "scribble")
+    layers.push({
+      className: "drawably-scribble",
+      gen: (w, h, o) => scribbleFill(INSET + 1, INSET + 1, w - 2 * INSET - 2, h - 2 * INSET - 2, o),
+    });
+  layers.push({ className: "drawably-outline", gen: outlineRect(2) });
+  const sketch = decoration(el, "drawably-badge", layers, opts, false);
+  el.classList.add(`drawably-badge--${variant}`);
+  return {
+    resketch: sketch.resketch,
+    destroy() {
+      sketch.destroy();
+      el.classList.remove(`drawably-badge--${variant}`);
+    },
+  };
+}
+
+export interface DrawablyListOptions extends DrawablyOptions {
+  marker?: "dash" | "check";
+}
+
+// marker geometry in the list's left padding (see .drawably-list); y follows
+// the li's line-height so it sits on the first line
+const MARKER_LEFT = -18;
+const MARKER_W = 10;
+const MARKER_LINE = 22;
+
+// ponytail: only the <li> present at attach time are sketched — a
+// MutationObserver would cover dynamic lists if anyone needs it
+export function drawablyList(el: HTMLElement, opts: DrawablyListOptions = {}): Sketch {
+  if (!(el instanceof HTMLElement)) throw new Error("drawably: expected an HTMLElement");
+  const marker = opts.marker ?? "dash";
+  const seed = opts.seed ?? randomSeed();
+  const items = [...el.querySelectorAll<HTMLLIElement>(":scope > li")];
+  const sketches = items.map((li, i) => {
+    const line = () => parseFloat(getComputedStyle(li).lineHeight) || MARKER_LINE;
+    const layer: Layer =
+      marker === "check"
+        ? {
+            className: "drawably-marker",
+            gen: (_w, _h, o) => roughCheckmark(MARKER_LEFT, line() / 2 - MARKER_W / 2, MARKER_W, MARKER_W, o),
+          }
+        : {
+            className: "drawably-marker",
+            gen: (_w, _h, o) => roughLine(MARKER_LEFT, line() / 2, MARKER_LEFT + MARKER_W, line() / 2, o),
+          };
+    return attachChrome(li, [layer], { ...opts, seed: seed + i }, false);
+  });
+  el.classList.add("drawably-list");
+  return {
+    resketch(s?: number) {
+      const base = s ?? randomSeed();
+      sketches.forEach((sk, i) => sk.resketch(base + i));
+    },
+    destroy() {
+      for (const sk of sketches) sk.destroy();
+      el.classList.remove("drawably-list");
+    },
+  };
 }
 
 function decoration(

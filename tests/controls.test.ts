@@ -401,3 +401,124 @@ describe("drawablyArrow", () => {
     expect(document.body.querySelector("svg.drawably-arrow")).toBeNull();
   });
 });
+
+import { drawablyBadge, drawablyList, drawablySelect, drawablyTextarea } from "../src/controls.js";
+
+function wrapWith(tag: string) {
+  const wrap = document.createElement("span");
+  wrap.append(document.createElement(tag));
+  document.body.append(wrap);
+  return wrap;
+}
+
+describe("drawablyTextarea", () => {
+  it("throws without an inner textarea", () => {
+    expect(() => drawablyTextarea(wrapWith("input"))).toThrow("textarea");
+  });
+
+  it("draws outline and focus layers", () => {
+    const wrap = wrapWith("textarea");
+    drawablyTextarea(wrap, { seed: 1 });
+    expect(wrap.classList.contains("drawably-textarea")).toBe(true);
+    expect(wrap.querySelectorAll("path.drawably-outline")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.drawably-focus")).toHaveLength(3);
+  });
+});
+
+describe("drawablySelect", () => {
+  it("throws without an inner select", () => {
+    expect(() => drawablySelect(wrapWith("input"))).toThrow("select");
+  });
+
+  it("draws outline, chevron and focus layers", () => {
+    const wrap = wrapWith("select");
+    drawablySelect(wrap, { seed: 1 });
+    expect(wrap.classList.contains("drawably-select")).toBe(true);
+    expect(wrap.querySelectorAll("path.drawably-outline")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.drawably-chevron")).toHaveLength(3);
+    expect(wrap.querySelectorAll("path.drawably-focus")).toHaveLength(3);
+  });
+});
+
+describe("drawablyBadge", () => {
+  it("throws on a missing element", () => {
+    expect(() => drawablyBadge(null as unknown as HTMLElement)).toThrow("HTMLElement");
+  });
+
+  it("outline by default, scribble variant adds a scribble layer", () => {
+    const a = mountWord();
+    drawablyBadge(a, { seed: 1 });
+    expect(a.classList.contains("drawably-badge")).toBe(true);
+    expect(a.querySelectorAll("path.drawably-outline")).toHaveLength(3);
+    expect(a.querySelectorAll("path.drawably-scribble")).toHaveLength(0);
+    const b = mountWord();
+    drawablyBadge(b, { seed: 1, variant: "scribble" });
+    expect(b.classList.contains("drawably-badge--scribble")).toBe(true);
+    expect(b.querySelectorAll("path.drawably-scribble")).toHaveLength(3);
+  });
+
+  it("ignores hover", () => {
+    const el = mountWord();
+    drawablyBadge(el, { seed: 1 });
+    const d1 = el.querySelector("path")?.getAttribute("d");
+    el.dispatchEvent(new Event("pointerenter"));
+    expect(el.querySelector("path")?.getAttribute("d")).toBe(d1);
+  });
+});
+
+describe("drawablyList", () => {
+  function mountList(n = 3) {
+    const ul = document.createElement("ul");
+    for (let i = 0; i < n; i++) {
+      const li = document.createElement("li");
+      li.textContent = `item ${i}`;
+      ul.append(li);
+    }
+    document.body.append(ul);
+    return ul;
+  }
+
+  it("throws on a missing element", () => {
+    expect(() => drawablyList(null as unknown as HTMLElement)).toThrow("HTMLElement");
+  });
+
+  it("draws a dash marker per li by default, check with marker: check", () => {
+    const ul = mountList();
+    drawablyList(ul, { seed: 1 });
+    expect(ul.classList.contains("drawably-list")).toBe(true);
+    expect(ul.querySelectorAll("li > svg.drawably-svg")).toHaveLength(3);
+    expect(ul.querySelectorAll("path.drawably-marker")).toHaveLength(9);
+    expect(ul.querySelector(":scope > svg")).toBeNull();
+    const ol = mountList(2);
+    drawablyList(ol, { seed: 1, marker: "check" });
+    const check = ol.querySelector("path.drawably-marker")?.getAttribute("d");
+    const dash = ul.querySelector("path.drawably-marker")?.getAttribute("d");
+    expect(check?.match(/M/g)).toHaveLength(1);
+    expect(dash?.match(/M/g)).toHaveLength(2);
+  });
+
+  it("gives each li a different sketch, deterministic per seed", () => {
+    const a = mountList(2);
+    const b = mountList(2);
+    drawablyList(a, { seed: 5 });
+    drawablyList(b, { seed: 5 });
+    const ds = (ul: HTMLElement) => [...ul.querySelectorAll("li")].map((li) => li.querySelector("path")?.getAttribute("d"));
+    expect(ds(a)).toEqual(ds(b));
+    expect(ds(a)[0]).not.toBe(ds(a)[1]);
+  });
+
+  it("resketch redraws every li and destroy removes everything", () => {
+    const ul = mountList(2);
+    const sketch = drawablyList(ul, { seed: 1 });
+    const d = () => [...ul.querySelectorAll("li")].map((li) => li.querySelector("path")?.getAttribute("d"));
+    const before = d();
+    sketch.resketch(2);
+    const after = d();
+    expect(after[0]).not.toBe(before[0]);
+    expect(after[1]).not.toBe(before[1]);
+    sketch.destroy();
+    expect(ul.querySelector("svg")).toBeNull();
+    expect(ul.classList.contains("drawably-list")).toBe(false);
+    expect(ul.querySelector("li.drawably-host")).toBeNull();
+  });
+});

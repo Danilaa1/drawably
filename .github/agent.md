@@ -17,8 +17,12 @@ import {
   drawablyRadio,
   drawablyToggle,
   drawablyInput,
+  drawablyTextarea,
+  drawablySelect,
   drawablyDivider,
   drawablyCard,
+  drawablyBadge,
+  drawablyList,
   drawablyUnderline,
   drawablyHighlight,
   drawablyCircle,
@@ -31,15 +35,19 @@ drawablyCheckbox(document.querySelector("#check")); // wrapper must contain <inp
 drawablyRadio(document.querySelector("#pen")); // wrapper must contain <input type="radio">
 drawablyToggle(document.querySelector("#tog")); // wrapper must contain <input type="checkbox">
 drawablyInput(document.querySelector("#name")); // wrapper must contain <input>
+drawablyTextarea(document.querySelector("#msg")); // wrapper must contain <textarea>
+drawablySelect(document.querySelector("#pick")); // wrapper must contain <select>
 drawablyDivider(document.querySelector("#rule")); // <hr> or div
 drawablyCard(document.querySelector("#card"));
+drawablyBadge(document.querySelector("#tag"), { variant: "scribble" });
+drawablyList(document.querySelector("#features"), { marker: "check" }); // <ul> or <ol>
 drawablyUnderline(document.querySelector("#word")); // any inline element
 drawablyHighlight(document.querySelector("#word"));
 drawablyCircle(document.querySelector("#price"));
 drawablyArrow(document.querySelector("#from"), document.querySelector("#to")); // two anchors
 ```
 
-Each attacher throws if the element is missing. Checkbox/radio/toggle/input throw if the inner `<input>` is missing. Arrow throws if either anchor is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
+Each attacher throws if the element is missing. Checkbox/radio/toggle/input/textarea/select throw if the inner field is missing. Arrow throws if either anchor is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
 
 ## React
 
@@ -52,8 +60,12 @@ import {
   DrawablyRadio,
   DrawablyToggle,
   DrawablyInput,
+  DrawablyTextarea,
+  DrawablySelect,
   DrawablyDivider,
   DrawablyCard,
+  DrawablyBadge,
+  DrawablyList,
   DrawablyUnderline,
   DrawablyHighlight,
   DrawablyCircle,
@@ -68,15 +80,19 @@ import "drawably/style.css";
 <DrawablyRadio name="ink" defaultChecked />
 <DrawablyToggle />
 <DrawablyInput placeholder="your name" />
+<DrawablyTextarea rows={4} />
+<DrawablySelect><option>Pen</option><option>Pencil</option></DrawablySelect>
 <DrawablyDivider />
 <DrawablyCard>…</DrawablyCard>
+<DrawablyBadge variant="scribble">new</DrawablyBadge>
+<DrawablyList marker="check"><li>…</li></DrawablyList>
 <DrawablyUnderline>hand-drawn</DrawablyUnderline>
 <DrawablyHighlight>fresh sketch</DrawablyHighlight>
 <DrawablyCircle>$0</DrawablyCircle>
 <DrawablyArrow from={fromRef} to={toRef} />
 ```
 
-Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant`, `state`, and `tone`. `DrawablyArrow` takes two refs and renders nothing.
+Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant`, `state`, and `tone`, badge `variant`, list `marker`. `DrawablyArrow` takes two refs and renders nothing. `DrawablyList` renders a `<ul>`.
 
 ## Button
 
@@ -96,8 +112,12 @@ Native element props pass through. Sketch options are top-level props: `seed`, `
 - `drawablyRadio(wrap, opts)` — radio in a wrapper; scribbled dot when checked. Same `name` groups them.
 - `drawablyToggle(wrap, opts)` — checkbox in a wrapper; pill with a sliding ink-blob knob. React sets `role="switch"`.
 - `drawablyInput(wrap, opts)` — text input in a wrapper
+- `drawablyTextarea(wrap, opts)` — textarea in a wrapper; vertical resize redraws the sketch
+- `drawablySelect(wrap, opts)` — select in a wrapper; native arrow hidden, sketched chevron in its place
 - `drawablyDivider(el, opts)` — rough line on an `<hr>` or div
 - `drawablyCard(el, opts)` — sketched container
+- `drawablyBadge(el, opts)` — tight sharp-cornered tag on an inline element; `variant`: `"outline"` (default) | `"scribble"`
+- `drawablyList(el, opts)` — `<ul>` or `<ol>`; native markers hidden, one sketched marker per `<li>`. `marker`: `"dash"` (default) | `"check"`. Only the `<li>` present at attach time are sketched; an `<ol>` loses its numbers.
 
 ## Text decoration
 
@@ -119,7 +139,7 @@ Decorates existing inline text; the element keeps its own layout. Use on a word 
 
 ## Rules
 
-- Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input wrapper, `hr`, `div`, or inline text element.
+- Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input/textarea/select wrapper, `hr`, `div`, `ul`, or inline text element.
 - Import `drawably/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
 - Respect `prefers-reduced-motion`: the library already freezes boil and skips hover re-sketch. Do not add extra motion on top when that media query matches.
 - Hover/press re-sketches buttons, checkboxes, radios, toggles, underlines and circles.

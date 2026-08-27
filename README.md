@@ -2,7 +2,7 @@
 
 Hand-drawn UI controls. Every mount generates a fresh pen sketch from seeded
 randomness, and the stroke boils like an animated doodle. Zero dependencies,
-~3 KB of JS gzipped and one stylesheet.
+~4 KB of JS gzipped and one stylesheet.
 
 ![Buttons, checkbox, radio and toggle drawn in a boiling pen stroke](assets/demo.svg)
 
@@ -74,15 +74,23 @@ For secondary or destructive actions, set `tone: "neutral"` (warm grey) or
 | `drawablyRadio(el, opts)` | wrapper containing `<input type="radio">` |
 | `drawablyToggle(el, opts)` | wrapper containing `<input type="checkbox">` |
 | `drawablyInput(el, opts)` | wrapper containing an `<input>` |
+| `drawablyTextarea(el, opts)` | wrapper containing a `<textarea>` |
+| `drawablySelect(el, opts)` | wrapper containing a `<select>` |
 | `drawablyDivider(el, opts)` | an `<hr>` or div |
 | `drawablyCard(el, opts)` | any block element |
+| `drawablyBadge(el, opts)` | any inline element |
+| `drawablyList(el, opts)` | a `<ul>` or `<ol>`; each `<li>` gets a sketched marker |
+
+Badges take `variant: "outline" | "scribble"`; lists take
+`marker: "dash" | "check"`.
 
 The real inputs stay in the DOM, so keyboard, forms, labels and screen readers
 all work as usual. The sketch is an `aria-hidden` SVG layered underneath.
 
 Every control has a React counterpart in `drawably/react`: `DrawablyButton`,
 `DrawablyCheckbox`, `DrawablyRadio`, `DrawablyToggle`, `DrawablyInput`,
-`DrawablyDivider`, `DrawablyCard`.
+`DrawablyTextarea`, `DrawablySelect`, `DrawablyDivider`, `DrawablyCard`,
+`DrawablyBadge`, `DrawablyList`.
 
 ## Text decoration
 

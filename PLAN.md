@@ -6,8 +6,8 @@ the contract in `CLAUDE.md` (attacher + handle, React wrapper, tests, docs,
 example — that list is the per-component definition of done and is not
 repeated below).
 
-Current set (0.2.0): button, checkbox, radio, toggle, input, divider, card,
-underline, highlight, circle, arrow.
+Current set (0.3.0): button, checkbox, radio, toggle, input, textarea, select,
+divider, card, badge, list, underline, highlight, circle, arrow.
 
 ## Stage 1 — text decoration
 
@@ -45,7 +45,7 @@ existing generators.
 | `drawablyBadge(el)` | small inline element | tight rect, sharp corners, optional `scribbleFill` |
 | `drawablyList(el)` | `<ul>` / `<ol>` | rough check or dash marker per `<li>`, native markers hidden |
 
-Release as 0.3.0.
+Shipped as 0.3.0.
 
 ## Stage 3 — disclosure
 

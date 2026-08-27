@@ -292,6 +292,33 @@
         width: 88px;
         margin: 0;
       }
+      .piece-select {
+        top: 62%;
+        right: 30%;
+        rotate: -3deg;
+      }
+      .piece-list {
+        top: 60%;
+        left: 42%;
+        rotate: 3deg;
+        margin: 0;
+        font-size: 14px;
+        color: var(--ink-2);
+      }
+      .piece-textarea {
+        top: 26%;
+        right: 27%;
+        rotate: 4deg;
+        width: 170px;
+      }
+      .piece-textarea textarea {
+        font: inherit;
+        font-size: 14px;
+        color: var(--ink);
+      }
+      .piece-textarea textarea::placeholder {
+        color: var(--ink-3);
+      }
 
       .piece-mit {
         top: 16%;
@@ -727,6 +754,21 @@
         <div class="piece piece-input" id="name">
           <input type="text" placeholder="your name" autocomplete="name" />
         </div>
+        <div class="piece piece-select" id="pick">
+          <select aria-label="Tool">
+            <option>Pen</option>
+            <option>Pencil</option>
+            <option>Marker</option>
+          </select>
+        </div>
+        <ul class="piece piece-list" id="features">
+          <li>zero deps</li>
+          <li>real inputs</li>
+          <li>boils in CSS</li>
+        </ul>
+        <div class="piece piece-textarea" id="msg">
+          <textarea rows="2" placeholder="a note" aria-label="Note"></textarea>
+        </div>
         <div class="piece piece-card" id="card">
           <p class="note">Every stroke is generated at load. Hover a control to re-sketch.</p>
         </div>
@@ -765,7 +807,7 @@
 
         <div class="scatter">
           <p class="piece piece-mit meta">MIT</p>
-          <p class="piece piece-ver meta">v0.2.0</p>
+          <p class="piece piece-ver meta" id="ver">v0.3.0</p>
           <div class="piece piece-react" id="react-card">
             <pre><span class="k">import</span> <span class="p">{</span> <span class="n">DrawablyButton</span> <span class="p">}</span>
 <span class="k">from</span> <span class="s">"drawably/react"</span>
@@ -860,8 +902,12 @@
         drawablyRadio,
         drawablyToggle,
         drawablyInput,
+        drawablyTextarea,
+        drawablySelect,
         drawablyDivider,
         drawablyCard,
+        drawablyBadge,
+        drawablyList,
         drawablyUnderline,
         drawablyHighlight,
         drawablyCircle,
@@ -874,15 +920,19 @@
       drawablyRadio(document.querySelector("#pen")); // wrapper must contain <input type="radio">
       drawablyToggle(document.querySelector("#tog")); // wrapper must contain <input type="checkbox">
       drawablyInput(document.querySelector("#name")); // wrapper must contain <input>
+      drawablyTextarea(document.querySelector("#msg")); // wrapper must contain <textarea>
+      drawablySelect(document.querySelector("#pick")); // wrapper must contain <select>
       drawablyDivider(document.querySelector("#rule")); // <hr> or div
       drawablyCard(document.querySelector("#card"));
+      drawablyBadge(document.querySelector("#tag"), { variant: "scribble" });
+      drawablyList(document.querySelector("#features"), { marker: "check" }); // <ul> or <ol>
       drawablyUnderline(document.querySelector("#word")); // any inline element
       drawablyHighlight(document.querySelector("#word"));
       drawablyCircle(document.querySelector("#price"));
       drawablyArrow(document.querySelector("#from"), document.querySelector("#to")); // two anchors
       ```
 
-      Each attacher throws if the element is missing. Checkbox/radio/toggle/input throw if the inner `<input>` is missing. Arrow throws if either anchor is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
+      Each attacher throws if the element is missing. Checkbox/radio/toggle/input/textarea/select throw if the inner field is missing. Arrow throws if either anchor is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
 
       ## React
 
@@ -895,8 +945,12 @@
         DrawablyRadio,
         DrawablyToggle,
         DrawablyInput,
+        DrawablyTextarea,
+        DrawablySelect,
         DrawablyDivider,
         DrawablyCard,
+        DrawablyBadge,
+        DrawablyList,
         DrawablyUnderline,
         DrawablyHighlight,
         DrawablyCircle,
@@ -911,15 +965,19 @@
       <DrawablyRadio name="ink" defaultChecked />
       <DrawablyToggle />
       <DrawablyInput placeholder="your name" />
+      <DrawablyTextarea rows={4} />
+      <DrawablySelect><option>Pen</option><option>Pencil</option></DrawablySelect>
       <DrawablyDivider />
       <DrawablyCard>…</DrawablyCard>
+      <DrawablyBadge variant="scribble">new</DrawablyBadge>
+      <DrawablyList marker="check"><li>…</li></DrawablyList>
       <DrawablyUnderline>hand-drawn</DrawablyUnderline>
       <DrawablyHighlight>fresh sketch</DrawablyHighlight>
       <DrawablyCircle>$0</DrawablyCircle>
       <DrawablyArrow from={fromRef} to={toRef} />
       ```
 
-      Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant`, `state`, and `tone`. `DrawablyArrow` takes two refs and renders nothing.
+      Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant`, `state`, and `tone`, badge `variant`, list `marker`. `DrawablyArrow` takes two refs and renders nothing. `DrawablyList` renders a `<ul>`.
 
       ## Button
 
@@ -939,8 +997,12 @@
       - `drawablyRadio(wrap, opts)` — radio in a wrapper; scribbled dot when checked. Same `name` groups them.
       - `drawablyToggle(wrap, opts)` — checkbox in a wrapper; pill with a sliding ink-blob knob. React sets `role="switch"`.
       - `drawablyInput(wrap, opts)` — text input in a wrapper
+      - `drawablyTextarea(wrap, opts)` — textarea in a wrapper; vertical resize redraws the sketch
+      - `drawablySelect(wrap, opts)` — select in a wrapper; native arrow hidden, sketched chevron in its place
       - `drawablyDivider(el, opts)` — rough line on an `<hr>` or div
       - `drawablyCard(el, opts)` — sketched container
+      - `drawablyBadge(el, opts)` — tight sharp-cornered tag on an inline element; `variant`: `"outline"` (default) | `"scribble"`
+      - `drawablyList(el, opts)` — `<ul>` or `<ol>`; native markers hidden, one sketched marker per `<li>`. `marker`: `"dash"` (default) | `"check"`. Only the `<li>` present at attach time are sketched; an `<ol>` loses its numbers.
 
       ## Text decoration
 
@@ -962,7 +1024,7 @@
 
       ## Rules
 
-      - Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input wrapper, `hr`, `div`, or inline text element.
+      - Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input/textarea/select wrapper, `hr`, `div`, `ul`, or inline text element.
       - Import `drawably/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
       - Respect `prefers-reduced-motion`: the library already freezes boil and skips hover re-sketch. Do not add extra motion on top when that media query matches.
       - Hover/press re-sketches buttons, checkboxes, radios, toggles, underlines and circles.
@@ -975,6 +1037,7 @@
     <script type="module">
       import {
         drawablyArrow,
+        drawablyBadge,
         drawablyButton,
         drawablyCard,
         drawablyCheckbox,
@@ -982,7 +1045,10 @@
         drawablyDivider,
         drawablyHighlight,
         drawablyInput,
+        drawablyList,
         drawablyRadio,
+        drawablySelect,
+        drawablyTextarea,
         drawablyToggle,
         drawablyUnderline,
       } from "../dist/index.js";
@@ -999,6 +1065,10 @@
       drawablyRadio(document.getElementById("radio-b"));
       drawablyToggle(document.getElementById("tog"));
       drawablyInput(document.getElementById("name"));
+      drawablyTextarea(document.getElementById("msg"));
+      drawablySelect(document.getElementById("pick"));
+      drawablyList(document.getElementById("features"), { marker: "check" });
+      drawablyBadge(document.getElementById("ver"));
       drawablyDivider(document.getElementById("rule"));
       drawablyCard(document.getElementById("card"));
       drawablyCard(document.getElementById("install-card"));
