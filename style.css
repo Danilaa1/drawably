@@ -207,6 +207,22 @@
   padding: 16px;
 }
 
+/* marker wash: stroke as wide as the scribble gap so the hatching reads as
+   one swipe, multiplied so the text stays legible over it */
+.drawably-svg .drawably-wash {
+  stroke: var(--drawably-ink, var(--drawably-fill, #2724d1));
+  stroke-width: 6;
+  opacity: 0.3;
+  mix-blend-mode: multiply;
+}
+
+/* body-level overlay positioned in document coordinates by the attacher;
+   sits above content since it annotates it */
+.drawably-arrow {
+  inset: auto;
+  z-index: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .drawably-boil {
     animation: none;

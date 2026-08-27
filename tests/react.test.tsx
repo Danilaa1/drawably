@@ -1,7 +1,8 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { DrawablyButton, DrawablyCheckbox } from "../src/react.js";
+import { useRef } from "react";
+import { DrawablyArrow, DrawablyButton, DrawablyCheckbox, DrawablyCircle, DrawablyHighlight, DrawablyUnderline } from "../src/react.js";
 
 (globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -64,4 +65,37 @@ it("DrawablyButton survives a className change without losing its drawably class
   expect(button?.classList.contains("drawably-host")).toBe(true);
   expect(button?.classList.contains("drawably-button")).toBe(true);
   expect(button?.querySelector("svg")).toBeTruthy();
+});
+
+it("inline decorations render a span with the sketch", () => {
+  act(() =>
+    root.render(
+      <p>
+        <DrawablyUnderline seed={1}>a</DrawablyUnderline>
+        <DrawablyHighlight seed={1}>b</DrawablyHighlight>
+        <DrawablyCircle seed={1}>c</DrawablyCircle>
+      </p>,
+    ),
+  );
+  expect(host.querySelector("span.drawably-underline path.drawably-outline")).toBeTruthy();
+  expect(host.querySelector("span.drawably-highlight path.drawably-wash")).toBeTruthy();
+  expect(host.querySelector("span.drawably-circle path.drawably-outline")).toBeTruthy();
+});
+
+it("DrawablyArrow draws between two refs and cleans up on unmount", () => {
+  function Demo() {
+    const a = useRef<HTMLSpanElement>(null);
+    const b = useRef<HTMLSpanElement>(null);
+    return (
+      <p>
+        <span ref={a}>from</span>
+        <span ref={b}>to</span>
+        <DrawablyArrow from={a} to={b} seed={1} />
+      </p>
+    );
+  }
+  act(() => root.render(<Demo />));
+  expect(document.body.querySelector("svg.drawably-arrow path")).toBeTruthy();
+  act(() => root.render(<span />));
+  expect(document.body.querySelector("svg.drawably-arrow")).toBeNull();
 });

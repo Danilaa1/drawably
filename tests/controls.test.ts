@@ -295,3 +295,109 @@ describe("drawablyInput", () => {
     expect(wrap.querySelectorAll("path.drawably-focus")).toHaveLength(3);
   });
 });
+
+import { drawablyCircle, drawablyHighlight, drawablyUnderline } from "../src/controls.js";
+
+function mountWord() {
+  const el = document.createElement("span");
+  el.textContent = "price";
+  document.body.append(el);
+  return el;
+}
+
+describe("inline decorations", () => {
+  it("underline throws on a missing element and draws one hover-resketching line layer", () => {
+    expect(() => drawablyUnderline(null as unknown as HTMLElement)).toThrow();
+    const el = mountWord();
+    drawablyUnderline(el, { seed: 1 });
+    expect(el.classList.contains("drawably-underline")).toBe(true);
+    expect(el.querySelectorAll("path.drawably-boil.drawably-outline")).toHaveLength(3);
+    const d1 = el.querySelector("path")?.getAttribute("d");
+    el.dispatchEvent(new Event("pointerenter"));
+    expect(el.querySelector("path")?.getAttribute("d")).not.toBe(d1);
+  });
+
+  it("highlight draws a scribble wash and ignores hover", () => {
+    expect(() => drawablyHighlight(null as unknown as HTMLElement)).toThrow();
+    const el = mountWord();
+    drawablyHighlight(el, { seed: 1 });
+    expect(el.classList.contains("drawably-highlight")).toBe(true);
+    expect(el.querySelectorAll("path.drawably-boil.drawably-wash")).toHaveLength(3);
+    const d1 = el.querySelector("path")?.getAttribute("d");
+    el.dispatchEvent(new Event("pointerenter"));
+    expect(el.querySelector("path")?.getAttribute("d")).toBe(d1);
+  });
+
+  it("circle draws a closed ellipse layer and re-sketches on hover", () => {
+    expect(() => drawablyCircle(null as unknown as HTMLElement)).toThrow();
+    const el = mountWord();
+    drawablyCircle(el, { seed: 1 });
+    expect(el.classList.contains("drawably-circle")).toBe(true);
+    const paths = el.querySelectorAll("path.drawably-boil.drawably-outline");
+    expect(paths).toHaveLength(3);
+    expect(paths[0].getAttribute("d")?.match(/Z/g)).toHaveLength(2);
+    const d1 = paths[0].getAttribute("d");
+    el.dispatchEvent(new Event("pointerenter"));
+    expect(el.querySelector("path")?.getAttribute("d")).not.toBe(d1);
+  });
+
+  it("decorations are deterministic per seed", () => {
+    const a = mountWord();
+    const b = mountWord();
+    drawablyUnderline(a, { seed: 7 });
+    drawablyUnderline(b, { seed: 7 });
+    expect(a.querySelector("path")?.getAttribute("d")).toBe(b.querySelector("path")?.getAttribute("d"));
+  });
+
+  it("destroy removes svg, class and hover listener", () => {
+    const el = mountWord();
+    const sketch = drawablyCircle(el, { seed: 1 });
+    sketch.destroy();
+    expect(el.querySelector("svg")).toBeNull();
+    expect(el.classList.contains("drawably-circle")).toBe(false);
+    expect(el.classList.contains("drawably-host")).toBe(false);
+  });
+});
+
+import { drawablyArrow } from "../src/controls.js";
+
+describe("drawablyArrow", () => {
+  function anchors() {
+    const from = mountWord();
+    const to = mountWord();
+    return { from, to };
+  }
+
+  it("throws when either anchor is missing", () => {
+    const { from } = anchors();
+    expect(() => drawablyArrow(from, null as unknown as HTMLElement)).toThrow("anchor");
+    expect(() => drawablyArrow(null as unknown as HTMLElement, from)).toThrow("anchor");
+  });
+
+  it("appends a body-level svg with a boiling arrow layer", () => {
+    const { from, to } = anchors();
+    drawablyArrow(from, to, { seed: 1 });
+    const svg = document.body.querySelector(":scope > svg.drawably-svg.drawably-arrow");
+    expect(svg?.getAttribute("aria-hidden")).toBe("true");
+    expect(svg?.querySelectorAll("path.drawably-boil.drawably-outline")).toHaveLength(3);
+    expect(from.querySelector("svg")).toBeNull();
+  });
+
+  it("is deterministic per seed and resketch changes it", () => {
+    const { from, to } = anchors();
+    const a = drawablyArrow(from, to, { seed: 3 });
+    const d = () => document.body.querySelector("svg.drawably-arrow path")?.getAttribute("d");
+    const d1 = d();
+    a.resketch(4);
+    expect(d()).not.toBe(d1);
+    a.resketch(3);
+    expect(d()).toBe(d1);
+  });
+
+  it("destroy removes the svg", () => {
+    const { from, to } = anchors();
+    const a = drawablyArrow(from, to, { seed: 1 });
+    a.destroy();
+    expect(document.body.querySelector("svg.drawably-arrow")).toBeNull();
+  });
+});

@@ -2,7 +2,9 @@ import { randomSeed } from "./prng.js";
 import {
   type RoughOptions,
   roughCheckmark,
+  roughArrow,
   roughCircle,
+  roughEllipse,
   roughLine,
   roughRoundedRect,
   scribbleFill,
@@ -33,6 +35,40 @@ interface Layer {
 const SVG_NS = "http://www.w3.org/2000/svg";
 const INSET = 3;
 
+function applyTheme(el: HTMLElement | SVGElement, opts: DrawablyOptions) {
+  if (opts.stroke) el.style.setProperty("--drawably-stroke", opts.stroke);
+  if (opts.fill) el.style.setProperty("--drawably-fill", opts.fill);
+  if (opts.paper) el.style.setProperty("--drawably-paper", opts.paper);
+  if (opts.width !== undefined) el.style.setProperty("--drawably-width", String(opts.width));
+}
+
+function createSvg(): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "drawably-svg");
+  svg.setAttribute("aria-hidden", "true");
+  return svg;
+}
+
+function paint(svg: SVGSVGElement, layers: Layer[], w: number, h: number, o: RoughOptions) {
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.textContent = "";
+  for (const layer of layers) {
+    const ds = variants((lo) => layer.gen(w, h, lo), o, o.boil ? 3 : 1);
+    ds.forEach((d, i) => {
+      const p = document.createElementNS(SVG_NS, "path");
+      p.setAttribute("d", d);
+      p.setAttribute("class", ds.length > 1 ? `drawably-boil ${layer.className}` : layer.className);
+      p.dataset.i = String(i);
+      if (layer.pathLength) p.setAttribute("pathLength", "1");
+      svg.append(p);
+    });
+  }
+}
+
+function reducedMotion(): boolean {
+  return typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 function attachChrome(
   el: HTMLElement,
   layers: Layer[],
@@ -41,38 +77,16 @@ function attachChrome(
 ): Sketch {
   if (!(el instanceof HTMLElement)) throw new Error("drawably: expected an HTMLElement");
   el.classList.add("drawably-host");
-  if (opts.stroke) el.style.setProperty("--drawably-stroke", opts.stroke);
-  if (opts.fill) el.style.setProperty("--drawably-fill", opts.fill);
-  if (opts.paper) el.style.setProperty("--drawably-paper", opts.paper);
-  if (opts.width !== undefined) el.style.setProperty("--drawably-width", String(opts.width));
+  applyTheme(el, opts);
 
-  const svg = document.createElementNS(SVG_NS, "svg");
-  svg.setAttribute("class", "drawably-svg");
-  svg.setAttribute("aria-hidden", "true");
+  const svg = createSvg();
   el.prepend(svg);
 
   const roughness = opts.roughness ?? 1;
   const boil = opts.boil ?? 0.3;
   let seed = opts.seed ?? randomSeed();
 
-  function draw() {
-    const w = el.offsetWidth || 120;
-    const h = el.offsetHeight || 36;
-    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-    svg.textContent = "";
-    for (const layer of layers) {
-      const ds = variants((o) => layer.gen(w, h, o), { seed, roughness, boil }, boil > 0 ? 3 : 1);
-      ds.forEach((d, i) => {
-        const p = document.createElementNS(SVG_NS, "path");
-        p.setAttribute("d", d);
-        p.setAttribute("class", ds.length > 1 ? `drawably-boil ${layer.className}` : layer.className);
-        p.dataset.i = String(i);
-        if (layer.pathLength) p.setAttribute("pathLength", "1");
-        svg.append(p);
-      });
-    }
-  }
-
+  const draw = () => paint(svg, layers, el.offsetWidth || 120, el.offsetHeight || 36, { seed, roughness, boil });
   draw();
 
   const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => draw()) : null;
@@ -83,10 +97,8 @@ function attachChrome(
     draw();
   };
 
-  const reduced =
-    typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
   const onPointer = () => resketch();
-  if (interactive && !reduced) {
+  if (interactive && !reducedMotion()) {
     el.addEventListener("pointerenter", onPointer);
     el.addEventListener("pointerdown", onPointer);
   }
@@ -273,4 +285,142 @@ export function drawablyInput(el: HTMLElement, opts: DrawablyOptions = {}): Sket
   );
   el.classList.add("drawably-inputbox");
   return sketch;
+}
+
+function decoration(
+  el: HTMLElement,
+  cls: string,
+  layers: Layer[],
+  opts: DrawablyOptions,
+  interactive: boolean,
+): Sketch {
+  const sketch = attachChrome(el, layers, opts, interactive);
+  el.classList.add(cls);
+  return {
+    resketch: sketch.resketch,
+    destroy() {
+      sketch.destroy();
+      el.classList.remove(cls);
+    },
+  };
+}
+
+// underline sits just under the text box; circle overshoots it the way a hand
+// loops around a word rather than tracing its edges (tuned on 16–48px Inter)
+const UNDERLINE_GAP = 2;
+const CIRCLE_PAD_X = 1.15;
+const CIRCLE_PAD_Y = 1.4;
+const CIRCLE_PAD = 4;
+
+export function drawablyUnderline(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  return decoration(
+    el,
+    "drawably-underline",
+    [{ className: "drawably-outline", gen: (w, h, o) => roughLine(0, h + UNDERLINE_GAP, w, h + UNDERLINE_GAP, o) }],
+    opts,
+    true,
+  );
+}
+
+export function drawablyHighlight(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  return decoration(
+    el,
+    "drawably-highlight",
+    [{ className: "drawably-wash", gen: (w, h, o) => scribbleFill(0, 0, w, h, o) }],
+    opts,
+    false,
+  );
+}
+
+export function drawablyCircle(el: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  return decoration(
+    el,
+    "drawably-circle",
+    [
+      {
+        className: "drawably-outline",
+        gen: (w, h, o) =>
+          roughEllipse(w / 2, h / 2, (w / 2) * CIRCLE_PAD_X + CIRCLE_PAD, (h / 2) * CIRCLE_PAD_Y + CIRCLE_PAD, o),
+      },
+    ],
+    opts,
+    true,
+  );
+}
+
+// breathing room between an anchor's box edge and the arrow's end
+const ARROW_GAP = 6;
+
+// ponytail: the overlay lives on <body> in document coordinates, so anchors
+// inside a scrolling container drift on scroll — re-parent to the nearest
+// common ancestor if that ever matters
+export function drawablyArrow(from: HTMLElement, to: HTMLElement, opts: DrawablyOptions = {}): Sketch {
+  if (!(from instanceof HTMLElement) || !(to instanceof HTMLElement))
+    throw new Error("drawably: arrow needs two anchor elements");
+
+  const svg = createSvg();
+  svg.classList.add("drawably-arrow");
+  applyTheme(svg, opts);
+  document.body.append(svg);
+
+  const roughness = opts.roughness ?? 1;
+  const boil = opts.boil ?? 0.3;
+  let seed = opts.seed ?? randomSeed();
+
+  function draw() {
+    const a = from.getBoundingClientRect();
+    const b = to.getBoundingClientRect();
+    const left = Math.min(a.left, b.left);
+    const top = Math.min(a.top, b.top);
+    const w = Math.max(a.right, b.right) - left;
+    const h = Math.max(a.bottom, b.bottom) - top;
+    svg.style.left = `${left + scrollX}px`;
+    svg.style.top = `${top + scrollY}px`;
+    svg.style.width = `${w}px`;
+    svg.style.height = `${h}px`;
+
+    const ax = a.left - left + a.width / 2;
+    const ay = a.top - top + a.height / 2;
+    const bx = b.left - left + b.width / 2;
+    const by = b.top - top + b.height / 2;
+    const dx = bx - ax;
+    const dy = by - ay;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len;
+    const uy = dy / len;
+    // distance along the centre line from a box's centre to its edge; `|| 0`
+    // turns the 0/0 of a zero-size box into "no inset"
+    const exit = (r: DOMRect) => Math.min(r.width / 2 / Math.abs(ux) || 0, r.height / 2 / Math.abs(uy) || 0);
+    const t0 = Math.min(exit(a) + ARROW_GAP, len / 2);
+    const t1 = Math.min(exit(b) + ARROW_GAP, len / 2);
+    const x1 = ax + ux * t0;
+    const y1 = ay + uy * t0;
+    const x2 = bx - ux * t1;
+    const y2 = by - uy * t1;
+    paint(
+      svg,
+      [{ className: "drawably-outline", gen: (_w, _h, o) => roughArrow(x1, y1, x2, y2, o) }],
+      w,
+      h,
+      { seed, roughness, boil },
+    );
+  }
+  draw();
+
+  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => draw()) : null;
+  ro?.observe(from);
+  ro?.observe(to);
+  addEventListener("resize", draw);
+
+  return {
+    resketch(s?: number) {
+      seed = s ?? randomSeed();
+      draw();
+    },
+    destroy() {
+      ro?.disconnect();
+      removeEventListener("resize", draw);
+      svg.remove();
+    },
+  };
 }

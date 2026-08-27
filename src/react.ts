@@ -2,6 +2,7 @@ import {
   type ComponentProps,
   createElement,
   type ReactElement,
+  type RefObject,
   useEffect,
   useRef,
 } from "react";
@@ -9,13 +10,17 @@ import {
   type ButtonSketch,
   type DrawablyButtonOptions,
   type DrawablyOptions,
+  drawablyArrow,
   drawablyButton,
   drawablyCard,
   drawablyCheckbox,
+  drawablyCircle,
   drawablyDivider,
+  drawablyHighlight,
   drawablyInput,
   drawablyRadio,
   drawablyToggle,
+  drawablyUnderline,
   type Sketch,
 } from "./controls.js";
 
@@ -100,4 +105,34 @@ export function DrawablyCard({ seed, roughness, boil, stroke, fill, paper, width
     [seed, roughness, boil, stroke, fill, paper, width, className],
   );
   return createElement("div", { ...rest, className, ref }, children);
+}
+
+type SpanProps = DrawablyOptions & ComponentProps<"span">;
+
+function decoration(attach: (el: HTMLSpanElement, opts: DrawablyOptions) => Sketch) {
+  return function Decoration({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: SpanProps): ReactElement {
+    const ref = useSketch<HTMLSpanElement>(
+      (el) => attach(el, { seed, roughness, boil, stroke, fill, paper, width }),
+      [seed, roughness, boil, stroke, fill, paper, width, className],
+    );
+    return createElement("span", { ...rest, className, ref }, children);
+  };
+}
+
+export const DrawablyUnderline = decoration(drawablyUnderline);
+export const DrawablyHighlight = decoration(drawablyHighlight);
+export const DrawablyCircle = decoration(drawablyCircle);
+
+type ArrowProps = DrawablyOptions & {
+  from: RefObject<HTMLElement | null>;
+  to: RefObject<HTMLElement | null>;
+};
+
+export function DrawablyArrow({ from, to, seed, roughness, boil, stroke, fill, paper, width }: ArrowProps): null {
+  useEffect(() => {
+    if (!from.current || !to.current) return;
+    const sketch = drawablyArrow(from.current, to.current, { seed, roughness, boil, stroke, fill, paper, width });
+    return () => sketch.destroy();
+  }, [from, to, seed, roughness, boil, stroke, fill, paper, width]);
+  return null;
 }

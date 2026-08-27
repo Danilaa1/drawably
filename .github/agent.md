@@ -19,6 +19,10 @@ import {
   drawablyInput,
   drawablyDivider,
   drawablyCard,
+  drawablyUnderline,
+  drawablyHighlight,
+  drawablyCircle,
+  drawablyArrow,
 } from "drawably";
 import "drawably/style.css";
 
@@ -29,9 +33,13 @@ drawablyToggle(document.querySelector("#tog")); // wrapper must contain <input t
 drawablyInput(document.querySelector("#name")); // wrapper must contain <input>
 drawablyDivider(document.querySelector("#rule")); // <hr> or div
 drawablyCard(document.querySelector("#card"));
+drawablyUnderline(document.querySelector("#word")); // any inline element
+drawablyHighlight(document.querySelector("#word"));
+drawablyCircle(document.querySelector("#price"));
+drawablyArrow(document.querySelector("#from"), document.querySelector("#to")); // two anchors
 ```
 
-Each attacher throws if the element is missing. Checkbox/radio/toggle/input throw if the inner `<input>` is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
+Each attacher throws if the element is missing. Checkbox/radio/toggle/input throw if the inner `<input>` is missing. Arrow throws if either anchor is missing. Returns a sketch: `{ resketch(seed?), destroy() }`. Buttons also have `setState(state)`.
 
 ## React
 
@@ -46,6 +54,10 @@ import {
   DrawablyInput,
   DrawablyDivider,
   DrawablyCard,
+  DrawablyUnderline,
+  DrawablyHighlight,
+  DrawablyCircle,
+  DrawablyArrow,
 } from "drawably/react";
 import "drawably/style.css";
 
@@ -58,9 +70,13 @@ import "drawably/style.css";
 <DrawablyInput placeholder="your name" />
 <DrawablyDivider />
 <DrawablyCard>…</DrawablyCard>
+<DrawablyUnderline>hand-drawn</DrawablyUnderline>
+<DrawablyHighlight>fresh sketch</DrawablyHighlight>
+<DrawablyCircle>$0</DrawablyCircle>
+<DrawablyArrow from={fromRef} to={toRef} />
 ```
 
-Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant`, `state`, and `tone`.
+Native element props pass through. Sketch options are top-level props: `seed`, `roughness`, `boil`, `stroke`, `fill`, `paper`, `width`, plus button `variant`, `state`, and `tone`. `DrawablyArrow` takes two refs and renders nothing.
 
 ## Button
 
@@ -83,6 +99,15 @@ Native element props pass through. Sketch options are top-level props: `seed`, `
 - `drawablyDivider(el, opts)` — rough line on an `<hr>` or div
 - `drawablyCard(el, opts)` — sketched container
 
+## Text decoration
+
+Decorates existing inline text; the element keeps its own layout. Use on a word or short phrase — a phrase that wraps gets one box, not one per line.
+
+- `drawablyUnderline(el, opts)` — rough line under the text; hover re-sketches
+- `drawablyHighlight(el, opts)` — marker wash behind the text, `--drawably-fill` at 30%
+- `drawablyCircle(el, opts)` — hand-drawn ellipse looping around the text; hover re-sketches
+- `drawablyArrow(from, to, opts)` — annotation arrow from one element to another. The SVG is appended to `<body>` in document coordinates and follows resize; anchors inside a scrolling container drift on scroll.
+
 ## Options (all controls)
 
 | option                          | default  | meaning                                                                     |
@@ -94,11 +119,11 @@ Native element props pass through. Sketch options are top-level props: `seed`, `
 
 ## Rules
 
-- Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input wrapper, `hr`, or `div`.
+- Do not fake the look with CSS borders. Attach to a real `button`, checkbox/radio wrapper, input wrapper, `hr`, `div`, or inline text element.
 - Import `drawably/style.css` once. Do not restyle the SVG paths; theme with the custom properties.
 - Respect `prefers-reduced-motion`: the library already freezes boil and skips hover re-sketch. Do not add extra motion on top when that media query matches.
-- Hover/press re-sketches buttons, checkboxes, radios, and toggles.
-- Renderer exports if you need custom shapes: `roughRoundedRect`, `roughCircle`, `roughLine`, `roughCheckmark`, `scribbleFill`, `variants`, `mulberry32`, `randomSeed`.
+- Hover/press re-sketches buttons, checkboxes, radios, toggles, underlines and circles.
+- Renderer exports if you need custom shapes: `roughRoundedRect`, `roughCircle`, `roughEllipse`, `roughLine`, `roughArrow`, `roughCheckmark`, `scribbleFill`, `variants`, `mulberry32`, `randomSeed`.
 - No Vue/Svelte adapters. Vanilla or React.
 
 MIT.

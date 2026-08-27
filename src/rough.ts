@@ -18,9 +18,21 @@ function sampleLine(x1: number, y1: number, x2: number, y2: number, step = 8): P
 }
 
 function arcPoints(cx: number, cy: number, r: number, a0: number, a1: number, n = 4): Pt[] {
+  return ellipsePoints(cx, cy, r, r, a0, a1, n);
+}
+
+function ellipsePoints(
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  a0: number,
+  a1: number,
+  n: number,
+): Pt[] {
   return Array.from({ length: n + 1 }, (_, i) => {
     const a = a0 + ((a1 - a0) * i) / n;
-    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
   });
 }
 
@@ -74,8 +86,39 @@ export function roughLine(x1: number, y1: number, x2: number, y2: number, o: Rou
 }
 
 export function roughCircle(cx: number, cy: number, r: number, o: RoughOptions): string {
-  const n = Math.max(8, Math.ceil((2 * Math.PI * r) / 8));
-  return doubleStroke(arcPoints(cx, cy, r, 0, Math.PI * 2, n).slice(0, -1), o, true);
+  return roughEllipse(cx, cy, r, r, o);
+}
+
+export function roughEllipse(
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  o: RoughOptions,
+): string {
+  // Ramanujan's perimeter approximation, sampled every 8px like the lines
+  const h = ((rx - ry) / (rx + ry)) ** 2;
+  const perimeter = Math.PI * (rx + ry) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
+  const n = Math.max(8, Math.ceil(perimeter / 8));
+  return doubleStroke(ellipsePoints(cx, cy, rx, ry, 0, Math.PI * 2, n).slice(0, -1), o, true);
+}
+
+const ARROW_HEAD = 12;
+const ARROW_HEAD_ANGLE = Math.PI / 6;
+
+export function roughArrow(x1: number, y1: number, x2: number, y2: number, o: RoughOptions): string {
+  const a = Math.atan2(y2 - y1, x2 - x1);
+  const wing = (da: number): Pt => [
+    x2 - ARROW_HEAD * Math.cos(a + da),
+    y2 - ARROW_HEAD * Math.sin(a + da),
+  ];
+  const [lx, ly] = wing(ARROW_HEAD_ANGLE);
+  const [rx, ry] = wing(-ARROW_HEAD_ANGLE);
+  const rand = mulberry32(o.seed);
+  const amp = 1.2 * o.roughness;
+  const head = (px: number, py: number) =>
+    toPath(boilPass(jitter(sampleLine(x2, y2, px, py, 4), rand, amp), o), false);
+  return roughLine(x1, y1, x2, y2, o) + head(lx, ly) + head(rx, ry);
 }
 
 export function roughRoundedRect(

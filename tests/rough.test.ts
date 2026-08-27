@@ -72,3 +72,55 @@ describe("variants", () => {
     expect(drift(f0, other)).toBeGreaterThan(2 * 0.5);
   });
 });
+
+import { roughArrow, roughCircle, roughEllipse } from "../src/rough.js";
+
+describe("roughEllipse", () => {
+  it("is deterministic, double-stroked and closed", () => {
+    const d = roughEllipse(50, 20, 40, 15, o);
+    expect(d).toBe(roughEllipse(50, 20, 40, 15, o));
+    expect(d.match(/M/g)).toHaveLength(2);
+    expect(d.match(/Z/g)).toHaveLength(2);
+  });
+
+  it("roughness 0 stays within the ellipse's bounding box", () => {
+    const d = roughEllipse(50, 20, 40, 15, { seed: 1, roughness: 0 });
+    const pts = [...d.matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+    for (const [x, y] of pts) {
+      expect(x).toBeGreaterThanOrEqual(10 - 1e-6);
+      expect(x).toBeLessThanOrEqual(90 + 1e-6);
+      expect(y).toBeGreaterThanOrEqual(5 - 1e-6);
+      expect(y).toBeLessThanOrEqual(35 + 1e-6);
+    }
+  });
+
+  it("roughCircle is an ellipse with equal radii", () => {
+    expect(roughCircle(10, 10, 8, o)).toBe(roughEllipse(10, 10, 8, 8, o));
+  });
+});
+
+describe("roughArrow", () => {
+  it("is deterministic and draws a double shaft plus two head strokes", () => {
+    const d = roughArrow(0, 0, 100, 0, o);
+    expect(d).toBe(roughArrow(0, 0, 100, 0, o));
+    expect(d.match(/M/g)).toHaveLength(4);
+  });
+
+  it("roughness 0 puts the head at the tip, behind it on both sides of the shaft", () => {
+    const d = roughArrow(0, 0, 100, 0, { seed: 1, roughness: 0 });
+    const sub = d.split("M").filter(Boolean);
+    const first = (s: string) => s.match(/(-?[\d.]+) (-?[\d.]+)/)!.slice(1).map(Number);
+    const [hx1, hy1] = first(sub[2]);
+    const [hx2, hy2] = first(sub[3]);
+    expect(hx1).toBeCloseTo(100, 5);
+    expect(hx2).toBeCloseTo(100, 5);
+    expect(hy1).toBeCloseTo(0, 5);
+    expect(hy2).toBeCloseTo(0, 5);
+    const last = (s: string) => [...s.matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].at(-1)!.slice(1).map(Number);
+    const [ex1, ey1] = last(sub[2]);
+    const [ex2, ey2] = last(sub[3]);
+    expect(ex1).toBeLessThan(100);
+    expect(ex2).toBeLessThan(100);
+    expect(Math.sign(ey1)).toBe(-Math.sign(ey2));
+  });
+});

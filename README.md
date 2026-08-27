@@ -2,7 +2,7 @@
 
 Hand-drawn UI controls. Every mount generates a fresh pen sketch from seeded
 randomness, and the stroke boils like an animated doodle. Zero dependencies,
-~4 KB of JS and one stylesheet.
+~3 KB of JS gzipped and one stylesheet.
 
 ![Buttons, checkbox, radio and toggle drawn in a boiling pen stroke](assets/demo.svg)
 
@@ -84,6 +84,32 @@ Every control has a React counterpart in `drawably/react`: `DrawablyButton`,
 `DrawablyCheckbox`, `DrawablyRadio`, `DrawablyToggle`, `DrawablyInput`,
 `DrawablyDivider`, `DrawablyCard`.
 
+## Text decoration
+
+Annotate copy the way you would with a pen. Each attaches to an inline element
+and leaves its layout alone; use them on a word or a short phrase.
+
+| Function | Draws |
+| --- | --- |
+| `drawablyUnderline(el, opts)` | a rough line under the text, re-sketched on hover |
+| `drawablyHighlight(el, opts)` | a marker wash behind the text |
+| `drawablyCircle(el, opts)` | a hand-drawn ellipse looping around the text |
+| `drawablyArrow(from, to, opts)` | an arrow from one element to another |
+
+```jsx
+import { DrawablyUnderline, DrawablyHighlight, DrawablyCircle, DrawablyArrow } from "drawably/react";
+
+<p>
+  <DrawablyUnderline>Hand-drawn</DrawablyUnderline> UI, a{" "}
+  <DrawablyHighlight>fresh sketch</DrawablyHighlight> on{" "}
+  <DrawablyCircle>every mount</DrawablyCircle>.
+</p>
+<DrawablyArrow from={noteRef} to={buttonRef} />
+```
+
+The arrow's SVG is appended to `<body>` in document coordinates and redraws on
+resize. Anchors inside a scrolling container will drift as it scrolls.
+
 ## Options
 
 All controls take the same base options:
@@ -130,8 +156,8 @@ const frames = variants(
 // three path strings — render them and cycle opacity
 ```
 
-Also exported: `roughCheckmark`, `scribbleFill`, and the seeded PRNG
-`mulberry32`.
+Also exported: `roughEllipse`, `roughArrow`, `roughCheckmark`, `scribbleFill`,
+and the seeded PRNG `mulberry32`.
 
 ## License
 

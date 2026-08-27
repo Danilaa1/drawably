@@ -1,11 +1,15 @@
 export {
+  drawablyArrow,
   drawablyButton,
   drawablyCard,
   drawablyCheckbox,
+  drawablyCircle,
   drawablyDivider,
+  drawablyHighlight,
   drawablyInput,
   drawablyRadio,
   drawablyToggle,
+  drawablyUnderline,
   type ButtonSketch,
   type DrawablyButtonOptions,
   type DrawablyButtonState,
@@ -14,8 +18,10 @@ export {
 } from "./controls.js";
 export {
   type RoughOptions,
+  roughArrow,
   roughCheckmark,
   roughCircle,
+  roughEllipse,
   roughLine,
   roughRoundedRect,
   scribbleFill,
