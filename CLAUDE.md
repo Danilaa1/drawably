@@ -73,8 +73,10 @@ roughness 0.55) — see the site repo.
 ## The site
 
 `~/developer/portfolio-work/scrawl-site` is the landing page. It depends on
-the published `drawably` from npm. After changing the library: bump, publish,
-then bump the site's `package.json` dependency and `npm install`.
+the published `drawably` from npm and is part of every release, not a
+follow-up: after changing the library, bump, publish, then bump the site's
+`package.json` dependency, `npm install`, and put the new components on the
+page. A stage isn't done while the site shows the previous one.
 
 ## Conventions
 
