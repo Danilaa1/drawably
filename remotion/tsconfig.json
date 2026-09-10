@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "module": "ESNext",
+    "noEmit": true,
+    "rootDir": ".."
+  },
+  "include": ["./**/*.ts", "./**/*.tsx"]
+}
