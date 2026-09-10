@@ -2,6 +2,7 @@ import {
   type ComponentProps,
   createElement,
   type ReactElement,
+  type ReactNode,
   type RefObject,
   useEffect,
   useRef,
@@ -29,6 +30,20 @@ import {
   drawablyUnderline,
   type Sketch,
 } from "./controls.js";
+import {
+  type DrawablyPagerOptions,
+  type DrawablyTabsOptions,
+  drawablyAlert,
+  drawablyChip,
+  drawablyKbd,
+  drawablyPager,
+  drawablyQuote,
+  drawablySteps,
+  drawablyTabs,
+  drawablyTooltip,
+  type PagerSketch,
+  type TabsSketch,
+} from "./composites.js";
 
 function useSketch<T extends HTMLElement>(
   attach: (el: T) => Sketch,
@@ -181,4 +196,99 @@ export function DrawablyList({ seed, roughness, boil, stroke, fill, paper, width
     [seed, roughness, boil, stroke, fill, paper, width, marker, className],
   );
   return createElement("ul", { ...rest, className, ref }, children);
+}
+
+// composites
+
+type ChipProps = DrawablyOptions & ComponentProps<"input"> & { children?: ReactNode };
+
+export function DrawablyChip({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: ChipProps): ReactElement {
+  const ref = useSketch<HTMLLabelElement>(
+    (el) => drawablyChip(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    [seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  return createElement(
+    "label",
+    { className, ref },
+    createElement("span", null, createElement("input", { ...rest, type: "checkbox" })),
+    children,
+  );
+}
+
+type TabsProps = DrawablyTabsOptions & ComponentProps<"div">;
+
+export function DrawablyTabs({ seed, roughness, boil, stroke, fill, paper, width, active, className, children, ...rest }: TabsProps): ReactElement {
+  const sketchRef = useRef<TabsSketch | null>(null);
+  const ref = useSketch<HTMLDivElement>(
+    (el) => (sketchRef.current = drawablyTabs(el, { seed, roughness, boil, stroke, fill, paper, width, active })),
+    [seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  useEffect(() => {
+    if (active !== undefined) sketchRef.current?.setActive(active);
+  }, [active]);
+  return createElement("div", { role: "tablist", ...rest, className, ref }, children);
+}
+
+type TooltipProps = DrawablyOptions & ComponentProps<"span"> & { to: RefObject<HTMLElement | null> };
+
+export function DrawablyTooltip({ to, seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: TooltipProps): ReactElement {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!ref.current || !to.current) return;
+    const sketch = drawablyTooltip(ref.current, to.current, { seed, roughness, boil, stroke, fill, paper, width });
+    return () => sketch.destroy();
+  }, [to, seed, roughness, boil, stroke, fill, paper, width, className]);
+  return createElement("span", { role: "tooltip", ...rest, className, ref }, children);
+}
+
+export function DrawablyAlert({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: CardProps): ReactElement {
+  const ref = useSketch<HTMLDivElement>(
+    (el) => drawablyAlert(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    [seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  return createElement("div", { role: "status", ...rest, className, ref }, children);
+}
+
+type StepsProps = DrawablyOptions & ComponentProps<"ol">;
+
+export function DrawablySteps({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: StepsProps): ReactElement {
+  const ref = useSketch<HTMLOListElement>(
+    (el) => drawablySteps(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    [seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  return createElement("ol", { ...rest, className, ref }, children);
+}
+
+type KbdProps = DrawablyBadgeOptions & ComponentProps<"kbd">;
+
+export function DrawablyKbd({ seed, roughness, boil, stroke, fill, paper, width, variant, className, children, ...rest }: KbdProps): ReactElement {
+  const ref = useSketch<HTMLElement>(
+    (el) => drawablyKbd(el, { seed, roughness, boil, stroke, fill, paper, width, variant }),
+    [seed, roughness, boil, stroke, fill, paper, width, variant, className],
+  );
+  return createElement("kbd", { ...rest, className, ref }, children);
+}
+
+type QuoteProps = DrawablyOptions & ComponentProps<"blockquote">;
+
+export function DrawablyQuote({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: QuoteProps): ReactElement {
+  const ref = useSketch<HTMLQuoteElement>(
+    (el) => drawablyQuote(el, { seed, roughness, boil, stroke, fill, paper, width }),
+    [seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  return createElement("blockquote", { ...rest, className, ref }, children);
+}
+
+type PagerProps = DrawablyPagerOptions & ComponentProps<"nav">;
+
+export function DrawablyPager({ seed, roughness, boil, stroke, fill, paper, width, active, className, children, ...rest }: PagerProps): ReactElement {
+  const sketchRef = useRef<PagerSketch | null>(null);
+  const ref = useSketch<HTMLElement>(
+    (el) => (sketchRef.current = drawablyPager(el, { seed, roughness, boil, stroke, fill, paper, width, active })),
+    [seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  useEffect(() => {
+    if (active !== undefined) sketchRef.current?.setPage(active);
+  }, [active]);
+  return createElement("nav", { ...rest, className, ref }, children);
 }

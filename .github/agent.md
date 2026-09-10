@@ -120,6 +120,21 @@ Native element props pass through. Sketch options are top-level props: `seed`, `
 - `drawablyBadge(el, opts)` — tight sharp-cornered tag on an inline element; `variant`: `"outline"` (default) | `"scribble"`
 - `drawablyList(el, opts)` — `<ul>` or `<ol>`; native markers hidden, one sketched marker per `<li>`. `marker`: `"dash"` (default) | `"check"`. Only the `<li>` present at attach time are sketched; an `<ol>` loses its numbers.
 
+## Composites
+
+Built from the controls above; one `seed` covers every stroke, `destroy()` removes all of them.
+
+- `drawablyChip(el, opts)` — `<label><span><input type="checkbox"></span> text</label>`; badge on the label, box on the input's wrapper (the wrapper is required)
+- `drawablyTabs(el, opts)` — children are tabs; underline follows `active` or `aria-selected="true"`; `setActive(i)`
+- `drawablyTooltip(tip, target, opts)` — card on the tip, arrow to the target
+- `drawablyAlert(el, opts)` — card on the box, badge on an optional `[data-tag]` child
+- `drawablySteps(el, opts)` — `<ol>` with check markers
+- `drawablyKbd(el, opts)` — badge at 0.6× roughness
+- `drawablyQuote(el, opts)` — highlight on the first element child, divider on an optional `<footer>`
+- `drawablyPager(el, opts)` — child `<button>`s; current page is solid; `active` or `aria-current`; `setPage(i)`
+
+React: `DrawablyChip`, `DrawablyTabs` (`active`), `DrawablyTooltip` (`to` ref), `DrawablyAlert`, `DrawablySteps`, `DrawablyKbd`, `DrawablyQuote`, `DrawablyPager` (`active`).
+
 ## Text decoration
 
 Decorates existing inline text; the element keeps its own layout. Use on a word or short phrase — a phrase that wraps gets one box, not one per line.

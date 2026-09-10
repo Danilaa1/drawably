@@ -1,6 +1,6 @@
 {
   "name": "drawably",
-  "version": "0.3.10",
+  "version": "0.4.0",
   "description": "Hand-drawn UI controls. Every render a fresh pen sketch, boiling like a doodle.",
   "license": "MIT",
   "author": "Daniel Belyi",
@@ -46,14 +46,21 @@
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p font",
     "pack:check": "npm pack --dry-run",
-    "test": "vitest run"
+    "test": "vitest run",
+    "video": "remotion studio remotion/index.ts",
+    "video:render": "remotion render remotion/index.ts DrawablyPromo out/drawably-promo.mp4",
+    "video:render:form": "remotion render remotion/index.ts DrawablyForm out/drawably-form.mp4",
+    "video:render:line": "remotion render remotion/index.ts DrawablyLine out/drawably-line.mp4",
+    "video:render:anatomy": "remotion render remotion/index.ts DrawablyAnatomy out/drawably-anatomy.mp4"
   },
   "devDependencies": {
+    "@remotion/cli": "4.0.519",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "happy-dom": "^20.11.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "remotion": "4.0.519",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },

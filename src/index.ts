@@ -23,6 +23,20 @@ export {
   type Sketch,
 } from "./controls.js";
 export {
+  drawablyAlert,
+  drawablyChip,
+  drawablyKbd,
+  drawablyPager,
+  drawablyQuote,
+  drawablySteps,
+  drawablyTabs,
+  drawablyTooltip,
+  type DrawablyPagerOptions,
+  type DrawablyTabsOptions,
+  type PagerSketch,
+  type TabsSketch,
+} from "./composites.js";
+export {
   type RoughOptions,
   roughArrow,
   roughCheckmark,

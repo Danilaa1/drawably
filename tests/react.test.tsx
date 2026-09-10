@@ -121,3 +121,30 @@ it("form set wrappers render native fields inside sketched wrappers", () => {
   expect(host.querySelector("span.drawably-badge--scribble path.drawably-scribble")).toBeTruthy();
   expect(host.querySelectorAll("ul.drawably-list li > svg")).toHaveLength(2);
 });
+
+it("composites mount and unmount through the React wrappers", async () => {
+  const { DrawablyAlert, DrawablyChip, DrawablyKbd, DrawablyPager, DrawablyQuote, DrawablySteps, DrawablyTabs, DrawablyTooltip } = await import("../src/react.js");
+  function Demo() {
+    const target = useRef<HTMLButtonElement>(null);
+    return (
+      <>
+        <DrawablyChip seed={1} defaultChecked>pen</DrawablyChip>
+        <DrawablyTabs seed={1} active={1}><span>a</span><span>b</span></DrawablyTabs>
+        <button ref={target}>t</button>
+        <DrawablyTooltip seed={1} to={target}>tip</DrawablyTooltip>
+        <DrawablyAlert seed={1}><span data-tag>new</span> hi</DrawablyAlert>
+        <DrawablySteps seed={1}><li>a</li></DrawablySteps>
+        <DrawablyKbd seed={1}>K</DrawablyKbd>
+        <DrawablyQuote seed={1}><span>q</span><footer>f</footer></DrawablyQuote>
+        <DrawablyPager seed={1} active={0}><button>1</button><button>2</button></DrawablyPager>
+      </>
+    );
+  }
+  act(() => root.render(<Demo />));
+  for (const cls of ["drawably-chip", "drawably-tabs", "drawably-tooltip", "drawably-alert", "drawably-steps", "drawably-kbd", "drawably-quote", "drawably-pager"])
+    expect(host.querySelector(`.${cls}`), cls).not.toBeNull();
+  expect(host.querySelector(".drawably-tabs > :nth-child(2)")?.classList.contains("drawably-underline")).toBe(true);
+  act(() => root.unmount());
+  expect(host.querySelectorAll("svg.drawably-svg")).toHaveLength(0);
+  expect(document.body.querySelector("svg.drawably-arrow")).toBeNull();
+});

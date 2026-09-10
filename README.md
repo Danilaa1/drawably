@@ -2,7 +2,7 @@
 
 Hand-drawn UI controls. Every mount generates a fresh pen sketch from seeded
 randomness, and the stroke boils like an animated doodle. Zero dependencies,
-~7 KB of JS gzipped (React wrappers add under 1 KB) and a 3 KB stylesheet. An
+~9 KB of JS gzipped (React wrappers add under 1 KB) and a 3 KB stylesheet. An
 optional pen font is a separate 31 KB.
 
 ![Buttons, checkbox, radio and toggle drawn in a boiling pen stroke](assets/demo.svg)
@@ -122,6 +122,35 @@ import { DrawablyUnderline, DrawablyHighlight, DrawablyCircle, DrawablyArrow } f
 A decoration that wraps onto several lines gets one drawing per line. The
 arrow's SVG is appended to `<body>` in document coordinates and redraws on
 resize. Anchors inside a scrolling container will drift as it scrolls.
+
+## Composites
+
+Pieces built from the controls above. One `seed` reproduces every stroke in
+the piece; `destroy()` tears them all down.
+
+| Function | Markup | Draws |
+| --- | --- | --- |
+| `drawablyChip(el, opts)` | `<label><span><input type="checkbox"></span> text</label>` | badge around the chip, sketched box on the input's wrapper |
+| `drawablyTabs(el, opts)` | children are the tabs | underline on the active tab; `active` index or `aria-selected="true"`; `setActive(i)` |
+| `drawablyTooltip(tip, target, opts)` | two elements | card around the tip, arrow to the target |
+| `drawablyAlert(el, opts)` | optional `[data-tag]` child | card around the alert, badge on the tag |
+| `drawablySteps(el, opts)` | `<ol>` | check-marked list |
+| `drawablyKbd(el, opts)` | `<kbd>` | badge with a steadier hand |
+| `drawablyQuote(el, opts)` | first element child, optional `<footer>` | highlight on the line, divider on the footer |
+| `drawablyPager(el, opts)` | child `<button>`s | outlined pages, solid current; `active` index or `aria-current`; `setPage(i)` |
+
+```jsx
+import { DrawablyChip, DrawablyTabs, DrawablyTooltip, DrawablyAlert, DrawablySteps, DrawablyKbd, DrawablyQuote, DrawablyPager } from "drawably/react";
+
+<DrawablyChip defaultChecked>pen</DrawablyChip>
+<DrawablyTabs active={tab}><span>a</span><span>b</span></DrawablyTabs>
+<DrawablyTooltip to={buttonRef}>undo</DrawablyTooltip>
+<DrawablyAlert><span data-tag>new</span> Import from Attio lands Friday</DrawablyAlert>
+<DrawablySteps><li>record</li><li>label</li></DrawablySteps>
+<DrawablyKbd>⌘K</DrawablyKbd>
+<DrawablyQuote><span>less, but better</span><footer>Rams</footer></DrawablyQuote>
+<DrawablyPager active={page}><button>‹</button><button>1</button><button>›</button></DrawablyPager>
+```
 
 ## Options
 

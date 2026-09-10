@@ -352,3 +352,69 @@
     transition: none;
   }
 }
+
+/* composites */
+.drawably-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 6px;
+  cursor: pointer;
+}
+
+.drawably-chip .drawably-checkbox {
+  scale: 0.8;
+}
+
+.drawably-tabs {
+  display: flex;
+  gap: 18px;
+}
+
+.drawably-tabs > * {
+  cursor: pointer;
+}
+
+.drawably-tooltip {
+  display: inline-block;
+  padding: 2px 10px;
+}
+
+.drawably-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: 100%;
+  padding: 8px 12px;
+}
+
+.drawably-alert [data-tag] {
+  padding: 1px 6px;
+}
+
+.drawably-kbd {
+  padding: 2px 8px;
+  font:
+    500 13px/1.4 Geist Mono,
+    ui-monospace,
+    monospace;
+}
+
+.drawably-quote {
+  margin: 0;
+}
+
+.drawably-quote footer {
+  margin-top: 10px;
+  padding-top: 8px;
+}
+
+.drawably-pager {
+  display: flex;
+  gap: 6px;
+}
+
+.drawably-pager > button {
+  min-width: 34px;
+}
