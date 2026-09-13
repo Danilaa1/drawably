@@ -1,10 +1,29 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { useRef } from "react";
+import { useRef, StrictMode } from "react";
+import { DrawablyPieChart } from "../src/react.js";
 import { DrawablyArrow, DrawablyBadge, DrawablyButton, DrawablyCheckbox, DrawablyCircle, DrawablyHighlight, DrawablyList, DrawablySelect, DrawablyTextarea, DrawablyUnderline } from "../src/react.js";
 
 (globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
+
+it("DrawablyPieChart updates data, forwards native props and cleans up in StrictMode", () => {
+  const data = [{ label: "A", value: 60 }, { label: "B", value: 40 }];
+  const render = (values = data, className = "first") => act(() => root.render(
+    <StrictMode><DrawablyPieChart data={values} seed={42} boil={0} className={className} aria-label="Reasons" /></StrictMode>,
+  ));
+  render();
+  expect(host.querySelectorAll(".drawably-pie-chart")).toHaveLength(1);
+  expect(host.querySelector("[aria-label=Reasons]")?.className).toBe("first");
+  const original = host.querySelector(".drawably-outline")?.getAttribute("d");
+  render([{ label: "A", value: 25 }, { label: "B", value: 75 }]);
+  expect(host.textContent).toContain("A: 25%");
+  render(data, "second");
+  expect(host.querySelector(".drawably-outline")?.getAttribute("d")).toBe(original);
+  expect(host.querySelector("[aria-label=Reasons]")?.className).toBe("second");
+  act(() => root.render(<span />));
+  expect(host.querySelector("svg")).toBeNull();
+});
 
 let host: HTMLDivElement;
 let root: Root;

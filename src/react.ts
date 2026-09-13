@@ -13,6 +13,8 @@ import {
   type DrawablyButtonOptions,
   type DrawablyListOptions,
   type DrawablyOptions,
+  type DrawablyPieChartOptions,
+  type PieChartSketch,
   drawablyArrow,
   drawablyBadge,
   drawablyButton,
@@ -23,6 +25,7 @@ import {
   drawablyHighlight,
   drawablyInput,
   drawablyList,
+  drawablyPieChart,
   drawablyRadio,
   drawablySelect,
   drawablyTextarea,
@@ -129,6 +132,18 @@ export function DrawablyCard({ seed, roughness, boil, stroke, fill, paper, width
 }
 
 type SpanProps = DrawablyOptions & ComponentProps<"span">;
+
+export type DrawablyPieChartProps = DrawablyPieChartOptions & Omit<ComponentProps<"div">, "children" | "dangerouslySetInnerHTML">;
+
+export function DrawablyPieChart({ data, showLegend, seed, roughness, boil, stroke, fill, paper, width, className, ...rest }: DrawablyPieChartProps): ReactElement {
+  const sketchRef = useRef<PieChartSketch | null>(null);
+  const ref = useSketch<HTMLDivElement>(
+    el => (sketchRef.current = drawablyPieChart(el, { data, showLegend, seed, roughness, boil, stroke, fill, paper, width })),
+    [showLegend, seed, roughness, boil, stroke, fill, paper, width, className],
+  );
+  useEffect(() => { sketchRef.current?.setData(data); }, [data]);
+  return createElement("div", { ...rest, className, ref });
+}
 
 function decoration(attach: (el: HTMLSpanElement, opts: DrawablyOptions) => Sketch) {
   return function Decoration({ seed, roughness, boil, stroke, fill, paper, width, className, children, ...rest }: SpanProps): ReactElement {

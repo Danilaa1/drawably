@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drawably · Pie chart</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../font/font.css">
+  <style>
+    * { box-sizing: border-box; }
+    :root { color-scheme: light; --drawably-paper: #e3e3e1; --drawably-stroke: #2724d1; }
+    body { margin: 0; padding: 40px 24px; background: var(--drawably-paper); color: #34322e; font: 18px/1.5 "Drawably Pen", system-ui, sans-serif; }
+    main { max-width: 900px; margin: auto; }
+    h1 { font: inherit; font-size: 42px; margin: 0; color: #2724d1; }
+    .intro { margin: 6px 0 32px; }
+    .layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 64px; align-items: start; }
+    #chart { max-width: 380px; width: 100%; margin: auto; }
+    h2 { font: inherit; font-size: 25px; margin: 0 0 18px; }
+    .values { display: grid; grid-template-columns: minmax(0,1fr) 70px; gap: 14px 18px; align-items: center; }
+    label { min-width: 0; }
+    input[type=number] { font: inherit; width: 100%; padding: 5px 7px; border: 1px solid #77716a; border-radius: 3px; background: transparent; color: inherit; }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; margin: 24px 0; }
+    .drawably-button { font: inherit; }
+    .check { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
+    .note { font-size: 16px; margin: 24px 0 0; }
+    #error { color: #b32220; }
+    @media(max-width:680px) { body { padding: 24px 18px; } .layout { grid-template-columns: minmax(0,1fr); gap: 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>A pie chart, in pen.</h1>
+    <p class="intro">Drawably's own strokes. Your data.</p>
+    <div class="layout">
+      <div id="chart" aria-label="Reasons"></div>
+      <section aria-labelledby="edit-title">
+        <h2 id="edit-title">Make it yours</h2>
+        <form id="data-form">
+          <div class="values">
+            <label for="excitement">Overexcitement and frustration</label><input id="excitement" type="number" min="0" step="any" value="60" required>
+            <label for="habit">Learned habit</label><input id="habit" type="number" min="0" step="any" value="40" required>
+            <label for="fear">Fear</label><input id="fear" type="number" min="0" step="any" value="0" required>
+            <label for="aggression">Aggression</label><input id="aggression" type="number" min="0" step="any" value="0" required>
+          </div>
+          <div class="actions"><button id="update" type="submit">Update chart</button><button id="resketch" type="button">Re-sketch</button></div>
+          <p id="error" role="alert" hidden></p>
+        </form>
+        <label class="check"><input id="boil" type="checkbox"> Animate pen strokes</label>
+        <label class="check"><input id="legend" type="checkbox" checked> Show legend</label>
+        <p id="status" class="note" aria-live="polite">Values are converted to percentages. Zero values stay in the legend.</p>
+      </section>
+    </div>
+  </main>
+  <script type="module">
+    import { drawablyPieChart, drawablyButton, randomSeed } from '../dist/index.js';
+    const labels = ['Overexcitement and frustration', 'Learned habit', 'Fear', 'Aggression'];
+    const ids = ['excitement', 'habit', 'fear', 'aggression'];
+    const host = document.getElementById('chart');
+    const boil = document.getElementById('boil'), legend = document.getElementById('legend');
+    const error = document.getElementById('error'), status = document.getElementById('status');
+    let data = labels.map((label,i) => ({ label, value: document.getElementById(ids[i]).valueAsNumber }));
+    let seed = 42, chart;
+    function attach() { chart?.destroy(); chart = drawablyPieChart(host, { data, seed, boil: boil.checked ? .3 : 0, showLegend: legend.checked }); }
+    attach();
+    for (const id of ['update','resketch']) drawablyButton(document.getElementById(id), { seed: 42, boil: 0 });
+    document.getElementById('data-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const next = labels.map((label,i) => ({ label, value: document.getElementById(ids[i]).valueAsNumber }));
+      try { chart.setData(next); data = next; error.hidden = true; status.textContent = 'Chart updated.'; }
+      catch (e) { error.textContent = e.message; error.hidden = false; }
+    });
+    document.getElementById('resketch').addEventListener('click', () => { seed = randomSeed(); chart.resketch(seed); });
+    boil.addEventListener('change', attach);
+    legend.addEventListener('change', attach);
+  </script>
+</body>
+</html>

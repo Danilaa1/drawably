@@ -89,6 +89,24 @@ export function roughCircle(cx: number, cy: number, r: number, o: RoughOptions):
   return roughEllipse(cx, cy, r, r, o);
 }
 
+/** Clockwise angles in radians, measured from the positive x axis. */
+export function roughPieSlice(
+  cx: number, cy: number, r: number, start: number, end: number, o: RoughOptions,
+): string {
+  if (![cx, cy, r, start, end].every(Number.isFinite) || r < 0)
+    throw new Error("drawably: pie geometry must be finite with a non-negative radius");
+  const sweep = end - start;
+  if (r === 0 || sweep <= 0) return "";
+  if (sweep >= Math.PI * 2) return roughCircle(cx, cy, r, o);
+  // Match the renderer's 8px sampling while retaining the radial corners.
+  const arc = arcPoints(cx, cy, r, start, end, Math.max(2, Math.ceil(r * sweep / 8)));
+  const first = arc[0], last = arc[arc.length - 1];
+  return doubleStroke([
+    ...sampleLine(cx, cy, ...first), ...arc,
+    ...sampleLine(...last, cx, cy), [cx, cy],
+  ], o, true);
+}
+
 export function roughEllipse(
   cx: number,
   cy: number,

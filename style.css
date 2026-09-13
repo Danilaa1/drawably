@@ -418,3 +418,49 @@
 .drawably-pager > button {
   min-width: 34px;
 }
+
+/* Charts reserve space in HTML; their SVG remains decorative chrome. */
+.drawably-pie-chart {
+  min-width: 0;
+}
+
+.drawably-pie-plot {
+  width: 100%;
+  aspect-ratio: 1;
+  font: inherit;
+}
+
+.drawably-pie-label, .drawably-pie-empty {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.drawably-pie-label {
+  padding: 0.1em 0.3em;
+  border-radius: 50%;
+  background: var(--drawably-paper, #e3e3e1);
+}
+
+.drawably-pie-empty { left: 50%; top: 50%; }
+
+.drawably-pie-legend {
+  list-style: none;
+  margin: 1em 0 0;
+  padding: 0;
+}
+
+.drawably-pie-legend li { display: flex; align-items: baseline; gap: 0.6em; margin: 0.4em 0; overflow-wrap: anywhere; }
+.drawably-pie-legend li > span:last-child { min-width: 0; }
+.drawably-pie-swatch { flex: 0 0 0.65em; height: 0.65em; background: var(--drawably-ink); border-radius: 43% 51% 40% 48%; }
+
+.drawably-pie-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

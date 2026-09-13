@@ -6,6 +6,7 @@ import {
   roughCircle,
   roughEllipse,
   roughLine,
+  roughPieSlice,
   roughRoundedRect,
   scribbleFill,
   variants,
@@ -220,6 +221,171 @@ export function drawablyCard(el: HTMLElement, opts: DrawablyOptions = {}): Sketc
   const sketch = attachChrome(el, [{ className: "drawably-outline", gen: outlineRect(10) }], opts, false);
   el.classList.add("drawably-card");
   return sketch;
+}
+
+export interface DrawablyPieDatum {
+  label: string;
+  value: number;
+  /** CSS colour, including var(...); otherwise uses --drawably-series-1 through -6. */
+  color?: string;
+}
+
+export interface DrawablyPieChartOptions extends DrawablyOptions {
+  data: readonly DrawablyPieDatum[];
+  showLegend?: boolean;
+}
+
+export interface PieChartSketch extends Sketch {
+  setData(data: readonly DrawablyPieDatum[]): void;
+}
+
+let pieId = 0;
+const PIE_TURN = Math.PI * 2;
+const PIE_PALETTE = ["var(--drawably-stroke, #2724d1)", "#0f766e", "#b45309", "#8852aa", "#d12724", "#6e675f"];
+
+function pieData(data: readonly DrawablyPieDatum[]): DrawablyPieDatum[] {
+  if (!Array.isArray(data) || data.some(d => !d || typeof d.label !== "string" ||
+    typeof d.value !== "number" || !Number.isFinite(d.value) || d.value < 0 ||
+    (d.color !== undefined && typeof d.color !== "string")))
+    throw new Error("drawably: pie data requires labels and finite, non-negative values");
+  return data.map(d => ({ ...d }));
+}
+
+function piePercent(share: number): string {
+  if (share > 0 && share < 0.001) return "<0.1%";
+  return `${Math.round(share * 1000) / 10}%`;
+}
+
+/** Appends an owned plot and native HTML legend; preserves existing host content. */
+export function drawablyPieChart(el: HTMLElement, opts: DrawablyPieChartOptions): PieChartSketch {
+  if (!(el instanceof HTMLElement)) throw new Error("drawably: expected an HTMLElement");
+  let data = pieData(opts?.data);
+  const roughness = opts.roughness ?? 1, boil = opts.boil ?? 0.3;
+  if (![roughness, boil, opts.width ?? 2].every(v => Number.isFinite(v) && v >= 0))
+    throw new Error("drawably: pie roughness, boil and width must be finite and non-negative");
+  let seed = opts.seed ?? randomSeed(), destroyed = false;
+  const id = `drawably-pie-${++pieId}`;
+  const wrapper = document.createElement("div");
+  wrapper.className = "drawably-pie-chart";
+  applyTheme(wrapper, opts);
+  const plot = document.createElement("div");
+  plot.className = "drawably-host drawably-pie-plot";
+  const svg = createSvg();
+  svg.setAttribute("focusable", "false");
+  plot.append(svg);
+  const legend = document.createElement("ul");
+  legend.className = opts.showLegend === false ? "drawably-pie-legend drawably-pie-hidden" : "drawably-pie-legend";
+  legend.setAttribute("aria-label", "Chart data");
+  wrapper.append(plot, legend);
+  el.append(wrapper);
+
+  function draw() {
+    if (destroyed) return;
+    // The HTML plot reserves its square before SVG exists, including hidden mounts.
+    const size = plot.clientWidth || 300;
+    const center = size / 2;
+    const inset = Math.max(INSET, roughness * 3 + boil + (opts.width ?? 2));
+    const radius = Math.max(0, center - inset);
+    svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+    svg.replaceChildren();
+    plot.querySelectorAll(".drawably-pie-label, .drawably-pie-empty").forEach(n => n.remove());
+    legend.replaceChildren();
+    const defs = document.createElementNS(SVG_NS, "defs");
+    svg.append(defs);
+    // Scaling before summation also accepts finite values whose raw total overflows.
+    const max = data.reduce((m, d) => Math.max(m, d.value), 0);
+    const total = max ? data.reduce((s, d) => s + d.value / max, 0) : 0;
+    let start = -Math.PI / 2;
+
+    data.forEach((datum, index) => {
+      const share = total ? (datum.value / max) / total : 0;
+      const slot = index % PIE_PALETTE.length;
+      const color = datum.color ?? `var(--drawably-series-${slot + 1}, ${PIE_PALETTE[slot]})`;
+      const item = document.createElement("li");
+      const swatch = document.createElement("span");
+      swatch.className = "drawably-pie-swatch";
+      swatch.style.setProperty("--drawably-ink", color);
+      swatch.setAttribute("aria-hidden", "true");
+      const label = document.createElement("span");
+      label.textContent = `${datum.label}: ${piePercent(share)}`;
+      item.append(swatch, label);
+      legend.append(item);
+      if (!share || !radius) return;
+      const end = start + share * PIE_TURN;
+      const group = document.createElementNS(SVG_NS, "g");
+      group.classList.add("drawably-pie-slice");
+      group.dataset.index = String(index);
+      group.style.setProperty("--drawably-ink", color);
+      const clip = document.createElementNS(SVG_NS, "clipPath");
+      clip.id = `${id}-${index}`;
+      clip.setAttribute("clipPathUnits", "userSpaceOnUse");
+      // Exact geometry clips the scribble; randomness changes only its pen strokes.
+      if (share === 1) {
+        const circle = document.createElementNS(SVG_NS, "circle");
+        circle.setAttribute("cx", String(center)); circle.setAttribute("cy", String(center));
+        circle.setAttribute("r", String(radius)); clip.append(circle);
+      } else {
+        const path = document.createElementNS(SVG_NS, "path");
+        path.setAttribute("d", `M${center} ${center} L${center + radius * Math.cos(start)} ${center + radius * Math.sin(start)} A${radius} ${radius} 0 ${share > 0.5 ? 1 : 0} 1 ${center + radius * Math.cos(end)} ${center + radius * Math.sin(end)} Z`);
+        clip.append(path);
+      }
+      defs.append(clip);
+      const hatch = document.createElementNS(SVG_NS, "g");
+      hatch.setAttribute("clip-path", `url(#${clip.id})`);
+      group.append(hatch);
+      const o = { seed: seed + index, roughness, boil };
+      const layers = [
+        { parent: hatch, cls: "drawably-scribble", gen: (ro: RoughOptions) => scribbleFill(center - radius, center - radius, radius * 2, radius * 2, ro) },
+        { parent: group, cls: "drawably-outline", gen: (ro: RoughOptions) => roughPieSlice(center, center, radius, start, end, ro) },
+      ];
+      for (const layer of layers) {
+        const frames = variants(layer.gen, o, boil ? 3 : 1);
+        frames.forEach((d, i) => {
+          const path = document.createElementNS(SVG_NS, "path");
+          path.setAttribute("d", d);
+          path.setAttribute("class", `${layer.cls}${boil ? " drawably-boil" : ""}`);
+          path.dataset.i = String(i);
+          layer.parent.append(path);
+        });
+      }
+      svg.append(group);
+      // Only label wedges with room for a 3em percentage; every value stays in HTML.
+      const mid = (start + end) / 2, labelRadius = share === 1 ? 0 : radius * 0.62;
+      const labelWidth = (parseFloat(getComputedStyle(plot).fontSize) || 16) * 3;
+      if (share === 1 || (share >= 0.08 && labelRadius * (end - start) >= labelWidth)) {
+        const value = document.createElement("span");
+        value.className = "drawably-pie-label";
+        value.setAttribute("aria-hidden", "true");
+        value.textContent = piePercent(share);
+        value.style.left = `${(center + labelRadius * Math.cos(mid)) / size * 100}%`;
+        value.style.top = `${(center + labelRadius * Math.sin(mid)) / size * 100}%`;
+        plot.append(value);
+      }
+      start = end;
+    });
+    if (!total) {
+      const empty = document.createElement("span");
+      empty.className = "drawably-pie-empty";
+      empty.textContent = "No data";
+      plot.append(empty);
+    }
+  }
+  draw();
+  const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(draw);
+  observer?.observe(plot);
+  // A late opt-in font can change which labels fit without changing the plot's box.
+  const fonts = document.fonts;
+  fonts?.addEventListener("loadingdone", draw);
+  return {
+    resketch(nextSeed) { if (!destroyed) { seed = nextSeed ?? randomSeed(); draw(); } },
+    setData(nextData) { if (!destroyed) { data = pieData(nextData); draw(); } },
+    destroy() {
+      destroyed = true;
+      observer?.disconnect();
+      fonts?.removeEventListener("loadingdone", draw);
+      wrapper.remove();
+    },
+  };
 }
 
 function syncedControl(
