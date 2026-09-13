@@ -2,7 +2,8 @@
 
 Hand-drawn UI controls. Every mount generates a fresh pen sketch from seeded
 randomness, and the stroke boils like an animated doodle. Zero dependencies,
-~9 KB of JS gzipped (React wrappers add under 1 KB) and a 3 KB stylesheet. An
+~12 KB of compiled core modules gzipped (React wrappers add ~1.3 KB) and a
+~3.3 KB gzipped stylesheet. An
 optional pen font is a separate 31 KB.
 
 ![Buttons, checkbox, radio and toggle drawn in a boiling pen stroke](assets/demo.svg)
@@ -95,6 +96,58 @@ Every control has a React counterpart in `drawably/react`: `DrawablyButton`,
 `DrawablyCheckbox`, `DrawablyRadio`, `DrawablyToggle`, `DrawablyInput`,
 `DrawablyTextarea`, `DrawablySelect`, `DrawablyDivider`, `DrawablyCard`,
 `DrawablyBadge`, `DrawablyList`.
+
+## Pie chart
+
+`drawablyPieChart(el, opts)` appends a responsive, scribble-filled pie chart and
+an HTML legend to a block element. The host controls its width; the plot
+reserves a square before drawing. The SVG is decorative and the HTML legend
+exposes every label and percentage to screen readers, including zero values.
+
+```js
+import { drawablyPieChart } from "drawably";
+import "drawably/style.css";
+
+const data = [
+  { label: "Overexcitement and frustration", value: 60 },
+  { label: "Learned habit", value: 40 },
+  { label: "Fear", value: 0 },
+  { label: "Aggression", value: 0 },
+];
+const chart = drawablyPieChart(document.querySelector("#reasons"), {
+  data, seed: 42, roughness: 1, boil: 0, showLegend: true,
+});
+chart.setData(data); // update values without changing the sketch seed
+chart.resketch(7);
+chart.destroy(); // removes only the chart's own content and observers
+```
+
+React uses the same options and updates when `data` changes:
+
+```jsx
+import { DrawablyPieChart } from "drawably/react";
+
+<DrawablyPieChart data={data} seed={42} boil={0} showLegend aria-label="Reasons" />
+```
+
+- `data` is required: an array of `{ label, value, color? }`. Values are finite,
+  non-negative weights, normalized to percentages; they need not total 100.
+  Negative/non-finite values throw before modifying the chart.
+- `showLegend` defaults to `true`. When false, the legend remains available to
+  screen readers. Small slices omit interior labels to avoid collisions.
+- Zero values have legend entries but no slices. Empty/all-zero data displays
+  “No data”; a single positive value draws a full circle.
+- Per-item `color` accepts a CSS colour or `var(...)`. Alternatively, set
+  `--drawably-series-1` through `--drawably-series-6` on the host or an ancestor.
+  Colours cycle after six items; labels always identify the categories.
+- The standard `seed`, `roughness`, `boil`, `stroke`, `paper`, and `width` options
+  apply. `width` is pen-stroke thickness, not chart width. `boil: 0` is static;
+  reduced-motion preferences freeze the existing CSS animation automatically.
+- Percentages are rounded to one decimal; tiny positive shares display
+  `<0.1%`. Rounded percentages may not add to exactly 100.
+
+See [the pie chart example](examples/pie-chart.html). The optional
+`drawably/font.css` registers Drawably Pen; the chart inherits the host font.
 
 ## Text decoration
 
@@ -216,7 +269,7 @@ const frames = variants(
 // three path strings — render them and cycle opacity
 ```
 
-Also exported: `roughEllipse`, `roughArrow`, `roughCheckmark`, `scribbleFill`,
+Also exported: `roughEllipse`, `roughArrow`, `roughCheckmark`, `roughPieSlice`, `scribbleFill`,
 and the seeded PRNG `mulberry32` with `randomSeed`.
 
 ## License

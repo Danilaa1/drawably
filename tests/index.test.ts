@@ -4,6 +4,8 @@ import * as drawably from "../src/index.js";
 it("exports the public surface", () => {
   for (const name of [
     "drawablyButton",
+    "drawablyPieChart",
+    "roughPieSlice",
     "drawablyCheckbox",
     "drawablyInput",
     "drawablyCard",

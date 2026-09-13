@@ -9,6 +9,7 @@ export {
   drawablyHighlight,
   drawablyInput,
   drawablyList,
+  drawablyPieChart,
   drawablyRadio,
   drawablySelect,
   drawablyTextarea,
@@ -20,6 +21,9 @@ export {
   type DrawablyButtonState,
   type DrawablyListOptions,
   type DrawablyOptions,
+  type DrawablyPieDatum,
+  type DrawablyPieChartOptions,
+  type PieChartSketch,
   type Sketch,
 } from "./controls.js";
 export {
@@ -43,6 +47,7 @@ export {
   roughCircle,
   roughEllipse,
   roughLine,
+  roughPieSlice,
   roughRoundedRect,
   scribbleFill,
   variants,

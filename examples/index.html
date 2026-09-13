@@ -784,6 +784,14 @@
         </ol>
       </nav>
 
+      <section class="board" id="charts" aria-label="Pie chart">
+        <div>
+          <h2>Pie chart</h2>
+          <div id="pie-chart" style="width: min(100%, 340px)"></div>
+          <p><a href="./pie-chart.html">Open the interactive pie chart example</a></p>
+        </div>
+      </section>
+
       <section class="board" id="install" aria-label="Install">
         <div class="brand">
           <div class="cmd-wrap" id="install-card">
@@ -1043,6 +1051,7 @@
 
     <script type="module">
       import {
+        drawablyPieChart,
         drawablyArrow,
         drawablyBadge,
         drawablyButton,
@@ -1060,6 +1069,10 @@
         drawablyUnderline,
       } from "../dist/index.js";
 
+      drawablyPieChart(document.getElementById("pie-chart"), {
+        data: [{ label: "Overexcitement and frustration", value: 60 }, { label: "Learned habit", value: 40 }, { label: "Fear", value: 0 }, { label: "Aggression", value: 0 }],
+        seed: 42, boil: 0,
+      });
       drawablyButton(document.getElementById("done"), { variant: "solid" });
       drawablyButton(document.getElementById("cancel"), { tone: "neutral" });
       drawablyButton(document.getElementById("save"), { variant: "scribble" });

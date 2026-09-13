@@ -135,6 +135,40 @@ Built from the controls above; one `seed` covers every stroke, `destroy()` remov
 
 React: `DrawablyChip`, `DrawablyTabs` (`active`), `DrawablyTooltip` (`to` ref), `DrawablyAlert`, `DrawablySteps`, `DrawablyKbd`, `DrawablyQuote`, `DrawablyPager` (`active`).
 
+## Pie chart
+
+`drawablyPieChart(el, { data, showLegend?, ...sketchOptions })` appends a square
+responsive plot and a native HTML legend. `DrawablyPieChart` is the React
+counterpart; pass `data` and sketch options as props. It renders a div and
+accepts native div props except children and dangerouslySetInnerHTML.
+
+```js
+const chart = drawablyPieChart(el, {
+  data: [{ label: "A", value: 60 }, { label: "B", value: 40 }, { label: "C", value: 0 }],
+  seed: 42, boil: 0, showLegend: true,
+});
+chart.setData([{ label: "A", value: 25 }, { label: "B", value: 75 }]);
+chart.resketch(7);
+chart.destroy();
+```
+
+- Required `data`: `{ label: string, value: number, color?: string }[]` of
+  finite non-negative weights; normalized automatically. Invalid input throws.
+- All-zero/empty data shows “No data”. Zero values remain in the legend without
+  slices. A single positive value draws a circle without a radial seam.
+- `showLegend` defaults true; false visually hides the HTML legend but keeps
+  it accessible. SVG and interior percentage labels are decorative. Small
+  wedges omit interior labels; every percentage remains in the legend.
+- Values display at most one decimal; positive shares under 0.1% say `<0.1%`.
+- Set chart width with CSS on the host; the `width` option is stroke thickness.
+- Per-item `color` sets a CSS custom property, accepts `var(...)`. Otherwise
+  theme `--drawably-series-1` through `--drawably-series-6`; the palette cycles.
+- `setData` keeps the seed; `destroy` removes owned DOM, resize observers and
+  font listeners, preserving existing host content. React updates on data changes.
+- `roughPieSlice(cx, cy, radius, startAngle, endAngle, opts)` is a public path
+  generator. Angles are clockwise radians from the positive x axis. Zero radius
+  or non-positive sweep returns an empty path; a full turn returns a circle.
+
 ## Text decoration
 
 Decorates existing inline text; the element keeps its own layout. Use on a word or short phrase — a phrase that wraps gets one box, not one per line.
